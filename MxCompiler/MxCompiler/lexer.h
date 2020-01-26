@@ -5,7 +5,7 @@
 class Lexer {
 
 public:
-	Lexer(std::istream& _is):is(_is),line(1),col(1){
+	Lexer(std::istream& _is):is(_is),line(1),col(1),finish(Token(FINISH,defaultPos)){
 		tokens = _getTokens();
 		keywordsInit();
 	}
@@ -21,7 +21,7 @@ private:
 
 	static const std::string SYMBOLS;
 	static const PosPair defaultPos;
-
+	Token finish;
 	std::istream &is;
 	std::vector<Token*> tokens;
 	std::unordered_map<std::string, Token*> words;

@@ -21,6 +21,7 @@ std::vector<Token*> Lexer::_getTokens() {
 		}
 		else break;
 	}
+	ret.push_back(&finish);
 	return ret;
 }
 
@@ -272,7 +273,8 @@ Token *Lexer::newWord(const std::string &str, Tag _tag, const Position &st, cons
 
 void Lexer::keywordsInit() {
 	words["bool"] = new Word("bool", Bool, defaultPos);
-	words["num"] = new Word("num", Num, defaultPos);
+	words["int"] = new Word("num", Int, defaultPos);
+	words["void"] = new Word("num", Void, defaultPos);
 	words["string"] = new Word("string", String, defaultPos);
 	words["null"] = new Word("null", Null, defaultPos);
 	words["true"] = new Word("true", True, defaultPos);

@@ -33,9 +33,6 @@
     <ClInclude Include="error.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="parse.h">
-      <Filter>头文件\parser</Filter>
-    </ClInclude>
     <ClInclude Include="astnode.h">
       <Filter>头文件\parser</Filter>
     </ClInclude>
@@ -43,6 +40,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="exprHelper.h">
+      <Filter>头文件\parser</Filter>
+    </ClInclude>
+    <ClInclude Include="parser.h">
       <Filter>头文件\parser</Filter>
     </ClInclude>
   </ItemGroup>
@@ -56,10 +56,10 @@
     <ClCompile Include="main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="parse.cpp">
+    <ClCompile Include="astnode.cpp">
       <Filter>源文件\parser</Filter>
     </ClCompile>
-    <ClCompile Include="astnode.cpp">
+    <ClCompile Include="parser.cpp">
       <Filter>源文件\parser</Filter>
     </ClCompile>
   </ItemGroup>

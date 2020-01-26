@@ -119,7 +119,7 @@
     <ClInclude Include="error.h" />
     <ClInclude Include="exprHelper.h" />
     <ClInclude Include="lexer.h" />
-    <ClInclude Include="parse.h" />
+    <ClInclude Include="parser.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="position.h" />
     <ClInclude Include="token.h" />
@@ -128,7 +128,7 @@
     <ClCompile Include="astnode.cpp" />
     <ClCompile Include="lexer.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="parse.cpp" />
+    <ClCompile Include="parser.cpp" />
     <ClCompile Include="token.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

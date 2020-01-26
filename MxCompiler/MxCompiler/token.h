@@ -4,7 +4,8 @@
 
 enum Tag
 {
-	Bool, Num, String, Null, // basic types
+	Bool, Int, String, Null, // basic types
+	Void,
 	True, False,	
 	If, Else,
 	For, While, Break, Continue,
@@ -20,7 +21,8 @@ enum Tag
 	LeftIndex, RightIndex,
 	LeftBracket, RightBracket, LeftBrace, RightBrace,
 	/*Others*/
-	ID, Comma, Semicolon, ConstString,
+	ID, Comma, Semicolon, 
+	ConstString, Num,
 	FINISH
 };
 

@@ -7,8 +7,8 @@
 class Parser {
 public:
 	Parser(std::vector<Token*> &_tokens) :tks(_tokens), cur(_tokens.begin()) {}
-	astNode *getAST();
-
+	std::shared_ptr<ProgramAST> getAST();
+	bool finished() { return (*cur)->tag() == FINISH; }
 private:
  
 	OperatorCategory op;
@@ -16,6 +16,7 @@ private:
 	std::vector<Token*>::iterator cur;
 	std::unordered_map<NodeId, PosPair> node2Pos;
 
+	/********************************expression***********************************/
 	std::shared_ptr<Identifier> identifier();
 
 	// BuiltinType = Int | String | Bool
@@ -33,6 +34,8 @@ private:
 	// NewExpr = New BasicType (LeftBracket RightBracket 
 	//							| LeftIndex expr RightIndex (LeftIndex RightIndex)*)
 	std::shared_ptr<NewExpr> newExpr();
+
+	std::shared_ptr<Expression> identifierExpr();
 
 	std::shared_ptr<Expression> expression();
 
@@ -55,11 +58,74 @@ private:
 	std::shared_ptr<Expression> bitAndExpr();
 
 	std::shared_ptr<Expression> equalityExpr();
-	/*Helper functions*/
-	Tag getTag(std::vector<Token*>::iterator &iter) {
-		if (iter == tks.end()) throw Error("Parser error : invalid token.");
-		return (*iter)->tag();
-	}
+
+	std::shared_ptr<Expression> prefixUnaryExpr();
+
+	std::shared_ptr<Expression> suffixUnaryExpr();
+
+	/*
+	TopPriorityExpr
+		= BasicExpr(
+		| LeftBracket expr RightBracket
+		| Dot IdentifierExpr   
+		| Dot Identifier LeftBracket (expr % ',') RightBracket
+	*/
+	std::shared_ptr<Expression> topPriorityExpr();
+
+	/*
+	BasicExpr = IdentifierExpr
+		| Identifier LeftBracket (expr % ',') RightBracket
+		| ConstValue
+		| newExpr
+		| LeftBracket expr RightBracket
+	*/
+	std::shared_ptr<Expression> basicExpr();
+	
+	/****************************************Statements*****************************************/
+
+	// VarDeclStmt = Type Identifier (Assign Expression) ? Semicolon
+	std::shared_ptr<VarDeclStmt> varDeclStmt();
+
+	// Ifstmt = If LeftBracket expr RightBracket stmt
+	std::shared_ptr<IfStmt> ifStmt();
+
+	std::shared_ptr<ReturnStmt> returnStmt();
+
+	std::shared_ptr<BreakStmt> breakStmt();
+
+	std::shared_ptr<ContinueStmt> continueStmt();
+
+	std::shared_ptr<ForStmt> forStmt();
+
+	std::shared_ptr<WhileStmt> whileStmt();
+
+	std::shared_ptr<ExprStmt> exprStmt();
+
+	std::shared_ptr<EmptyStmt> emptyStmt();
+
+	std::shared_ptr<StmtBlock> stmtBlock();
+
+	std::shared_ptr<Statement> statement();
+	/******************************************Declarations***********************************************/
+
+	std::shared_ptr<GlobalVarDecl> globalVarDecl();
+
+	/*
+	FunctionDecl = Type Identifier LeftBracket formalDecl RightBracket Statement
+	*/
+	std::shared_ptr<FunctionDecl> functionDecl();
+
+	std::shared_ptr<ClassDecl> classDecl();
+
+	std::shared_ptr<Declaration> declaration();
+
+	/**************************************Helper functions*************************************/
+	std::vector<std::shared_ptr<Expression> > arguments();
+
+	std::vector<std::shared_ptr<VarDeclStmt> > formalArguments();
+
+	// FormalArgment = Type Identifier
+	std::shared_ptr<VarDeclStmt> formalArgument();
 
 	template<class T, class...Args>
 	std::shared_ptr<T> newNode(const Position &st, const Position &ed, Args ... args) {
