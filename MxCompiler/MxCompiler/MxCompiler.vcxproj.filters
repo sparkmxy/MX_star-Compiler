@@ -19,6 +19,12 @@
     <Filter Include="头文件\parser">
       <UniqueIdentifier>{ad83c2fe-859b-4901-9224-dff6b4d48e96}</UniqueIdentifier>
     </Filter>
+    <Filter Include="头文件\semantic">
+      <UniqueIdentifier>{80511735-d1c2-4989-b7f4-b443e78e782e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\semantic">
+      <UniqueIdentifier>{fe65a064-ed98-4568-9f17-71ec0cd84d32}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -36,14 +42,23 @@
     <ClInclude Include="astnode.h">
       <Filter>头文件\parser</Filter>
     </ClInclude>
-    <ClInclude Include="position.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="exprHelper.h">
       <Filter>头文件\parser</Filter>
     </ClInclude>
     <ClInclude Include="parser.h">
       <Filter>头文件\parser</Filter>
+    </ClInclude>
+    <ClInclude Include="position.h">
+      <Filter>头文件\parser</Filter>
+    </ClInclude>
+    <ClInclude Include="visitor.h">
+      <Filter>头文件\semantic</Filter>
+    </ClInclude>
+    <ClInclude Include="symbolTable.h">
+      <Filter>头文件\semantic</Filter>
+    </ClInclude>
+    <ClInclude Include="semanticChecker.h">
+      <Filter>头文件\semantic</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -61,6 +76,12 @@
     </ClCompile>
     <ClCompile Include="parser.cpp">
       <Filter>源文件\parser</Filter>
+    </ClCompile>
+    <ClCompile Include="symbolTable.cpp">
+      <Filter>源文件\semantic</Filter>
+    </ClCompile>
+    <ClCompile Include="semanticChecker.cpp">
+      <Filter>源文件\semantic</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
