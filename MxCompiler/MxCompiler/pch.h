@@ -9,6 +9,7 @@
 #include<memory>
 #include<fstream>
 #include<functional>
+#include<stack>
 
 #include "error.h"
 

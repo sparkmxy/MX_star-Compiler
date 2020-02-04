@@ -6,38 +6,39 @@ This file implements abstract class <Vistor>.
 #include "astnode.h"
 
 class Visitor {
-
 public:
-	virtual void visit(Identifier &) const {}
+	virtual void visit(Identifier &)  {}
 
-	virtual void visit(BasicType &) const {}
-	virtual void visit(UserDefinedType &) const {}
-	virtual void visit(ArrayType &) const {}
+	virtual void visit(BasicType &) {}
+	virtual void visit(UserDefinedType &)  {}
+	virtual void visit(ArrayType &) {}
 
 
-	virtual void visit(StringValue &) const {}
-	virtual void visit(NumValue &) const {}
-	virtual void visit(NullValue &) const {}
-	virtual void visit(BoolValue &) const {}
-	virtual void visit(IdentifierExpr &) const {}
-	virtual void visit(FuncCallExpr &) const {}
-	virtual void visit(MemberFuncCallExpr &) const {}
-	virtual void visit(NewExpr &) const {}
-	virtual void visit(UnaryExpr &) const {}
-	virtual void visit(BinaryExpr &) const {}
+	virtual void visit(StringValue &)  {}
+	virtual void visit(NumValue &)  {}
+	virtual void visit(NullValue &)  {}
+	virtual void visit(BoolValue &) {}
+	virtual void visit(IdentifierExpr &) {}
+	virtual void visit(FuncCallExpr &)  {}
+	virtual void visit(MemberFuncCallExpr &) {}
+	virtual void visit(NewExpr &) {}
+	virtual void visit(UnaryExpr &){}
+	virtual void visit(BinaryExpr &) {}
 
-	virtual void visit(IfStmt &) const {}
-	virtual void visit(WhileStmt &) const {}
-	virtual void visit(ForStmt &) const {}
-	virtual void visit(ExprStmt &) const {}
-	virtual void visit(VarDeclStmt&) const {}
-	virtual void visit(ReturnStmt&) const {}
-	virtual void visit(BreakStmt&) const {}
-	virtual void visit(ContinueStmt&) const {}
-	virtual void visit(EmptyStmt &) const {}
-	virtual void visit(StmtBlock &) const {}
+	virtual void visit(IfStmt &)  {}
+	virtual void visit(WhileStmt &) {}
+	virtual void visit(ForStmt &)  {}
+	virtual void visit(ExprStmt &)  {}
+	virtual void visit(VarDeclStmt&)  {}
+	virtual void visit(ReturnStmt&)  {}
+	virtual void visit(BreakStmt&)  {}
+	virtual void visit(ContinueStmt&)  {}
+	virtual void visit(EmptyStmt &)  {}
+	virtual void visit(StmtBlock &)  {}
 
-	virtual void visit(GlobalVarDecl &) const {}
-	virtual void visit(FunctionDecl &) const {}
-	virtual void visit(ClassDecl &) const {}
+	virtual void visit(VarDecl &)  {}
+	virtual void visit(FunctionDecl &)  {}
+	virtual void visit(ClassDecl &)  {}
+
+	virtual void visit(ProgramAST &)  {}
 };

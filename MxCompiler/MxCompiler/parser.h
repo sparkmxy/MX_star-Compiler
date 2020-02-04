@@ -108,7 +108,7 @@ private:
 	std::shared_ptr<Statement> statement();
 	/******************************************Declarations***********************************************/
 
-	std::shared_ptr<GlobalVarDecl> globalVarDecl();
+	std::shared_ptr<VarDecl> varDecl();
 
 	/*
 	FunctionDecl = Type Identifier LeftBracket formalDecl RightBracket Statement

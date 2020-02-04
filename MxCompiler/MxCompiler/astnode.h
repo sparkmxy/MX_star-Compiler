@@ -4,10 +4,11 @@ This file implements the <astNode> class family.
 */
 #include "pch.h"
 #include "position.h"
+#include "symbol.h"
 #include "visitor.h"
 
-#define ACCEPT_VISITOR void accept (const Visitor &vis) override {vis.visit(*this);}
-#define ACCEPT_VISITOR_VIRTUAL void accept (const Visitor &vis) override = 0;
+#define ACCEPT_VISITOR void accept (Visitor &vis) override {vis.visit(*this);} 
+#define ACCEPT_VISITOR_VIRTUAL void accept (Visitor &vis) override = 0;
 
 using NodeId = std::uintptr_t;
 
@@ -15,7 +16,7 @@ class astNode {
 public:
 	astNode() = default;
 	NodeId id() { return (NodeId)this; }
-	virtual void accept(const Visitor &vis) = 0;
+	virtual void accept(Visitor &vis) = 0;
 private:
 	PosPair pos;
 };
@@ -30,11 +31,15 @@ public:
 
 //Type = BasicType (LeftIndex RightIndex)*
 class Type : public astNode {
+public:
 	ACCEPT_VISITOR_VIRTUAL
+	virtual bool isArrayType() = 0;
 };
 
 class BasicType : public Type {
+public:
 	ACCEPT_VISITOR_VIRTUAL
+	bool isArrayType() override { return false; }
 };
 
 
@@ -63,7 +68,9 @@ private:
 class ArrayType : public Type {
 public:
 	ArrayType(std::shared_ptr<Type> _typeName) : typeName(_typeName) {}
+	bool isArrayType() override { return true; }
 	ACCEPT_VISITOR
+
 private:
 	std::shared_ptr<Type> typeName;
 };
@@ -71,6 +78,7 @@ private:
 /******************************************Types end here************************************************/
 
 class Expression : public astNode {
+public:
 	ACCEPT_VISITOR_VIRTUAL
 };
 
@@ -83,6 +91,7 @@ private:
 };
 
 class ConstValue : public Expression{
+public:
 	ACCEPT_VISITOR_VIRTUAL
 };
 
@@ -111,6 +120,7 @@ private:
 };
 
 class NullValue : public ConstValue {
+public:
 	ACCEPT_VISITOR_VIRTUAL
 };
 
@@ -191,6 +201,7 @@ private:
 /******************************************Expressions end here************************************************/
 
 class Statement : public astNode {
+public:
 	ACCEPT_VISITOR_VIRTUAL
 };
 
@@ -199,11 +210,15 @@ public:
 	VarDeclStmt(std::shared_ptr<Type> _type,
 		std::shared_ptr<Identifier> _id,
 		std::shared_ptr<Expression> _init = nullptr) 
-	: type(std::move(_type)), id(std::move(_id)), init(std::move(_init)) {}
+	: type(std::move(_type)), identifier(std::move(_id)), init(std::move(_init)) {}
 	ACCEPT_VISITOR
+
+	std::shared_ptr<Expression> getInitExpr() { return init; }
+	std::shared_ptr<Type> getType() { return type; }
+	std::shared_ptr<Identifier> getIdentifier() { return identifier; }
 private:
 	std::shared_ptr<Type> type;
-	std::shared_ptr<Identifier> id;
+	std::shared_ptr<Identifier> identifier;
 	std::shared_ptr<Expression> init;
 };
 
@@ -260,15 +275,18 @@ private:
 };
 
 class BreakStmt : public Statement {
+public:
 	ACCEPT_VISITOR
 };
 
 class ContinueStmt : public Statement {
+public:
 	ACCEPT_VISITOR
 };
 
 // EmptyStmt: Semicolon
 class EmptyStmt : public Statement {
+public:
 	ACCEPT_VISITOR
 };
 
@@ -285,15 +303,20 @@ private:
 /******************************************Statements end here************************************************/
 
 class Declaration : public astNode {
+public:
 	ACCEPT_VISITOR_VIRTUAL
 };
 
-class GlobalVarDecl : public Declaration {
+class VarDecl : public Declaration {
 public:
-	GlobalVarDecl(std::shared_ptr<VarDeclStmt> _stmt) : stmt(std::move(stmt)) {}
+	VarDecl(std::shared_ptr<VarDeclStmt> _stmt) : stmt(std::move(stmt)) {}
 	ACCEPT_VISITOR
+
+	std::shared_ptr<VarDeclStmt> getStmt() { return stmt; }
+	void setSymbolType(std::shared_ptr<SymbolType> _type) { typeOfSymbol = _type; }
 private:
 	std::shared_ptr<VarDeclStmt> stmt;
+	std::shared_ptr<SymbolType> typeOfSymbol;
 };
 
 class FunctionDecl : public Declaration {
@@ -330,6 +353,8 @@ public:
 	ProgramAST(std::vector<std::shared_ptr<Declaration> > _decls) 
 		:decls(std::move(_decls)) {}
 	ACCEPT_VISITOR
+
+	std::vector<std::shared_ptr<Declaration> > &getDecls(){ return decls; }
 private:
 	std::vector<std::shared_ptr<Declaration> > decls;
 };

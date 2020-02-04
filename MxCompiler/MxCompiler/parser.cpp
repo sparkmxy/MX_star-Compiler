@@ -503,11 +503,11 @@ std::shared_ptr<Statement> Parser::statement() {
 
 /******************************************Statements end here************************************************/
 
-std::shared_ptr<GlobalVarDecl> Parser::globalVarDecl() {
+std::shared_ptr<VarDecl> Parser::varDecl() {
 	auto st = (*cur)->pos().first;
 	auto stmt = varDeclStmt();
 	if (stmt == nullptr) return nullptr;
-	return newNode<GlobalVarDecl>(st,node2Pos[stmt->id()].second,stmt);
+	return newNode<VarDecl>(st,node2Pos[stmt->id()].second,stmt);
 }
 
 std::shared_ptr<FunctionDecl> Parser::functionDecl() {
@@ -587,7 +587,7 @@ std::shared_ptr<ClassDecl> Parser::classDecl() {
 }
 
 std::shared_ptr<Declaration> Parser::declaration() {
-	std::shared_ptr<Declaration> decl = globalVarDecl();
+	std::shared_ptr<Declaration> decl = varDecl();
 	if (decl != nullptr) return decl;
 	decl = functionDecl();
 	if (decl != nullptr) return decl;

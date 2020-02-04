@@ -122,17 +122,19 @@
     <ClInclude Include="parser.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="position.h" />
+    <ClInclude Include="scope.h" />
     <ClInclude Include="semanticChecker.h" />
+    <ClInclude Include="symbol.h" />
     <ClInclude Include="symbolTable.h" />
     <ClInclude Include="token.h" />
     <ClInclude Include="visitor.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="astnode.cpp" />
     <ClCompile Include="lexer.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="parser.cpp" />
     <ClCompile Include="semanticChecker.cpp" />
+    <ClCompile Include="symbol.cpp" />
     <ClCompile Include="symbolTable.cpp" />
     <ClCompile Include="token.cpp" />
   </ItemGroup>
