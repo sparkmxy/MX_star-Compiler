@@ -10,6 +10,6 @@ public:
 	}
 	bool check();
 private:
-	void visit(ProgramAST & program) override;
+	void visit(ProgramAST *program) override;
 };
 

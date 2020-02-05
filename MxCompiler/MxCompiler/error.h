@@ -1,23 +1,29 @@
 #pragma once
 
 #include "pch.h"
+#include "position.h"
 
 class Error {
 public:
-	Error(const std::string &_msg) :msg(_msg) {}
-	virtual std::string what() { return msg; }
-
+	Error(const std::string &_msg, const Position &_pos)
+		:msg(_msg), pos(_pos) {}
+	virtual std::string what() { return msg;}
 protected:
 	std::string msg;
+	Position pos;
 };
 
 class SyntaxError : public Error {
 public:
-	SyntaxError(const std::string &msg, const Position &_pos)
-		:Error(msg), pos(_pos) {}
+	SyntaxError(const std::string &_msg, const Position &_pos)
+		:Error(_msg,_pos){}
 	std::string what() { return msg + " at " + pos.toString(); }
-private:
-	Position pos;
 };
 
 
+class SemanticError : public Error {
+public:
+	SemanticError(const std::string &_msg, const Position &_pos)
+		:Error(_msg, _pos) {}
+	std::string what() override { return "Semantic error: " + msg + " at " + pos.toString(); }
+};

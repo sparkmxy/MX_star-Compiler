@@ -5,9 +5,7 @@
 
 class SymbolTable : Visitor{
 public:
-	SymbolTable() {
-
-	}
+	SymbolTable();
 private:
 	std::shared_ptr<GlobalScope> globalScope;
 	std::shared_ptr<Scope> currentScope;
@@ -16,8 +14,9 @@ private:
 
 	//This is for <break> and <continue> statement 
 	std::stack<std::shared_ptr<Statement> > loops;
-	void visit(ProgramAST & program) override;
-	void visit(VarDecl &node) override;
-	void visit(VarDeclStmt & node) override;
-	void visit(FunctionDecl & node)override;
+	void visit(ProgramAST *node) override;
+	void visit(VarDecl *node) override;
+	void visit(VarDeclStmt *node) override;
+	void visit(FunctionDecl *node)override;
+	void visit(ClassDecl *node)override;
 };

@@ -133,6 +133,7 @@
     <ClCompile Include="lexer.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="parser.cpp" />
+    <ClCompile Include="scope.cpp" />
     <ClCompile Include="semanticChecker.cpp" />
     <ClCompile Include="symbol.cpp" />
     <ClCompile Include="symbolTable.cpp" />
