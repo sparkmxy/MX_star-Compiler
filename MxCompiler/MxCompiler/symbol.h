@@ -104,10 +104,12 @@ public:
 	void define(std::shared_ptr<Symbol> symbol) override;
 	std::shared_ptr<Symbol> resolve(const std::string &id) override;
 
-
+	std::shared_ptr<FunctionSymbol> getConstructor() { return constructor; };
+	void setConstructor(std::shared_ptr<FunctionSymbol> _constructor) { constructor = _constructor; }
 private:
 	std::unordered_map<std::string, std::shared_ptr<VarSymbol> >  memberVars;
 	std::unordered_map<std::string, std::shared_ptr<FunctionSymbol> >  memberFuncs;
+	std::shared_ptr<FunctionSymbol> constructor;
 };
 
 class FunctionSymbol : public ScopedSymbol {

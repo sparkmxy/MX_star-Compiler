@@ -10,6 +10,8 @@ public:
 	}
 	bool check();
 private:
+
+	//override functions
 	void visit(ProgramAST *program) override;
 };
 

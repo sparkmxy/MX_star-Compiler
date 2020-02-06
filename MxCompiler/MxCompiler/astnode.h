@@ -96,17 +96,24 @@ public:
 class IdentifierExpr : public Expression{
 public:
 	IdentifierExpr(std::shared_ptr<Identifier> _id) :id(std::move(_id)) {}
+	
+	std::shared_ptr<Identifier> getIdentifier() { return id;}
+	std::shared_ptr<Symbol> getSymbol() { return symbol; }
+
+	void setSymbol(std::shared_ptr<Symbol> _symbol) { symbol = _symbol; }
+	
 	ACCEPT_VISITOR
 private:
 	std::shared_ptr<Identifier> id;
+	std::shared_ptr<Symbol> symbol;
 };
 
-class ConstValue : public Expression, public std::enable_shared_from_this<ConstValue> {
+class ConstValue : public Expression{
 public:
 	ACCEPT_VISITOR_VIRTUAL
 };
 
-class BoolValue : public ConstValue, public std::enable_shared_from_this<BoolValue> {
+class BoolValue : public ConstValue {
 public:
 	BoolValue(bool v) : value(v) {}
 	ACCEPT_VISITOR
@@ -114,7 +121,7 @@ private:
 	bool value;
 };
 
-class StringValue : public ConstValue, public  std::enable_shared_from_this<StringValue> {
+class StringValue : public ConstValue{
 public:
 	StringValue(const std::string &_str) :str(_str) {}
 	ACCEPT_VISITOR
@@ -139,10 +146,18 @@ class NewExpr : public Expression {
 public:
 	NewExpr(std::shared_ptr<Type>_type, std::vector<std::shared_ptr<Expression> > v)
 		:type(std::move(_type)),dimensions(std::move(v)){}
+	
+	std::shared_ptr<SymbolType> getSymbolType() { return symbolType; }
+	std::shared_ptr<Type> getBaseType() { return type; }
+	std::vector<std::shared_ptr<Expression> > getDimensions() { return dimensions; }
+	
+	void setSymbolType(std::shared_ptr<SymbolType> _symbol) { symbolType = _symbol; }
 	ACCEPT_VISITOR
 private:
 	std::shared_ptr<Type> type;
 	std::vector<std::shared_ptr<Expression> > dimensions;
+	
+	std::shared_ptr<SymbolType> symbolType;
 };
 
 class UnaryExpr : public Expression{
@@ -156,6 +171,7 @@ public:
 	UnaryExpr(Operator _op, std::shared_ptr<Expression> _oprand) :
 		op(_op), oprand(std::move(_oprand)) {}
 
+	std::shared_ptr<Expression> getOprand() { return oprand; }
 	ACCEPT_VISITOR
 private:
 	Operator op;
@@ -177,35 +193,45 @@ public:
 	BinaryExpr(Operator _op, std::shared_ptr<Expression> _oprand1, std::shared_ptr<Expression> _oprand2)
 		:op(_op), oprand1(std::move(_oprand1)), oprand2(std::move(_oprand2)) {}
 
+	std::shared_ptr<Expression> getLHS() { return oprand1; }
+	std::shared_ptr<Expression> getRHS() { return oprand2; }
 	ACCEPT_VISITOR
 private:
 	Operator op;
 	std::shared_ptr<Expression> oprand1, oprand2;
 };
 
-class FuncCallExpr : public Expression{
+class FuncCallExpr : public Expression {
 public:
-	FuncCallExpr(std::shared_ptr<Identifier> _funcName, 
+	FuncCallExpr(std::shared_ptr<Identifier> _funcName,
 		std::vector<std::shared_ptr<Expression> > _args)
 		:funcName(std::move(_funcName)), args(std::move(_args)) {}
 
+	std::vector<std::shared_ptr<Expression> > getArgs() { return args; }
+	std::shared_ptr<Identifier> getIdentifier() { return funcName; }
+	std::shared_ptr<FunctionSymbol> getFuncSymbol() { return funcSymbol; }
+
+	void setFuncSymbol(std::shared_ptr<FunctionSymbol> _funcSymbol) { funcSymbol = _funcSymbol; }
+	
 	ACCEPT_VISITOR
 private:
 	std::shared_ptr<Identifier> funcName;
 	std::vector<std::shared_ptr<Expression> > args;
+
+	std::shared_ptr<FunctionSymbol> funcSymbol;
+
 };
 
-class MemberFuncCallExpr : public Expression{
+class MemberFuncCallExpr : public FuncCallExpr{
 public:
 	MemberFuncCallExpr(std::shared_ptr<Expression> _instance, std::shared_ptr<Identifier> _funcName,
 		std::vector<std::shared_ptr<Expression> > _args)
-		:funcName(std::move(_funcName)),args(std::move(_args)),
+		:FuncCallExpr(std::move(_funcName),std::move(_args)),
 		instance(std::move(_instance)){}
 
+	std::shared_ptr<Expression> getInstance() { return instance; }
 	ACCEPT_VISITOR
 private:
-	std::shared_ptr<Identifier> funcName;
-	std::vector<std::shared_ptr<Expression> > args;
 	std::shared_ptr<Expression> instance;
 };
 
@@ -229,12 +255,15 @@ public:
 	std::shared_ptr<Identifier> getIdentifier() { return identifier; }
 
 	void setVarSymbol(std::shared_ptr<VarSymbol> _varSymbol) { varSymbol = _varSymbol; }
+	void setSymbolType(std::shared_ptr<SymbolType> _type) { typeOfSymbol = _type; }
+
 private:
 	std::shared_ptr<Type> type;
 	std::shared_ptr<Identifier> identifier;
 	std::shared_ptr<Expression> init;
 	
 	std::shared_ptr<VarSymbol> varSymbol;
+	std::shared_ptr<SymbolType> typeOfSymbol;
 };
 
 class IfStmt : public Statement {
@@ -243,6 +272,10 @@ public:
 		std::shared_ptr<Statement> _then,
 		std::shared_ptr<Statement> _ELSE = nullptr)
 		:condition(_condition), then(_then), ELSE(_ELSE) {}
+	
+	std::shared_ptr<Expression> getCondition() { return condition; };
+	std::shared_ptr<Statement> getThen() { return then;}
+	std::shared_ptr<Statement> getElse() { return ELSE;}
 	ACCEPT_VISITOR
 private:
 	std::shared_ptr<Expression> condition;
@@ -256,6 +289,10 @@ public:
 		std::shared_ptr<Statement> _body, std::shared_ptr<Expression> _cond)
 		:init(std::move(init)), condition(std::move(_cond)), iter(std::move(_iter)),
 			body(std::move(_body)) {}
+	std::shared_ptr<Expression> getCondition() { return condition; }
+	std::shared_ptr<Statement> getInit() { return init; }
+	std::shared_ptr<Statement> getBody() { return body; }
+	std::shared_ptr<Statement> getIter() { return iter; }
 	ACCEPT_VISITOR
 private:
 	std::shared_ptr<Statement> init, iter, body;
@@ -267,6 +304,9 @@ public:
 	WhileStmt(std::shared_ptr<Expression> _condition,
 		std::shared_ptr<Statement> _body) 
 		:condition(std::move(_condition)), body(std::move(_body)) {}
+	
+	std::shared_ptr<Expression> getCondition() { return condition;}
+	std::shared_ptr<Statement> getBody() { return body; }
 	ACCEPT_VISITOR
 private:
 	std::shared_ptr<Expression> condition;
@@ -276,6 +316,8 @@ private:
 class ExprStmt : public Statement{
 public:
 	ExprStmt(std::shared_ptr<Expression> _expr) :expr(std::move(_expr)) {};
+
+	std::shared_ptr<Expression> getExpr() { return expr; }
 	ACCEPT_VISITOR
 private:
 	std::shared_ptr<Expression> expr;
@@ -284,19 +326,32 @@ private:
 class ReturnStmt : public Statement{
 public:
 	ReturnStmt(std::shared_ptr<Expression> _value = nullptr) :value(std::move(_value)) {}
+	
+	std::shared_ptr<Expression> getValue() { return value; }
+	std::shared_ptr<FunctionSymbol> getFuncSymbol() { return funcSymbol; }
+	void setFuncSymbol(std::shared_ptr<FunctionSymbol> _funcSymbol) { funcSymbol = _funcSymbol; }
 	ACCEPT_VISITOR
 private:
 	std::shared_ptr<Expression> value; // value == nullptr if return void type.
+	std::shared_ptr<FunctionSymbol> funcSymbol;
 };
 
 class BreakStmt : public Statement{
 public:
+	void setLoop(Statement *_loop) { loop = _loop; }
+	Statement *getLoop() { return loop; }
 	ACCEPT_VISITOR
+private:
+	Statement *loop; // the related loop
 };
 
 class ContinueStmt : public Statement{
 public:
+	void setLoop(Statement *_loop) { loop = _loop; }
+	Statement *getLoop() { return loop; }
 	ACCEPT_VISITOR
+private:
+	Statement *loop; // the related loop
 };
 
 // EmptyStmt: Semicolon
@@ -310,6 +365,7 @@ public:
 	StmtBlock(std::vector<std::shared_ptr<Statement> > _stmts)
 		:stmts(std::move(_stmts)) {}
 
+	std::vector<std::shared_ptr<Statement> > getStmts() { return stmts; }
 	ACCEPT_VISITOR
 private:
 	std::vector<std::shared_ptr<Statement> > stmts;
@@ -327,12 +383,10 @@ public:
 	VarDecl(std::shared_ptr<VarDeclStmt> _stmt) : stmt(std::move(stmt)) {}
 
 	std::shared_ptr<VarDeclStmt> getStmt() { return stmt; }
-	void setSymbolType(std::shared_ptr<SymbolType> _type) { typeOfSymbol = _type; }
 
 	ACCEPT_VISITOR
 private:
 	std::shared_ptr<VarDeclStmt> stmt;
-	std::shared_ptr<SymbolType> typeOfSymbol;
 };
 
 class FunctionDecl : public Declaration{
@@ -370,6 +424,7 @@ public:
 		:name(std::move(_name)), members(std::move(_members)) {}
 	
 	std::shared_ptr<Identifier> getIdentifier() { return name; }
+	std::vector< std::shared_ptr<Declaration> > getMembers(){ return members; }
 
 	void setClsSymbol(std::shared_ptr<ClassSymbol> _clsSymbol) { clsSymbol = _clsSymbol; }
 

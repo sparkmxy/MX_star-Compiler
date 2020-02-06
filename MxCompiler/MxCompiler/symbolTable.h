@@ -5,7 +5,8 @@
 
 class SymbolTable : Visitor{
 public:
-	SymbolTable();
+	SymbolTable(std::shared_ptr<GlobalScope> _globalScope) 
+		:globalScope(_globalScope){}
 private:
 	std::shared_ptr<GlobalScope> globalScope;
 	std::shared_ptr<Scope> currentScope;
@@ -13,10 +14,27 @@ private:
 	std::shared_ptr<FunctionSymbol> currentFunctionSymbol;
 
 	//This is for <break> and <continue> statement 
-	std::stack<std::shared_ptr<Statement> > loops;
+	std::stack<Statement *> loops;
+
+	//override functions
 	void visit(ProgramAST *node) override;
 	void visit(VarDecl *node) override;
-	void visit(VarDeclStmt *node) override;
 	void visit(FunctionDecl *node)override;
 	void visit(ClassDecl *node)override;
+	
+	void visit(StmtBlock *node)override;
+	void visit(IfStmt *node)override;
+	void visit(WhileStmt *node)override;
+	void visit(ForStmt *node)override;
+	void visit(ReturnStmt *node) override;
+	void visit(BreakStmt *node) override;
+	void visit(VarDeclStmt *node) override;
+	void visit(ExprStmt *node) override;
+
+	void visit(FuncCallExpr *node) override;
+	void visit(MemberFuncCallExpr *node) override;
+	void visit(IdentifierExpr *node) override;
+	void visit(NewExpr *node) override;
+	void visit(UnaryExpr *node) override;
+	void visit(BinaryExpr *node) override;
 };
