@@ -1,20 +1,21 @@
 #include "symbol.h"
 
-std::shared_ptr<SymbolType>
-symbolTypeOfNode(Type *node, std::shared_ptr<GlobalScope> globalScope) {
-	if (node == nullptr) return globalScope->resolveType("void");
-	std::shared_ptr<SymbolType> tp = globalScope->resolveType(node->getIdentifier());
-	if (node->isArrayType())
-		return std::shared_ptr<ArraySymbol>(new ArraySymbol(tp));
-	return tp;
-}
-
 std::shared_ptr<Symbol> ClassSymbol::resolveMember(const std::string & id)
 {
 	auto var = memberVars.find(id);
 	if (var != memberVars.end()) return var->second;
 	auto func = memberFuncs.find(id);
 	return func == memberFuncs.end() ? nullptr : func->second;
+}
+
+bool ClassSymbol::compatible(std::shared_ptr<SymbolType> type)
+{
+	if (this->getTypeName() == "string") {
+		if (type == nullptr) return false;
+		return type->getTypeName == "string";
+	}
+	if (type == nullptr) return true;
+	return this->getTypeName() == type->getTypeName();
 }
 
 void ClassSymbol::define(std::shared_ptr<Symbol> symbol)
@@ -52,4 +53,17 @@ std::shared_ptr<Symbol> FunctionSymbol::resolve(const std::string & id)
 	auto iter = args.find(id);
 	if (iter != args.end()) return iter->second;
 	return getEnclosingScope()->resolve(id);
+}
+
+bool ArraySymbol::compatible(std::shared_ptr<SymbolType> type)
+{
+	if (type == nullptr) return true; // nullptr stands for <null>
+	if (!type->isArrayType()) return false;
+	return std::static_pointer_cast<ArraySymbol>(type)->compatible(this->baseType);
+}
+
+bool BuiltInTypeSymbol::compatible(std::shared_ptr<SymbolType> type)
+{
+	if (type == nullptr) return false;
+	return this->getTypeName() == type->getTypeName();
 }

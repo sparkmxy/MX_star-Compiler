@@ -1,5 +1,14 @@
 #include "symbolTable.h"
 
+std::shared_ptr<SymbolType>
+SymbolTable::symbolTypeOfNode(Type *node, std::shared_ptr<GlobalScope> globalScope) {
+	if (node == nullptr) return globalScope->resolveType("void");
+	std::shared_ptr<SymbolType> tp = globalScope->resolveType(node->getIdentifier());
+	if (node->isArrayType())
+		return std::shared_ptr<ArraySymbol>(new ArraySymbol(tp));
+	return tp;
+}
+
 void SymbolTable::visit(ProgramAST *program) {
 	auto decls = program->getDecls();
 	for (auto &decl : decls) {
@@ -33,25 +42,35 @@ void SymbolTable::visit(ExprStmt * node)
 
 void SymbolTable::visit(FuncCallExpr * node)
 {
-	auto funcSymbol = std::static_pointer_cast<FunctionSymbol>(currentScope->resolve(node->getIdentifier()->name));
-	node->setFuncSymbol(funcSymbol);
 	auto args = node->getArgs();
 	for (auto &arg : args) arg->accept(*this);
+}
+
+void SymbolTable::visit(ClassMemberExpr * node)
+{
+	node->getObj()->accept(*this);
+	node->getIdentifier()->accept(*this);
 }
 
 void SymbolTable::visit(MemberFuncCallExpr * node)
 {
 	node->getInstance()->accept(*this);
-	auto funcSymbol = std::static_pointer_cast<FunctionSymbol>(currentScope->resolve(node->getIdentifier()->name));
-	node->setFuncSymbol(funcSymbol);
 	auto args = node->getArgs();
 	for (auto &arg : args) arg->accept(*this);
 }
 
 void SymbolTable::visit(IdentifierExpr * node)
 {
-	auto symbol = currentScope->resolve(node->getIdentifier()->name);
-	node->setSymbol(symbol);
+	if (node->getIdentifier()->name == "this") {
+		if (currentClassSymbol == nullptr)
+			throw SemanticError("'this' can only be used in class definition", node->Where());
+		node->setSymbol(currentClassSymbol);
+		node->setExprCategory(Expression::THIS);
+	}
+	else {
+		auto symbol = currentScope->resolve(node->getIdentifier()->name);
+		node->setSymbol(symbol);
+	}
 }
 
 void SymbolTable::visit(NewExpr * node)

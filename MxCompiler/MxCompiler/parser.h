@@ -14,7 +14,6 @@ private:
 	OperatorCategory op;
 	std::vector<Token*> &tks;
 	std::vector<Token*>::iterator cur;
-	std::unordered_map<NodeId, PosPair> node2Pos;
 
 	/********************************expression***********************************/
 	std::shared_ptr<Identifier> identifier();
@@ -130,14 +129,14 @@ private:
 	template<class T, class...Args>
 	std::shared_ptr<T> newNode(const Position &st, const Position &ed, Args ... args) {
 		auto ret = std::shared_ptr<T>(new T(args...));
-		node2Pos[ret->id()] = std::make_pair(st, ed);
+		ret->setPos(make_pair(st, ed));
 		return ret;
 	}
 
 	template<class T, class...Args>
 	std::shared_ptr<T> newNode(const PosPair &pos, Args ... args) {
 		auto ret = std::shared_ptr<T>(new T(args...));
-		node2Pos[ret->id()] = pos;
+		ret->setPos(make_pair(st, ed));
 		return ret;
 	}
 
@@ -154,7 +153,7 @@ private:
 			auto oprand2 = term();
 			if (oprand2 == nullptr)
 				throw SyntaxError("Parser error: missing oprand.");
-			ret = newNode<BinaryExpr>(st, node2Pos[oprand2->id()].second, op, ret, oprand2);
+			ret = newNode<BinaryExpr>(st, oprand2->endPos(), op, ret, oprand2);
 		}
 		return ret;
 	}
@@ -171,7 +170,7 @@ private:
 			auto oprand2 = term();
 			if (oprand2 == nullptr)
 				throw SyntaxError("Parser error: missing oprand.");
-			ret = newNode<BinaryExpr>(st, node2Pos[oprand2->id()].second, p.second, ret, oprand2);
+			ret = newNode<BinaryExpr>(st, oprand2->endPos(), p.second, ret, oprand2);
 		}
 		return ret;
 	}

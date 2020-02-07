@@ -10,15 +10,16 @@ This file implements the <astNode> class family.
 #define ACCEPT_VISITOR void accept (Visitor &vis) override {vis.visit(this);} 
 #define ACCEPT_VISITOR_VIRTUAL void accept (Visitor &vis) override = 0;
 
-using NodeId = std::uintptr_t;
 
 class astNode{
 public:
 	astNode() = default;
-	NodeId id() { return (NodeId)this; }
 	virtual void accept(Visitor &vis) = 0;
 
 	Position Where() { return pos.first; }
+	Position endPos() { return pos.second; }
+	void setPos(const PosPair &_pos) { pos = _pos; }
+	PosPair getPos() { return pos; }
 private:
 	PosPair pos;
 };
@@ -88,9 +89,33 @@ private:
 
 /******************************************Types end here************************************************/
 
-class Expression : public astNode{
+class Expression : public astNode {
 public:
+	enum ExprCategory
+	{
+		UNDETERMINED, 
+		LVALUE, RVALUE, CLASS, FUNCTION, THIS
+	};
+	void setSymbolType(std::shared_ptr<SymbolType> _symbolType) { symbolType = _symbolType; }
+	std::shared_ptr<SymbolType> getSymbolType() { return symbolType; }
+
+	ExprCategory getExprCategory() { return category; }
+	void setExprCategory(ExprCategory _c) { category = _c; }
+
+	bool isLvalue() { return category == LVALUE; }
+	bool isValue() { return category == LVALUE || category == RVALUE; }
+	bool isNull() { return symbolType->isNull(); }
+	bool nullable() {
+		if (symbolType->isNull()) return false;
+		if (category != LVALUE) return false;
+		return symbolType->isArrayType() || symbolType->isUserDefinedType();
+	}
+	bool isObject() { return isValue() || symbolType->isUserDefinedType(); }
 	ACCEPT_VISITOR_VIRTUAL
+
+private:
+	ExprCategory category;
+	std::shared_ptr<SymbolType> symbolType;
 };
 
 class IdentifierExpr : public Expression{
@@ -139,7 +164,7 @@ private:
 
 class NullValue : public ConstValue{
 public:
-	ACCEPT_VISITOR_VIRTUAL
+	ACCEPT_VISITOR
 };
 
 class NewExpr : public Expression {
@@ -147,17 +172,17 @@ public:
 	NewExpr(std::shared_ptr<Type>_type, std::vector<std::shared_ptr<Expression> > v)
 		:type(std::move(_type)),dimensions(std::move(v)){}
 	
-	std::shared_ptr<SymbolType> getSymbolType() { return symbolType; }
 	std::shared_ptr<Type> getBaseType() { return type; }
 	std::vector<std::shared_ptr<Expression> > getDimensions() { return dimensions; }
 	
-	void setSymbolType(std::shared_ptr<SymbolType> _symbol) { symbolType = _symbol; }
+	std::shared_ptr<FunctionSymbol> getConstructor() { return constructor;}
+	void setConstructor(std::shared_ptr<FunctionSymbol> ctor) { constructor = ctor; }
 	ACCEPT_VISITOR
 private:
 	std::shared_ptr<Type> type;
 	std::vector<std::shared_ptr<Expression> > dimensions;
 	
-	std::shared_ptr<SymbolType> symbolType;
+	std::shared_ptr<FunctionSymbol> constructor;
 };
 
 class UnaryExpr : public Expression{
@@ -172,6 +197,7 @@ public:
 		op(_op), oprand(std::move(_oprand)) {}
 
 	std::shared_ptr<Expression> getOprand() { return oprand; }
+	Operator getOperator() { return op; }
 	ACCEPT_VISITOR
 private:
 	Operator op;
@@ -188,13 +214,14 @@ public:
 		ASSIGN,
 		AND, NOT, OR,
 		BITAND, BITOR, BITXOR,
-		INDEX, MEMBER
+		INDEX
 	};
 	BinaryExpr(Operator _op, std::shared_ptr<Expression> _oprand1, std::shared_ptr<Expression> _oprand2)
 		:op(_op), oprand1(std::move(_oprand1)), oprand2(std::move(_oprand2)) {}
 
 	std::shared_ptr<Expression> getLHS() { return oprand1; }
 	std::shared_ptr<Expression> getRHS() { return oprand2; }
+	Operator getOperator() { return op; }
 	ACCEPT_VISITOR
 private:
 	Operator op;
@@ -203,36 +230,52 @@ private:
 
 class FuncCallExpr : public Expression {
 public:
-	FuncCallExpr(std::shared_ptr<Identifier> _funcName,
+	FuncCallExpr(std::shared_ptr<IdentifierExpr> _funcName,
 		std::vector<std::shared_ptr<Expression> > _args)
 		:funcName(std::move(_funcName)), args(std::move(_args)) {}
 
 	std::vector<std::shared_ptr<Expression> > getArgs() { return args; }
-	std::shared_ptr<Identifier> getIdentifier() { return funcName; }
+	std::shared_ptr<IdentifierExpr> getIdentifier() { return funcName; }
 	std::shared_ptr<FunctionSymbol> getFuncSymbol() { return funcSymbol; }
 
 	void setFuncSymbol(std::shared_ptr<FunctionSymbol> _funcSymbol) { funcSymbol = _funcSymbol; }
 	
 	ACCEPT_VISITOR
 private:
-	std::shared_ptr<Identifier> funcName;
+	std::shared_ptr<IdentifierExpr> funcName;
 	std::vector<std::shared_ptr<Expression> > args;
 
 	std::shared_ptr<FunctionSymbol> funcSymbol;
-
 };
 
 class MemberFuncCallExpr : public FuncCallExpr{
 public:
-	MemberFuncCallExpr(std::shared_ptr<Expression> _instance, std::shared_ptr<Identifier> _funcName,
+	MemberFuncCallExpr(std::shared_ptr<Expression> _instance, std::shared_ptr<IdentifierExpr> _funcName,
 		std::vector<std::shared_ptr<Expression> > _args)
-		:FuncCallExpr(std::move(_funcName),std::move(_args)),
-		instance(std::move(_instance)){}
+		:FuncCallExpr(_funcName,_args),instance(std::move(_instance)){}
 
 	std::shared_ptr<Expression> getInstance() { return instance; }
 	ACCEPT_VISITOR
 private:
 	std::shared_ptr<Expression> instance;
+};
+
+class ClassMemberExpr :public Expression {
+public:
+	ClassMemberExpr(std::shared_ptr<Expression> _obj, std::shared_ptr<IdentifierExpr> _id)
+		:obj(std::move(_obj)), identifier(std::move(_id)) {}
+
+	std::shared_ptr<IdentifierExpr> getIdentifier() { return identifier; }
+	std::shared_ptr<Expression> getObj() { return obj; }
+
+	std::shared_ptr<VarSymbol> getSymbol() { return symbol; }
+	void setSymbol(std::shared_ptr<VarSymbol> _symbol) { symbol = _symbol; }
+
+private:
+	std::shared_ptr<Expression> obj;
+	std::shared_ptr<IdentifierExpr> identifier;
+
+	std::shared_ptr<VarSymbol> symbol;
 };
 
 /******************************************Expressions end here************************************************/
@@ -248,15 +291,18 @@ public:
 		std::shared_ptr<Identifier> _id,
 		std::shared_ptr<Expression> _init = nullptr) 
 	: type(std::move(_type)), identifier(std::move(_id)), init(std::move(_init)) {}
-	ACCEPT_VISITOR
+	
 
 	std::shared_ptr<Expression> getInitExpr() { return init; }
 	std::shared_ptr<Type> getType() { return type; }
 	std::shared_ptr<Identifier> getIdentifier() { return identifier; }
-
+	std::shared_ptr<VarSymbol> getVarSymbol() { return varSymbol; }
+	std::shared_ptr<SymbolType> getSymbolType() { return typeOfSymbol; }
 	void setVarSymbol(std::shared_ptr<VarSymbol> _varSymbol) { varSymbol = _varSymbol; }
 	void setSymbolType(std::shared_ptr<SymbolType> _type) { typeOfSymbol = _type; }
+	void setInitExpr(std::shared_ptr<Expression> _init) { init = _init; }
 
+	ACCEPT_VISITOR
 private:
 	std::shared_ptr<Type> type;
 	std::shared_ptr<Identifier> identifier;
@@ -406,6 +452,7 @@ public:
 
 	void setFuncSymbol(std::shared_ptr<FunctionSymbol> _funcSymbol) { funcSymbol = _funcSymbol; }
 	
+	bool isConstructor() { return retType == nullptr; }
 	ACCEPT_VISITOR
 private:
 	//retType == nullptr if this function return with void type.
@@ -436,7 +483,7 @@ private:
 	std::shared_ptr<ClassSymbol> clsSymbol;
 };
 
-/**************************************Program************************************/
+/**************************************************Program****************************************************/
 class ProgramAST :public astNode{
 public:
 	ProgramAST(std::vector<std::shared_ptr<Declaration> > _decls) 

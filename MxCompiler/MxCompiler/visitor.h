@@ -29,6 +29,7 @@ public:
 	virtual void visit(NewExpr *) {}
 	virtual void visit(UnaryExpr *) {}
 	virtual void visit(BinaryExpr *) {}
+	virtual void visit(ClassMemberExpr *) {}
 
 	virtual void visit(IfStmt *) {}
 	virtual void visit(WhileStmt *) {}

@@ -30,7 +30,7 @@ std::shared_ptr<BasicType> Parser::basicType() {
 	std::shared_ptr<BasicType> ret = builtinType();
 	if (ret != nullptr) return ret;
 	ret = identifier();
-	if (ret != nullptr) return newNode<UserDefinedType>(node2Pos[ret->id()], ret);
+	if (ret != nullptr) return newNode<UserDefinedType>(ret->getPos(), ret);
 	return nullptr;
 }
 
@@ -110,7 +110,7 @@ std::shared_ptr<NewExpr> Parser::newExpr() {
 std::shared_ptr<Expression> Parser::identifierExpr() {
 	auto ret = identifier();
 	if (ret == nullptr) return nullptr;
-	return newNode<IdentifierExpr>(node2Pos[ret->id()],ret);
+	return newNode<IdentifierExpr>(ret->getPos(),ret);
 }
 
 std::shared_ptr<Expression> Parser::basicExpr() {
@@ -178,7 +178,7 @@ std::shared_ptr<Expression> Parser::topPriorityExpr() {
 			}
 			else {
 				// identifier in domain
-				return newNode<BinaryExpr>(st, (*cur)->pos().second, BinaryExpr::MEMBER, lhs, identifier);
+				return newNode<ClassMemberExpr>(st, (*cur)->pos().second, lhs, identifier);
 			}
 		}
 	}
@@ -232,7 +232,7 @@ std::shared_ptr<Expression> Parser::prefixUnaryExpr() {
 	}
 
 	for (auto &op : prefixOp)
-		ret = newNode<UnaryExpr>(st,node2Pos[ret->id()].second,op,ret);
+		ret = newNode<UnaryExpr>(st,ret->endPos(),op,ret);
 	return ret;
 }
 
@@ -382,7 +382,7 @@ std::shared_ptr<ForStmt> Parser::forStmt() {
 	if(body == nullptr)
 		throw SyntaxError("Parser error: missing body after 'for'.", (*cur)->pos().first);
 
-	return newNode<ForStmt>(st,node2Pos[body->id()].second,
+	return newNode<ForStmt>(st,body->endPos(),
 		init,condition,iteration,body);
 }
 
@@ -404,7 +404,7 @@ std::shared_ptr<WhileStmt> Parser::whileStmt() {
 	auto body = statement();
 	if (body == nullptr)
 		throw SyntaxError("Parser error: missing body after 'for'.", (*cur)->pos().first);
-	return newNode<WhileStmt>(st, node2Pos[body->id()].second, condition, body);
+	return newNode<WhileStmt>(st, body->endPos(), condition, body);
 }
 
 std::shared_ptr<ReturnStmt> Parser::returnStmt() {
@@ -507,7 +507,7 @@ std::shared_ptr<VarDecl> Parser::varDecl() {
 	auto st = (*cur)->pos().first;
 	auto stmt = varDeclStmt();
 	if (stmt == nullptr) return nullptr;
-	return newNode<VarDecl>(st,node2Pos[stmt->id()].second,stmt);
+	return newNode<VarDecl>(st,stmt->endPos(),stmt);
 }
 
 std::shared_ptr<FunctionDecl> Parser::functionDecl() {
@@ -536,7 +536,7 @@ std::shared_ptr<FunctionDecl> Parser::functionDecl() {
 	if(body == nullptr)
 		throw SyntaxError("Parser error: missing function body.", (*cur)->pos().first);
 
-	return newNode<FunctionDecl>(st, node2Pos[body->id()].second,
+	return newNode<FunctionDecl>(st, body->endPos(),
 		retType, name, args, body);
 }
 
@@ -567,9 +567,9 @@ std::shared_ptr<ClassDecl> Parser::classDecl() {
 			auto body = stmtBlock();
 			if (body == nullptr) return nullptr;
 
-			decl = newNode<FunctionDecl>(st, node2Pos[body->id()].second,
+			decl = newNode<FunctionDecl>(st, body->endPos(),
 				std::shared_ptr<Type>(nullptr),
-				newNode<Identifier>(POS.first, POS.second, "::ctor"),
+				newNode<Identifier>(POS.first, POS.second, className->name + "::ctor"),
 				std::vector<std::shared_ptr<VarDeclStmt> >(), 
 				body
 				);
@@ -603,7 +603,7 @@ std::shared_ptr<ProgramAST> Parser::getAST() {
 		decls.emplace_back(decls);
 	}
 	if (decls.empty()) return nullptr;
-	return newNode<ProgramAST>(st, node2Pos[decls.back()->id()].second, decls);
+	return newNode<ProgramAST>(st, decls.back()->endPos(), decls);
 }
 
 /************************************************Helpers***************************************************/
@@ -649,5 +649,5 @@ std::shared_ptr<VarDeclStmt> Parser::formalArgument() {
 	auto name = identifier();
 	if (name == nullptr)
 		throw SyntaxError("Parser error: invalid argument.", (*cur)->pos().first);
-	return newNode<VarDeclStmt>(st,node2Pos[name->id()].second,tp,name);
+	return newNode<VarDeclStmt>(st,name->endPos(),tp,name);
 }

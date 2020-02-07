@@ -116,6 +116,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="astnode.h" />
+    <ClInclude Include="environment.h" />
     <ClInclude Include="error.h" />
     <ClInclude Include="exprHelper.h" />
     <ClInclude Include="lexer.h" />
@@ -127,9 +128,11 @@
     <ClInclude Include="symbol.h" />
     <ClInclude Include="symbolTable.h" />
     <ClInclude Include="token.h" />
+    <ClInclude Include="utility.h" />
     <ClInclude Include="visitor.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="environment.cpp" />
     <ClCompile Include="lexer.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="parser.cpp" />

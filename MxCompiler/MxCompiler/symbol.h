@@ -8,6 +8,12 @@
 class SymbolType {  //interface class
 public:
 	virtual std::string getTypeName() const = 0;
+	virtual bool compatible(std::shared_ptr<SymbolType> type) = 0;
+
+	virtual bool isBulitInType() { return false; }
+	virtual bool isArrayType() { return false; }
+	virtual bool isUserDefinedType() { return false; }
+	virtual bool isNull() { return false; }
 };
 
 class ArraySymbol : public SymbolType {
@@ -15,7 +21,9 @@ public:
 	ArraySymbol(std::shared_ptr<SymbolType> _base) :baseType(_base) {}
 
 	std::string getTypeName() const override { return baseType->getTypeName() + "_array"; }
-
+	std::shared_ptr<SymbolType> getBaseType() { return baseType; }
+	bool compatible(std::shared_ptr<SymbolType> type) override;
+	bool isArrayType() override { return true; }
 private:
 	std::shared_ptr<SymbolType> baseType;
 };
@@ -24,10 +32,8 @@ private:
 
 class Symbol {
 public:
-	Symbol(const std::string &_name,
-		std::shared_ptr<SymbolType> _type,
-		Declaration *_decl) 
-		: name(std::move(_name)), type(std::move(_type)), decl(_decl) {}
+	Symbol(const std::string &_name,std::shared_ptr<SymbolType> _type,Declaration *_decl) 
+		: name(_name), type(_type), decl(_decl) {}
 	
 	// getters and setters 
 	void setScope(std::shared_ptr<Scope> _scope) { scope = std::move(_scope); }
@@ -65,6 +71,9 @@ public:
 	BuiltInTypeSymbol(const std::string &_name) : Symbol(_name, nullptr, nullptr) {}
 
 	std::string getTypeName() const override { return getSymbolName(); }
+	bool compatible(std::shared_ptr<SymbolType> type);
+
+	bool isBulitInType() override{ return true; }
 
 	SymbolCategory category() const override { return BUILTIN; }
 };
@@ -101,10 +110,13 @@ public:
 
 	SymbolCategory category() override { return CLASS; }
 
+	bool compatible(std::shared_ptr<SymbolType> type) override;
+	bool isUserDefinedType() override { return true; }
+
 	void define(std::shared_ptr<Symbol> symbol) override;
 	std::shared_ptr<Symbol> resolve(const std::string &id) override;
 
-	std::shared_ptr<FunctionSymbol> getConstructor() { return constructor; };
+	std::shared_ptr<FunctionSymbol> getConstructor() { return constructor; }
 	void setConstructor(std::shared_ptr<FunctionSymbol> _constructor) { constructor = _constructor; }
 private:
 	std::unordered_map<std::string, std::shared_ptr<VarSymbol> >  memberVars;
@@ -123,11 +135,11 @@ public:
 
 	void define(std::shared_ptr<Symbol> symbol) override;
 	std::shared_ptr<Symbol> resolve(const std::string &id) override;
-
-private:
-	std::unordered_map<std::string, std::shared_ptr<VarSymbol> > args;
 };
 
- /*Helper function*/
-std::shared_ptr<SymbolType> 
-symbolTypeOfNode(Type *node,std::shared_ptr<GlobalScope> globalScope);
+class NullTypeSymbol : public SymbolType {
+	bool compatible(std::shared_ptr<SymbolType> type) override { return false; }
+	bool isNull() override { return true; }
+	std::string getTypeName() const override { return "null"; }
+};
+

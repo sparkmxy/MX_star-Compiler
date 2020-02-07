@@ -32,9 +32,14 @@ private:
 	void visit(ExprStmt *node) override;
 
 	void visit(FuncCallExpr *node) override;
+	void visit(ClassMemberExpr *node) override;
 	void visit(MemberFuncCallExpr *node) override;
 	void visit(IdentifierExpr *node) override;
 	void visit(NewExpr *node) override;
 	void visit(UnaryExpr *node) override;
 	void visit(BinaryExpr *node) override;
+
+private:
+	std::shared_ptr<SymbolType>
+		symbolTypeOfNode(Type *node, std::shared_ptr<GlobalScope> globalScope);
 };
