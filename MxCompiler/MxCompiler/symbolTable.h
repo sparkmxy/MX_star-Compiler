@@ -1,12 +1,15 @@
 #pragma once
-
 #include "pch.h"
 #include "symbol.h"
+
 
 class SymbolTable : Visitor{
 public:
 	SymbolTable(std::shared_ptr<GlobalScope> _globalScope) 
 		:globalScope(_globalScope){}
+
+	void visit(ProgramAST *node) override;
+
 private:
 	std::shared_ptr<GlobalScope> globalScope;
 	std::shared_ptr<Scope> currentScope;
@@ -17,7 +20,7 @@ private:
 	std::stack<Statement *> loops;
 
 	//override functions
-	void visit(ProgramAST *node) override;
+	
 	void visit(VarDecl *node) override;
 	void visit(FunctionDecl *node)override;
 	void visit(ClassDecl *node)override;
@@ -42,4 +45,6 @@ private:
 private:
 	std::shared_ptr<SymbolType>
 		symbolTypeOfNode(Type *node, std::shared_ptr<GlobalScope> globalScope);
+
+	void checkMainFunc();
 };

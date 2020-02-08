@@ -1,7 +1,11 @@
 #pragma once
-
 #include "pch.h"
-#include "symbol.h"
+
+class Symbol;
+class BuiltInTypeSymbol;
+class ClassSymbol;
+class FunctionSymbol;
+class SymbolType;
 
 class Scope : public std::enable_shared_from_this<Scope>{   // interface class
 public:

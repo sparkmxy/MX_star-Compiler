@@ -1,8 +1,7 @@
 #pragma once
-
 #include "pch.h"
-#include "astnode.h"
 #include "scope.h"
+class Declaration;
 
 /*Symbol type*/
 class SymbolType {  //interface class
@@ -32,9 +31,14 @@ private:
 
 class Symbol {
 public:
-	Symbol(const std::string &_name,std::shared_ptr<SymbolType> _type,Declaration *_decl) 
+	Symbol(const std::string &_name,std::shared_ptr<SymbolType> _type, Declaration *_decl) 
 		: name(_name), type(_type), decl(_decl) {}
 	
+	enum SymbolCategory
+	{
+		VAR, FUNCTION, CLASS, BUILTIN
+	};
+
 	// getters and setters 
 	void setScope(std::shared_ptr<Scope> _scope) { scope = std::move(_scope); }
 	std::string getSymbolName() const { return name; }
@@ -43,10 +47,7 @@ public:
 	Declaration *getDecl() { return decl; }
 	
 	/*Category : what is this symbol? variable, function, class or builtin type*/
-	enum SymbolCategory
-	{
-		VAR, FUNCTION, CLASS, BUILTIN
-	};
+
 
 	virtual SymbolCategory category() const = 0;
 
@@ -61,7 +62,7 @@ private:
 class VarSymbol : public Symbol{
 public:
 	VarSymbol(const std::string &_name, std::shared_ptr<SymbolType> _type,
-		VarDecl *_decl) :Symbol(_name, _type, _decl) {}
+		Declaration *_decl) :Symbol(_name, _type, _decl) {}
 
 	SymbolCategory category() const override { return VAR; }
 };
@@ -99,9 +100,9 @@ private:
 
 class ClassSymbol : public ScopedSymbol, public SymbolType {
 public:
-	ClassSymbol(const std::string &_name, std::shared_ptr<SymbolType> _type,
-		ClassDecl *_decl, std::shared_ptr<Scope> _enclosingScope)
-		:ScopedSymbol(_name, _type, _decl,_enclosingScope){}
+	ClassSymbol(const std::string &_name, 
+		Declaration *_decl, std::shared_ptr<Scope> _enclosingScope)
+		:ScopedSymbol(_name, nullptr, _decl,_enclosingScope){}
 
 	std::shared_ptr<Symbol> resolveMember(const std::string &id);
 
@@ -127,7 +128,7 @@ private:
 class FunctionSymbol : public ScopedSymbol {
 public:
 	FunctionSymbol(const std::string &_name, std::shared_ptr<SymbolType> _type,
-		FunctionDecl *_decl, std::shared_ptr<Scope> _enclosingScope)
+		Declaration *_decl, std::shared_ptr<Scope> _enclosingScope)
 		:ScopedSymbol(_name, _type, _decl,_enclosingScope){}
 
 	/*override functions*/

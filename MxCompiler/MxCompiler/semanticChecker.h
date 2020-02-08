@@ -1,6 +1,7 @@
 #pragma once
-
 #include "pch.h"
+#include "scope.h"
+#include "astnode.h"
 #include "visitor.h"
 
 class SemanticChecker : public Visitor {
@@ -12,11 +13,12 @@ public:
 		stringClassSymbol = globalScope->getStringSymbol();
 		voidSymbol = globalScope->getVoidSymbol();
 	}
+
+	void visit(ProgramAST *node) override;
+
 private:
 
 	//override functions
-	void visit(ProgramAST *node) override;
-
 	void visit(VarDecl *node) override;
 	void visit(FunctionDecl *node) override;
 	void visit(ClassDecl *node) override;

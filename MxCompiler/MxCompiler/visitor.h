@@ -8,7 +8,39 @@ astNode.accept(Visitor);
 #pragma once
 
 #include "pch.h"
-#include "astnode.h"
+
+class Identifier;
+class BasicType;
+class UserDefinedType;
+class ArrayType;
+
+class StringValue;
+class NumValue;
+class NullValue;
+class BoolValue;
+class IdentifierExpr;
+class FuncCallExpr;
+class MemberFuncCallExpr;
+class NewExpr;
+class UnaryExpr;
+class BinaryExpr;
+class ClassMemberExpr;
+
+class IfStmt;
+class WhileStmt;
+class ForStmt;
+class ExprStmt;
+class VarDeclStmt;
+class ReturnStmt;
+class BreakStmt;
+class ContinueStmt;
+class EmptyStmt;
+class StmtBlock;
+
+class VarDecl;
+class FunctionDecl;
+class ClassDecl;
+class ProgramAST;
 
 class Visitor {
 public:

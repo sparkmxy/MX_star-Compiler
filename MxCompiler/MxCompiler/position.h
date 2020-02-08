@@ -1,5 +1,5 @@
 #pragma once
-
+#include "pch.h"
 class Position {
 public:
 	Position() = default;

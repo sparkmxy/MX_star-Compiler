@@ -4,8 +4,8 @@ This file implements the <astNode> class family.
 */
 #include "pch.h"
 #include "position.h"
-#include "symbol.h"
 #include "visitor.h"
+#include "symbol.h"
 
 #define ACCEPT_VISITOR void accept (Visitor &vis) override {vis.visit(this);} 
 #define ACCEPT_VISITOR_VIRTUAL void accept (Visitor &vis) override = 0;
@@ -173,7 +173,7 @@ public:
 		:type(std::move(_type)),dimensions(std::move(v)){}
 	
 	std::shared_ptr<Type> getBaseType() { return type; }
-	std::vector<std::shared_ptr<Expression> > getDimensions() { return dimensions; }
+	std::vector<std::shared_ptr<Expression> > &getDimensions() { return dimensions; }
 	
 	std::shared_ptr<FunctionSymbol> getConstructor() { return constructor;}
 	void setConstructor(std::shared_ptr<FunctionSymbol> ctor) { constructor = ctor; }
@@ -234,7 +234,7 @@ public:
 		std::vector<std::shared_ptr<Expression> > _args)
 		:funcName(std::move(_funcName)), args(std::move(_args)) {}
 
-	std::vector<std::shared_ptr<Expression> > getArgs() { return args; }
+	std::vector<std::shared_ptr<Expression> > &getArgs() { return args; }
 	std::shared_ptr<IdentifierExpr> getIdentifier() { return funcName; }
 	std::shared_ptr<FunctionSymbol> getFuncSymbol() { return funcSymbol; }
 
@@ -411,7 +411,7 @@ public:
 	StmtBlock(std::vector<std::shared_ptr<Statement> > _stmts)
 		:stmts(std::move(_stmts)) {}
 
-	std::vector<std::shared_ptr<Statement> > getStmts() { return stmts; }
+	std::vector<std::shared_ptr<Statement> > &getStmts() { return stmts; }
 	ACCEPT_VISITOR
 private:
 	std::vector<std::shared_ptr<Statement> > stmts;
@@ -421,6 +421,7 @@ private:
 
 class Declaration : public astNode{
 public:
+	virtual bool isVarDecl() { return false; }
 	ACCEPT_VISITOR_VIRTUAL
 };
 
@@ -430,6 +431,7 @@ public:
 
 	std::shared_ptr<VarDeclStmt> getStmt() { return stmt; }
 
+	bool isVarDecl() override { return true; }
 	ACCEPT_VISITOR
 private:
 	std::shared_ptr<VarDeclStmt> stmt;
@@ -447,7 +449,7 @@ public:
 	/*getters/setters*/
 	std::shared_ptr<Type> getRetType() { return retType; }
 	std::shared_ptr<Identifier> getIdentifier() { return name; }
-	std::vector< std::shared_ptr<VarDeclStmt> > getArgs() { return args; }
+	std::vector< std::shared_ptr<VarDeclStmt> > &getArgs() { return args; }
 	std::shared_ptr<StmtBlock> getBody() { return body; }
 
 	void setFuncSymbol(std::shared_ptr<FunctionSymbol> _funcSymbol) { funcSymbol = _funcSymbol; }
@@ -471,7 +473,7 @@ public:
 		:name(std::move(_name)), members(std::move(_members)) {}
 	
 	std::shared_ptr<Identifier> getIdentifier() { return name; }
-	std::vector< std::shared_ptr<Declaration> > getMembers(){ return members; }
+	std::vector< std::shared_ptr<Declaration> > &getMembers(){ return members; }
 
 	void setClsSymbol(std::shared_ptr<ClassSymbol> _clsSymbol) { clsSymbol = _clsSymbol; }
 

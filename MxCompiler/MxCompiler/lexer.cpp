@@ -77,7 +77,7 @@ Token *Lexer::nextToken() {
 		is.unget();
 		return scanIdentifier();
 	}
-    throw Error("illegal character: " + ch);
+    throw SyntaxError("illegal character: " + ch, currentPos());
 }
 
 void Lexer::skipSpaces() {
@@ -102,7 +102,7 @@ Token *Lexer::scanString() {
 	bool escape = false;
 	while (true) {
 		char ch = is.get();
-		if (ch == EOF) throw Error("Undetermined string.");
+		if (ch == EOF) throw SyntaxError("Undetermined string.",currentPos());
 		if (ch == delim && !escape) break;
 		escape = (ch == '\\') && !escape;
 		lexeme += ch;  
@@ -252,7 +252,7 @@ Token *Lexer::scanSymbol() {
 		case '{': return newWord("{", LeftBrace, st, currentPos());
 		case '}': return newWord("}", RightBrace, st, currentPos());
 		default:
-			throw Error("Lexer error: unmatched symbol.");
+			throw SyntaxError("Lexer error: unmatched symbol.",currentPos());
 		}
 	}
 	return nullptr;

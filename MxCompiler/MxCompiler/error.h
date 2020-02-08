@@ -1,6 +1,5 @@
-#pragma once
 
-#include "pch.h"
+#pragma once
 #include "position.h"
 
 class Error {

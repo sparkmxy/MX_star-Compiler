@@ -1,6 +1,8 @@
-#pragma		once
+#pragma once
+#include "pch.h"
 #include "astnode.h"
 #include "token.h"
+
 
 class OperatorCategory {
 public:

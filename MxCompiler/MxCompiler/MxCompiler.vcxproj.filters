@@ -69,11 +69,11 @@
     <ClInclude Include="visitor.h">
       <Filter>头文件\AST</Filter>
     </ClInclude>
-    <ClInclude Include="utility.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="environment.h">
       <Filter>头文件\semantic</Filter>
+    </ClInclude>
+    <ClInclude Include="MxComplier.h">
+      <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -103,6 +103,9 @@
     </ClCompile>
     <ClCompile Include="environment.cpp">
       <Filter>源文件\semantic</Filter>
+    </ClCompile>
+    <ClCompile Include="MxComplier.cpp">
+      <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

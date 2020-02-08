@@ -1,13 +1,23 @@
 #include "pch.h"
-#include "lexer.h"
+#include "MxComplier.h"
+
+void complie() {
+	MxComplier complier("code.txt");
+	complier.getCode();
+	complier.parse();
+	complier.buildAST();
+	complier.semanticCheck();
+}
 
 int main() {
-	std::ifstream fin("code.txt");
-	char ch;
-	Lexer lexer(fin);
-	auto V = lexer.getTokens();
-	for (auto &token : V)
-		std::cout<<token->toString()<<std::endl;
-	std::cin >> ch;
+	try
+	{
+		complie();
+	}
+	catch (Error & err)
+	{
+		std::cout << "complie failed.\n" << err.what() << std::endl;
+	}
+	std::cout << "Congratulations! Complie successfully." << std::endl;
 	return 0;
 }

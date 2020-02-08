@@ -9,6 +9,21 @@ SymbolTable::symbolTypeOfNode(Type *node, std::shared_ptr<GlobalScope> globalSco
 	return tp;
 }
 
+void SymbolTable::checkMainFunc()
+{
+	auto symbol = globalScope->resolve("main");
+	if (symbol->category() != Symbol::FUNCTION)
+		throw SemanticError("'main' must be a function", Position());
+	auto main = std::static_pointer_cast<FunctionSymbol>(symbol);
+	auto retType = main->getType();
+	if (retType->isBulitInType() && retType->getTypeName() == "int") {
+		auto args = reinterpret_cast<FunctionDecl *>(main->getDecl())->getArgs();
+		if (!args.empty())
+			throw SemanticError("'main' shall not have arguments", Position());
+	}
+	else throw SemanticError("'main' must return int", Position());
+}
+
 void SymbolTable::visit(ProgramAST *program) {
 	auto decls = program->getDecls();
 	for (auto &decl : decls) {
@@ -17,6 +32,7 @@ void SymbolTable::visit(ProgramAST *program) {
 		currentFunctionSymbol = nullptr;
 		decl->accept(*this);
 	}
+	checkMainFunc();
 }
 
 

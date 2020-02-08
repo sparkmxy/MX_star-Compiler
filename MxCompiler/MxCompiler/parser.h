@@ -1,14 +1,24 @@
+
 #pragma once
+
 #include "pch.h"
 #include "token.h"
 #include "astnode.h"
 #include "exprHelper.h"
 
+/*	
+Outline :	This class recieves tokens an build an AST according to the tokens.
+Usage	:	parser.getAST()
+note	:	getAST() will throw <SyntaxError> if there is any,
+			and finished() will return a boolean value,
+			indicating whether tokens given are all parsed.
+*/
 class Parser {
 public:
 	Parser(std::vector<Token*> &_tokens) :tks(_tokens), cur(_tokens.begin()) {}
 	std::shared_ptr<ProgramAST> getAST();
 	bool finished() { return (*cur)->tag() == FINISH; }
+
 private:
  
 	OperatorCategory op;
