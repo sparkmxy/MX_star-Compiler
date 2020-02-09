@@ -12,7 +12,7 @@ public:
 		return !this->operator==(rhs);
 	}
 
-	std::string toString() {
+	std::string toString() const {
 		return "line: " + std::to_string(line) + " col: " + std::to_string(col);
 	}
 private:

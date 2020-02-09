@@ -7,15 +7,12 @@
 class Lexer {
 
 public:
-	Lexer(std::istream& _is):is(_is),line(1),col(1),finish(Token(FINISH,defaultPos)){
-		tokens = _getTokens();
+	Lexer(std::istream& _is):is(_is),line(1),col(1){
+		finish = std::shared_ptr<Token>(new Token(FINISH, defaultPos));
 		keywordsInit();
+		tokens = _getTokens();
 	}
-	~Lexer() {
-		for (auto word : words)
-			delete word.second;
-	}
-	std::vector<Token*> getTokens() {
+	std::vector< std::shared_ptr<Token> > getTokens() {
 		return tokens;
 	}
 
@@ -23,25 +20,27 @@ private:
 
 	static const std::string SYMBOLS;
 	static const PosPair defaultPos;
-	Token finish;
+	std::shared_ptr<Token> finish;
 	std::istream &is;
-	std::vector<Token*> tokens;
-	std::unordered_map<std::string, Token*> words;
+	std::vector<std::shared_ptr<Token> > tokens;
+	std::unordered_map<std::string, std::shared_ptr<Token> >keywords;
 	int col, line;
 
-	std::vector<Token*> _getTokens();
+	std::vector<std::shared_ptr<Token> >  _getTokens();
+
+
 
 	void skipSpaces();
 
-	Token *nextToken();
+	std::shared_ptr<Token> nextToken();
 	
-	Token *scanString();
+	std::shared_ptr<Token> scanString();
 
-	Token *scanNumber();
+	std::shared_ptr<Token> scanNumber();
 
-	Token *scanIdentifier();
+	std::shared_ptr<Token> scanIdentifier();
 
-	Token *scanSymbol();
+	std::shared_ptr<Token> scanSymbol();
 
 	bool isNextChar(char c);
 
@@ -49,7 +48,8 @@ private:
 
 	bool isIdentifierChar(char ch) const;
 
-	Token *newWord(const std::string &str, Tag _tag, const Position &st, const Position &ed);
+	std::shared_ptr<Token> 
+		newWord(const std::string &str, Tag _tag, const Position &st, const Position &ed);
 
 	void keywordsInit();
 

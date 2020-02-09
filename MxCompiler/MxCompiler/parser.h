@@ -15,15 +15,18 @@ note	:	getAST() will throw <SyntaxError> if there is any,
 */
 class Parser {
 public:
-	Parser(std::vector<Token*> &_tokens) :tks(_tokens), cur(_tokens.begin()) {}
+	Parser(std::vector<std::shared_ptr<Token> > &_tokens) :tks(_tokens), cur(_tokens.begin()) {}
 	std::shared_ptr<ProgramAST> getAST();
-	bool finished() { return (*cur)->tag() == FINISH; }
+	bool finished() {
+		auto str = (*cur)->toString();
+		return (*cur)->tag() == FINISH; 
+	}
 
 private:
  
 	OperatorCategory op;
-	std::vector<Token*> &tks;
-	std::vector<Token*>::iterator cur;
+	std::vector<std::shared_ptr<Token> > &tks;
+	std::vector<std::shared_ptr<Token> >::iterator cur;
 
 	/********************************expression***********************************/
 	std::shared_ptr<Identifier> identifier();
@@ -138,6 +141,7 @@ private:
 	std::shared_ptr<T> newNode(const Position &st, const Position &ed, Args ... args) {
 		auto ret = std::shared_ptr<T>(new T(args...));
 		ret->setPos(std::make_pair(st, ed));
+		std::clog << "newNode between " << st.toString() << " and " << ed.toString() << '\n';
 		return ret;
 	}
 
@@ -145,6 +149,7 @@ private:
 	std::shared_ptr<T> newNode(const PosPair &pos, Args ... args) {
 		auto ret = std::shared_ptr<T>(new T(args...));
 		ret->setPos(pos);
+		std::clog << "newNode between " << pos.first.toString() << " and " << pos.second.toString() << '\n';
 		return ret;
 	}
 
@@ -173,7 +178,7 @@ private:
 		auto ret = term();
 		if (ret == nullptr) return nullptr;
 
-		while ((*cur)->tag() == p.first) {;
+		while ((*cur)->tag() == p.first) {
 			cur++;
 			auto oprand2 = term();
 			if (oprand2 == nullptr)

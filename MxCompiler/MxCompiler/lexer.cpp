@@ -11,8 +11,8 @@ bool Lexer::isIdentifierChar(char ch) const {
 	return isalnum(ch) || ch == '_';
 }
 
-std::vector<Token*> Lexer::_getTokens() {
-	std::vector<Token*> ret;
+std::vector<std::shared_ptr<Token> > Lexer::_getTokens() {
+	std::vector<std::shared_ptr<Token> > ret;
 	while (true) {
 		auto nxt = nextToken();
 		if (nxt != nullptr) {
@@ -21,12 +21,12 @@ std::vector<Token*> Lexer::_getTokens() {
 		}
 		else break;
 	}
-	ret.push_back(&finish);
+	ret.push_back(finish);
 	return ret;
 }
 
 
-Token *Lexer::nextToken() {
+std::shared_ptr<Token> Lexer::nextToken() {
 	skipSpaces();
 	char ch = is.get();
 	if(ch == '/') { 
@@ -94,7 +94,7 @@ void Lexer::skipSpaces() {
 	}
 }
 
-Token *Lexer::scanString() {
+std::shared_ptr<Token> Lexer::scanString() {
 	char delim = is.get();
 	auto st = currentPos();
 	col++;
@@ -111,7 +111,7 @@ Token *Lexer::scanString() {
 	return newWord(delim + lexeme + delim,ConstString,st,currentPos());
 }
 
-Token *Lexer::scanNumber() {  // for int
+std::shared_ptr<Token> Lexer::scanNumber() {  // for int
 	std::string lexeme;
 	char ch = is.get();
 	auto st = currentPos();
@@ -122,10 +122,10 @@ Token *Lexer::scanNumber() {  // for int
 		ch = is.get();
 	} while (isdigit(ch));
 	is.unget();
-	return new Number(val,st,currentPos());
+	return std::make_shared<Number>(val,st,currentPos());
 }
 
-Token *Lexer::scanIdentifier() {
+std::shared_ptr<Token> Lexer::scanIdentifier() {
 	std::string lexeme;
 	auto st = currentPos();
 	while (true) {
@@ -136,11 +136,12 @@ Token *Lexer::scanIdentifier() {
 			break;
 		}
 		lexeme += ch;
+		col++;
 	}
 	return newWord(lexeme,ID,st,currentPos());
 }
 
-Token *Lexer::scanSymbol() { 
+std::shared_ptr<Token> Lexer::scanSymbol() {
 	char ch = is.get();
 	auto st = currentPos();
 	col++;
@@ -235,6 +236,7 @@ Token *Lexer::scanSymbol() {
 		return newWord("+", Add, st, currentPos());
 	}
 	else {
+		col++;
 		switch (ch)
 		{
 		case '~': return newWord("~", Inverse, st, currentPos());
@@ -264,29 +266,29 @@ bool Lexer::isNextChar(char c) {
 	return false;
 }
 
-Token *Lexer::newWord(const std::string &str, Tag _tag, const Position &st, const Position &ed) {
-	if (words.find(str) != words.end()) return words[str];
-	auto ret = new Word(str, _tag,st,ed);
-	words[str] = ret;
-	return ret;
+std::shared_ptr<Token> Lexer::newWord(const std::string &str, Tag _tag, const Position &st, const Position &ed) {
+	auto iter = keywords.find(str);
+	if (iter != keywords.end())   // this is a keyword
+		return std::make_shared<Word>(iter->second->toString(),iter->second->tag(), st, ed);
+	return std::make_shared<Word>(str, _tag,st,ed);
 }
 
 void Lexer::keywordsInit() {
-	words["bool"] = new Word("bool", Bool, defaultPos);
-	words["int"] = new Word("num", Int, defaultPos);
-	words["void"] = new Word("num", Void, defaultPos);
-	words["string"] = new Word("string", String, defaultPos);
-	words["null"] = new Word("null", Null, defaultPos);
-	words["true"] = new Word("true", True, defaultPos);
-	words["false"] = new Word("false", False, defaultPos);
-	words["if"] = new Word("if", If, defaultPos);
-	words["else"] = new Word("else", Else, defaultPos);
-	words["for"] = new Word("for", For, defaultPos);
-	words["while"] = new Word("while", While, defaultPos);
-	words["break"] = new Word("break", Break, defaultPos);
-	words["continue"] = new Word("continue", Continue, defaultPos);
-	words["return"] = new Word("return", Return, defaultPos);
-	words["new"] = new Word("new", New, defaultPos);
-	words["class"] = new Word("class", Class, defaultPos);
-	words["this"] = new Word("this", This, defaultPos);
+	keywords["bool"] = std::make_shared<Word>("bool",Bool, defaultPos);
+	keywords["int"] = std::make_shared<Word>("int",Int, defaultPos);
+	keywords["void"] = std::make_shared<Word>("void",Void, defaultPos);
+	keywords["string"] = std::make_shared<Word>("string",String, defaultPos);
+	keywords["null"] = std::make_shared<Word>("null",Null, defaultPos);
+	keywords["true"] = std::make_shared<Word>("true",True, defaultPos);
+	keywords["false"] = std::make_shared<Word>("false",False, defaultPos);
+	keywords["if"] = std::make_shared<Word>("if",If, defaultPos);
+	keywords["else"] = std::make_shared<Word>("else",Else, defaultPos);
+	keywords["for"] = std::make_shared<Word>("for",For, defaultPos);
+	keywords["while"] = std::make_shared<Word>("while",While, defaultPos);
+	keywords["break"] = std::make_shared<Word>("break",Break, defaultPos);
+	keywords["continue"] = std::make_shared<Word>("continue",Continue, defaultPos);
+	keywords["return"] = std::make_shared<Word>("return",Return, defaultPos);
+	keywords["new"] = std::make_shared<Word>("new",New, defaultPos);
+	keywords["class"] = std::make_shared<Word>("class",Class, defaultPos);
+	keywords["this"] = std::make_shared<Word>("this",This, defaultPos);
 }

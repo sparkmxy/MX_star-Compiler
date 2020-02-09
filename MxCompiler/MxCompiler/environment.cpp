@@ -67,6 +67,8 @@ void Environment::buildSymbolTable()
 
 void Environment::semanticCheck()
 {
+	buildSymbolTable();
+	std::cout << "Build symboltable sucessfully!" << std::endl;
 	semanticChecker = std::make_shared<SemanticChecker>(global);
 	semanticChecker->visit(ast.get());
 }

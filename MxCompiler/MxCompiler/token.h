@@ -50,7 +50,7 @@ public:
 	Number(int _v, const Position &st, const Position &ed) :Token(Num,st,ed),val(_v) {};
 	Number(int _v, const PosPair &p) :Token(Num, p), val(_v) {};
 	int value() { return val; }
-	std::string toString() { return "NUM("+std::to_string(val)+")"; }
+	std::string toString() { return "NUM("+std::to_string(val)+")" + " @ " + pos().first.toString(); }
 private:
 	int val;
 };
@@ -63,7 +63,7 @@ public:
 	Word(const std::string &str, Tag _tag, const PosPair &p)
 		:Token(_tag,p), lexeme(str) {}
 	std::string toString() { 
-		return lexeme; 
+		return lexeme + " @ " + pos().first.toString();
 	}
 private:
 	std::string lexeme;

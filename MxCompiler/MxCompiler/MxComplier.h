@@ -23,6 +23,6 @@ private:
 	std::shared_ptr<Parser> parser;
 	std::shared_ptr<Environment> environment;
 
-	std::vector<Token *> tokens;
+	std::vector<std::shared_ptr<Token> > tokens;
 	std::shared_ptr<ProgramAST> ast;
 };

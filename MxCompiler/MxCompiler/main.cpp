@@ -1,23 +1,34 @@
+#define _CRT_SECURE_NO_WARNINGS
+
 #include "pch.h"
 #include "MxComplier.h"
 
-void complie() {
-	MxComplier complier("code.txt");
-	complier.getCode();
-	complier.parse();
-	complier.buildAST();
-	complier.semanticCheck();
-}
-
-int main() {
+void complie(std::string src) {
+	MxComplier complier(src);
 	try
 	{
-		complie();
+		complier.getCode();
+		complier.parse();
+		complier.buildAST();
+		complier.semanticCheck();
 	}
 	catch (Error & err)
 	{
-		std::cout << "complie failed.\n" << err.what() << std::endl;
+		std::clog << "FAILED\n";
+		std::cout << "Unfortunately, complie has failed.\n" << err.what() << std::endl;
+		return;
 	}
+	std::clog << "FINISHED\n";
 	std::cout << "Congratulations! Complie successfully." << std::endl;
+}
+
+int main() {
+	freopen("log.txt", "w", stderr);
+	
+	std::string src = "code.txt";
+
+	complie(src);
+	
+	system("pause");
 	return 0;
 }
