@@ -117,8 +117,6 @@ private:
 	std::shared_ptr<Statement> statement();
 	/******************************************Declarations***********************************************/
 
-	std::shared_ptr<VarDecl> varDecl();
-
 	/*
 	FunctionDecl = Type Identifier LeftBracket formalDecl RightBracket Statement
 	*/
@@ -139,14 +137,14 @@ private:
 	template<class T, class...Args>
 	std::shared_ptr<T> newNode(const Position &st, const Position &ed, Args ... args) {
 		auto ret = std::shared_ptr<T>(new T(args...));
-		ret->setPos(make_pair(st, ed));
+		ret->setPos(std::make_pair(st, ed));
 		return ret;
 	}
 
 	template<class T, class...Args>
 	std::shared_ptr<T> newNode(const PosPair &pos, Args ... args) {
 		auto ret = std::shared_ptr<T>(new T(args...));
-		ret->setPos(make_pair(st, ed));
+		ret->setPos(pos);
 		return ret;
 	}
 
@@ -158,11 +156,11 @@ private:
 		if (ret == nullptr) return nullptr;
 
 		while (ops.find((*cur)->tag()) != ops.end()) {
-			BinaryExpr::Operator op = ops[(*cur)->tag()];
+			BinaryExpr::Operator op = ops.find((*cur)->tag())->second;
 			cur++;
 			auto oprand2 = term();
 			if (oprand2 == nullptr)
-				throw SyntaxError("Parser error: missing oprand.");
+				throw SyntaxError("Parser error: missing oprand.", (*cur)->pos().first);
 			ret = newNode<BinaryExpr>(st, oprand2->endPos(), op, ret, oprand2);
 		}
 		return ret;
@@ -175,11 +173,11 @@ private:
 		auto ret = term();
 		if (ret == nullptr) return nullptr;
 
-		while ((*cur)->tag == p.first) {;
+		while ((*cur)->tag() == p.first) {;
 			cur++;
 			auto oprand2 = term();
 			if (oprand2 == nullptr)
-				throw SyntaxError("Parser error: missing oprand.");
+				throw SyntaxError("Parser error: missing oprand.", (*cur)->pos().first);
 			ret = newNode<BinaryExpr>(st, oprand2->endPos(), p.second, ret, oprand2);
 		}
 		return ret;

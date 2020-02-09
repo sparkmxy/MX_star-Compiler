@@ -1,6 +1,5 @@
 #include "environment.h"
 
-
 void Environment::builtinTypeInit()
 {
 	//Builtin types : int, bool, void
@@ -17,8 +16,8 @@ void Environment::builtinTypeInit()
 	auto length = std::make_shared<FunctionSymbol>("length", intSymbol, nullptr, stringSymbol);
 	stringSymbol->define(length);
 	auto substring = std::make_shared<FunctionSymbol>("substring", stringSymbol, nullptr, stringSymbol);
-	auto arg1 = std::make_shared<VarSymbol>("left", intSymbol, nullptr, stringSymbol);
-	auto arg2 = std::make_shared<VarSymbol>("right", intSymbol, nullptr, stringSymbol);
+	auto arg1 = std::make_shared<VarSymbol>("left", intSymbol, nullptr);
+	auto arg2 = std::make_shared<VarSymbol>("right", intSymbol, nullptr);
 
 	substring->define(arg1);
 	substring->define(arg2);
@@ -86,8 +85,9 @@ void Environment::bootstrapFuncInit()
 	auto decls = ast->getDecls();
 	for (auto &decl : decls) 
 		if(decl->isVarDecl()){
-			auto initExpr = std::static_pointer_cast<VarDecl>(decl)->getStmt()->getInitExpr();
-			auto idExpr = std::static_pointer_cast<VarDecl>(decl)->getStmt()->getIdentifier();
+			auto initExpr = std::static_pointer_cast<VarDeclStmt>(decl)->getInitExpr();
+			auto idExpr = std::make_shared<IdentifierExpr>(
+				std::static_pointer_cast<VarDeclStmt>(decl)->getIdentifier());
 			if (initExpr != nullptr) {
 				auto assignExpr = 
 					std::make_shared<BinaryExpr>(BinaryExpr::ASSIGN, idExpr, initExpr);
@@ -100,7 +100,7 @@ void Environment::bootstrapFuncInit()
 	auto Main = std::make_shared<IdentifierExpr>(std::make_shared<Identifier>("main"));
 	auto callMain = std::make_shared<FuncCallExpr>(
 			Main,
-			std::vector<std::shared_ptr<Expression> >()  // no args
+			std::vector<std::shared_ptr<Expression> >()		// no args
 		);
 	auto returnMain = std::make_shared<ReturnStmt>(callMain);
 	stmts.emplace_back(returnMain);
@@ -110,7 +110,7 @@ void Environment::bootstrapFuncInit()
 			nullptr, // stands for void type
 			std::make_shared<Identifier>("bootstrap"),
 			std::vector< std::shared_ptr<VarDeclStmt> >(), // <bootstrap> has no args
-			stmts
+			std::make_shared<StmtBlock>(stmts)
 		);
 	ast->getDecls().emplace_back(bootstrap);
 }

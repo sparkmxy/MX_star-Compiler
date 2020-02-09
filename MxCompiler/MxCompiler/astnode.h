@@ -271,6 +271,7 @@ public:
 	std::shared_ptr<VarSymbol> getSymbol() { return symbol; }
 	void setSymbol(std::shared_ptr<VarSymbol> _symbol) { symbol = _symbol; }
 
+	ACCEPT_VISITOR
 private:
 	std::shared_ptr<Expression> obj;
 	std::shared_ptr<IdentifierExpr> identifier;
@@ -280,18 +281,25 @@ private:
 
 /******************************************Expressions end here************************************************/
 
-class Statement : public astNode{
+class Statement : public virtual astNode{
 public:
 	ACCEPT_VISITOR_VIRTUAL
 };
 
-class VarDeclStmt : public Statement{
+class Declaration : public virtual astNode {
+public:
+	virtual bool isVarDecl() { return false; }
+	ACCEPT_VISITOR_VIRTUAL
+};
+
+//Particularly, <VarDeclStmt> belongs to <Statement> and <Declaration> at the same time.
+class VarDeclStmt : public Statement, public Declaration{
 public:
 	VarDeclStmt(std::shared_ptr<Type> _type,
 		std::shared_ptr<Identifier> _id,
-		std::shared_ptr<Expression> _init = nullptr) 
-	: type(std::move(_type)), identifier(std::move(_id)), init(std::move(_init)) {}
-	
+		std::shared_ptr<Expression> _init = nullptr)
+		: type(std::move(_type)), identifier(std::move(_id)), init(std::move(_init)) {}
+
 
 	std::shared_ptr<Expression> getInitExpr() { return init; }
 	std::shared_ptr<Type> getType() { return type; }
@@ -302,12 +310,13 @@ public:
 	void setSymbolType(std::shared_ptr<SymbolType> _type) { typeOfSymbol = _type; }
 	void setInitExpr(std::shared_ptr<Expression> _init) { init = _init; }
 
+	bool isVarDecl() override { return true; }
 	ACCEPT_VISITOR
 private:
 	std::shared_ptr<Type> type;
 	std::shared_ptr<Identifier> identifier;
 	std::shared_ptr<Expression> init;
-	
+
 	std::shared_ptr<VarSymbol> varSymbol;
 	std::shared_ptr<SymbolType> typeOfSymbol;
 };
@@ -331,8 +340,8 @@ private:
 
 class ForStmt : public Statement{
 public:
-	ForStmt(std::shared_ptr<Statement> _init, std::shared_ptr<Statement> _iter,
-		std::shared_ptr<Statement> _body, std::shared_ptr<Expression> _cond)
+	ForStmt(std::shared_ptr<Statement> _init, std::shared_ptr<Expression> _cond,
+		std::shared_ptr<Statement> _iter, std::shared_ptr<Statement> _body)
 		:init(std::move(init)), condition(std::move(_cond)), iter(std::move(_iter)),
 			body(std::move(_body)) {}
 	std::shared_ptr<Expression> getCondition() { return condition; }
@@ -408,6 +417,7 @@ public:
 
 class StmtBlock : public Statement{
 public:
+	StmtBlock() = default;
 	StmtBlock(std::vector<std::shared_ptr<Statement> > _stmts)
 		:stmts(std::move(_stmts)) {}
 
@@ -419,23 +429,6 @@ private:
 
 /******************************************Statements end here************************************************/
 
-class Declaration : public astNode{
-public:
-	virtual bool isVarDecl() { return false; }
-	ACCEPT_VISITOR_VIRTUAL
-};
-
-class VarDecl : public Declaration{
-public:
-	VarDecl(std::shared_ptr<VarDeclStmt> _stmt) : stmt(std::move(stmt)) {}
-
-	std::shared_ptr<VarDeclStmt> getStmt() { return stmt; }
-
-	bool isVarDecl() override { return true; }
-	ACCEPT_VISITOR
-private:
-	std::shared_ptr<VarDeclStmt> stmt;
-};
 
 class FunctionDecl : public Declaration{
 public:

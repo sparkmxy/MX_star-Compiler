@@ -19,7 +19,6 @@ public:
 private:
 
 	//override functions
-	void visit(VarDecl *node) override;
 	void visit(FunctionDecl *node) override;
 	void visit(ClassDecl *node) override;
 

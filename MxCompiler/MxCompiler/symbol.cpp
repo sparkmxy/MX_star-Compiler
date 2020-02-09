@@ -1,4 +1,5 @@
 #include "symbol.h"
+#include "astnode.h"
 
 std::shared_ptr<Symbol> ClassSymbol::resolveMember(const std::string & id)
 {
@@ -12,7 +13,7 @@ bool ClassSymbol::compatible(std::shared_ptr<SymbolType> type)
 {
 	if (this->getTypeName() == "string") {
 		if (type == nullptr) return false;
-		return type->getTypeName == "string";
+		return type->getTypeName() == "string";
 	}
 	if (type == nullptr) return true;
 	return this->getTypeName() == type->getTypeName();
@@ -25,11 +26,11 @@ void ClassSymbol::define(std::shared_ptr<Symbol> symbol)
 		memberFuncs.find(id) != memberFuncs.end())
 		throw SemanticError("Duplicated identifier", symbol->getDecl()->Where());
 	if (symbol->category() == VAR) {
-		memberVars[id] = symbol;
+		memberVars[id] = std::static_pointer_cast<VarSymbol>(symbol);
 		symbol->setScope(shared_from_this());
 	}
 	else if (symbol->category() == FUNCTION) {
-		memberFuncs[id] = symbol;
+		memberFuncs[id] = std::static_pointer_cast<FunctionSymbol>(symbol);
 		symbol->setScope(shared_from_this());
 	}
 }
@@ -44,7 +45,7 @@ void FunctionSymbol::define(std::shared_ptr<Symbol> symbol)
 {
 	if (args.find(symbol->getSymbolName()) != args.end())
 		throw SemanticError("Duplicated identifier for argument(s).", symbol->getDecl()->Where());
-	args[symbol->getSymbolName()] = symbol;
+	args[symbol->getSymbolName()] = std::static_pointer_cast<VarSymbol>(symbol);
 	symbol->setScope(shared_from_this());
 }
 

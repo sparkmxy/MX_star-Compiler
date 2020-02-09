@@ -7,12 +7,14 @@ void MxComplier::getCode()
 		std::cout << "Error: file not found." << std::endl;
 		std::terminate();
 	}
+	std::cout << "File found!" << std::endl;
 }
 
 void MxComplier::parse()
 {
 	lexer = std::make_shared<Lexer>(src);
 	tokens = lexer->getTokens();
+	std::cout << "Parse done!" << std::endl;
 }
 
 void MxComplier::buildAST()
@@ -23,10 +25,12 @@ void MxComplier::buildAST()
 		std::cout << "Error: redundant tokens." << std::endl;
 		std::terminate();
 	}
+	std::cout << "Build AST successfully!" << std::endl;
 }
 
 void MxComplier::semanticCheck()
 {
 	environment = std::make_shared<Environment>(ast);
 	environment->semanticCheck();
+	std::cout << "Passed emantic check!" << std::endl;
 }

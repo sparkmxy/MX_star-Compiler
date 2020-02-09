@@ -36,7 +36,8 @@ public:
 	
 	enum SymbolCategory
 	{
-		VAR, FUNCTION, CLASS, BUILTIN
+		VAR, FUNCTION, CLASS, BUILTIN,
+		FUCK
 	};
 
 	// getters and setters 
@@ -93,7 +94,7 @@ public:
 	virtual void define(std::shared_ptr<Symbol> symbol) = 0;
 	virtual std::shared_ptr<Symbol> resolve(const std::string &id) = 0;
 
-	virtual SymbolCategory category() = 0;
+	virtual SymbolCategory category() const = 0;
 private:
 	std::shared_ptr<Scope> enclosingScope;
 };
@@ -101,7 +102,7 @@ private:
 class ClassSymbol : public ScopedSymbol, public SymbolType {
 public:
 	ClassSymbol(const std::string &_name, 
-		Declaration *_decl, std::shared_ptr<Scope> _enclosingScope)
+		Declaration*_decl, std::shared_ptr<Scope> _enclosingScope)
 		:ScopedSymbol(_name, nullptr, _decl,_enclosingScope){}
 
 	std::shared_ptr<Symbol> resolveMember(const std::string &id);
@@ -109,7 +110,7 @@ public:
 	/*override funtions*/
 	std::string getTypeName() const override { return getSymbolName(); }
 
-	SymbolCategory category() override { return CLASS; }
+	SymbolCategory category() const override{ return CLASS; }
 
 	bool compatible(std::shared_ptr<SymbolType> type) override;
 	bool isUserDefinedType() override { return true; }
@@ -132,10 +133,12 @@ public:
 		:ScopedSymbol(_name, _type, _decl,_enclosingScope){}
 
 	/*override functions*/
-	SymbolCategory category() override { return FUNCTION; }
+	SymbolCategory category() const override { return FUNCTION; }
 
 	void define(std::shared_ptr<Symbol> symbol) override;
 	std::shared_ptr<Symbol> resolve(const std::string &id) override;
+private:
+	std::unordered_map<std::string, std::shared_ptr<VarSymbol> >  args;
 };
 
 class NullTypeSymbol : public SymbolType {

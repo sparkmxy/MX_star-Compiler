@@ -143,6 +143,9 @@
     <ClCompile Include="symbolTable.cpp" />
     <ClCompile Include="token.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="code.txt" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

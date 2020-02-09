@@ -1,11 +1,9 @@
 #include "parser.h"
 #include "token.h"
 
-namespace ph = std::placeholders;
-
 std::shared_ptr<Identifier> Parser::identifier() { 
 	if ((*cur)->tag() == ID) {
-		auto p = (*cur)->pos;
+		auto p = (*cur)->pos();
 		return newNode<Identifier>(p,(*(cur++))->toString());
 	}
 	return nullptr;
@@ -14,11 +12,11 @@ std::shared_ptr<Identifier> Parser::identifier() {
 std::shared_ptr<BuiltinType> Parser::builtinType() {
 	auto id = (*cur)->tag();
 	if (id == Num || id == String || id == Bool) {
-		auto p = (*cur)->pos;
+		auto p = (*cur)->pos();
 		switch (id) {
-		case Num: return newNode<BuiltinType>(p, (*(cur++))->toString(), BuiltinType::INT);
-		case String: return newNode<BuiltinType>(p, (*(cur++))->toString(), BuiltinType::STRING);
-		case Bool: return newNode<BuiltinType>(p, (*(cur++))->toString(), BuiltinType::BOOL);
+		case Num: return newNode<BuiltinType>(p, BuiltinType::INT);
+		case String: return newNode<BuiltinType>(p,  BuiltinType::STRING);
+		case Bool: return newNode<BuiltinType>(p,  BuiltinType::BOOL);
 		default:
 			throw SyntaxError("Parser error: undefined builtin-type.",(*cur)->pos().first);
 		}
@@ -29,8 +27,8 @@ std::shared_ptr<BuiltinType> Parser::builtinType() {
 std::shared_ptr<BasicType> Parser::basicType() {
 	std::shared_ptr<BasicType> ret = builtinType();
 	if (ret != nullptr) return ret;
-	ret = identifier();
-	if (ret != nullptr) return newNode<UserDefinedType>(ret->getPos(), ret);
+	auto id = identifier();
+	if (id != nullptr) return newNode<UserDefinedType>(id->getPos(), id);
 	return nullptr;
 }
 
@@ -41,7 +39,7 @@ std::shared_ptr<Type> Parser::type() {
 	while ((*cur)->tag() == LeftIndex) {
 		cur++;
 		if ((*cur)->tag() == RightIndex) 
-			ret = newNode<Type>((*st)->pos().first, (*cur)->pos().second, ret);
+			ret = newNode<ArrayType>((*st)->pos().first, (*cur)->pos().second, ret);
 		else{
 			cur = st;
 			return nullptr;
@@ -56,7 +54,7 @@ std::shared_ptr<Type> Parser::type() {
 std::shared_ptr<ConstValue> Parser::constValue() {
 	auto tag = (*cur)->tag();
 	if (tag == Num || tag == True || tag == False || tag == ConstString || tag == Null) {
-		auto p = (*cur)->pos; 
+		auto p = (*cur)->pos(); 
 		Token *tkptr = *cur;
 		cur++;
 		switch (tag)
@@ -73,7 +71,7 @@ std::shared_ptr<ConstValue> Parser::constValue() {
 
 std::shared_ptr<NewExpr> Parser::newExpr() {
 	auto st = (*cur)->pos().first;
-	if ((*cur)->tag != New) return nullptr;
+	if ((*cur)->tag() != New) return nullptr;
 	cur++;
 	
 	std::shared_ptr<Type> baseType = basicType();
@@ -81,17 +79,17 @@ std::shared_ptr<NewExpr> Parser::newExpr() {
 	std::vector<std::shared_ptr<Expression>> dimensions;
 
 	//()
-	if ((*cur)->tag == LeftBracket) {
+	if ((*cur)->tag() == LeftBracket) {
 		cur++;
-		if ((*cur)->tag != RightBracket)
+		if ((*cur)->tag() != RightBracket)
 			throw SyntaxError("Parser error : Missing ')' in new expression", (*cur)->pos().first);
 		return newNode<NewExpr>(st, (*(cur++))->pos().second, baseType, dimensions);
 	}
 
 	bool noDim = false;
-	while ((*cur)->tag == LeftIndex) {
+	while ((*cur)->tag() == LeftIndex) {
 		cur++;
-		if ((*cur)->tag == RightIndex) {  // no more dimensions
+		if ((*cur)->tag() == RightIndex) {  // no more dimensions
 			noDim = true;
 			cur++;
 			baseType = newNode<ArrayType>(st, (*cur)->pos().second, baseType);
@@ -118,7 +116,7 @@ std::shared_ptr<Expression> Parser::basicExpr() {
 	Tag tag = (*cur)->tag();
 	if (tag == ID) {
 		// identifierExpr or FunctionCall
-		auto idExpr = identifierExpr();
+		auto idExpr = std::static_pointer_cast<IdentifierExpr>(identifierExpr());
 		if ((*cur)->tag() == LeftBracket) {
 			// function call
 			auto args = arguments();
@@ -165,14 +163,14 @@ std::shared_ptr<Expression> Parser::topPriorityExpr() {
 		}
 		else if ((*cur)->tag() == Domain){
 			cur++;
-			auto identifier = identifierExpr();
+			auto identifier = std::static_pointer_cast<IdentifierExpr>(identifierExpr());
 			if (!identifier)
 				throw SyntaxError("Parser error: miss identifier." ,(*cur)->pos().first);
 			if ((*cur)->tag() == LeftBracket) {
 				// fucntion call with domain
 				cur++;
 				auto args = arguments();
-				if ((*cur)->tag != RightBracket)
+				if ((*cur)->tag() != RightBracket)
 					throw SyntaxError("Parser error: miss ')'.", (*cur)->pos().first);
 				return newNode<MemberFuncCallExpr>(st,(*(cur++))->pos().second, lhs, identifier, args);
 			}
@@ -190,11 +188,11 @@ std::shared_ptr<Expression> Parser::suffixUnaryExpr() {
 	auto st = (*cur)->pos().first;
 	std::shared_ptr<Expression> ret = topPriorityExpr();
 	if (ret == nullptr) return nullptr;
-	if ((*cur)->tag == Inc) {
+	if ((*cur)->tag() == Inc) {
 		ret = newNode<UnaryExpr>(st, (*cur)->pos().second, UnaryExpr::POSTINC, ret);
 		cur++;
 	}
-	else if((*cur)->tag == Dec){
+	else if((*cur)->tag() == Dec){
 		ret = newNode<UnaryExpr>(st, (*cur)->pos().second, UnaryExpr::POSTDEC, ret);
 		cur++;
 	}
@@ -238,69 +236,61 @@ std::shared_ptr<Expression> Parser::prefixUnaryExpr() {
 
 std::shared_ptr<Expression> Parser::multiplicativeExpr() {
 	return
-		expressionHelper(std::bind(&Parser::prefixUnaryExpr, this, ph::_1, ph::_2),
-			op.multiplicative);
+		expressionHelper(std::bind(&Parser::prefixUnaryExpr, this),
+			op.multiplicative());
 }
 
 std::shared_ptr<Expression> Parser::additiveExpr() {
 	return
-		expressionHelper(std::bind(&Parser::multiplicativeExpr, this, ph::_1, ph::_2),
-			op.additive);
+		expressionHelper(std::bind(&Parser::multiplicativeExpr, this),
+			op.additive());
 }
 
 std::shared_ptr<Expression> Parser::shiftExpr() {
 	return
-		expressionHelper(std::bind(&Parser::additiveExpr, this, ph::_1, ph::_2),
-			op.shift);
+		expressionHelper(std::bind(&Parser::additiveExpr, this),
+			op.shift());
 }
 
 
 std::shared_ptr<Expression> Parser::relationExpr() {
-	return
-		expressionHelper(std::bind(&Parser::shiftExpr, this, ph::_1, ph::_2),
-			op.rel);
+	return expressionHelper(std::bind(&Parser::shiftExpr, this),op.rel());
 }
 
 std::shared_ptr<Expression> Parser::equalityExpr() {
 	return
-		expressionHelper(std::bind(&Parser::relationExpr, this, ph::_1, ph::_2),
-			op.equality);
+		expressionHelper(std::bind(&Parser::relationExpr, this),
+			op.equality());
 }
 
 std::shared_ptr<Expression> Parser::bitAndExpr() {
-	return
-		expressionHelper(std::bind(&Parser::equalityExpr, this, ph::_1, ph::_2),
+	return expressionHelper(std::bind(&Parser::equalityExpr, this),
 			std::make_pair(BitAnd, BinaryExpr::Operator::BITAND));
 }
 
 std::shared_ptr<Expression> Parser::bitXorExpr() {
-	return
-		expressionHelper(std::bind(&Parser::bitAndExpr, this, ph::_1, ph::_2),
+	return expressionHelper(std::bind(&Parser::bitAndExpr, this),
 			std::make_pair(Xor, BinaryExpr::Operator::BITXOR));
 }
 
 
 std::shared_ptr<Expression> Parser::bitOrExpr() {
-	return
-		expressionHelper(std::bind(&Parser::bitXorExpr, this, ph::_1, ph::_2),
+	return expressionHelper(std::bind(&Parser::bitXorExpr, this),
 			std::make_pair(BitOr, BinaryExpr::Operator::BITOR));
 }
       
 std::shared_ptr<Expression> Parser::logicalAndExpr() {
-	return
-		expressionHelper(std::bind(&Parser::bitOrExpr, this, ph::_1, ph::_2),
+	return expressionHelper(std::bind(&Parser::bitOrExpr, this),
 			std::make_pair(BitAnd, BinaryExpr::Operator::BITAND));
 }
 
 std::shared_ptr<Expression> Parser::logicalOrExpr() {
-	return
-		expressionHelper(std::bind(&Parser::logicalAndExpr, this, ph::_1, ph::_2),
+	return expressionHelper(std::bind(&Parser::logicalAndExpr, this),
 			std::make_pair(And, BinaryExpr::Operator::AND));
 }
 
 std::shared_ptr<Expression> Parser::expression() {
-	return
-		expressionHelper(std::bind(&Parser::logicalOrExpr, this, ph::_1, ph::_2),
+	return expressionHelper(std::bind(&Parser::logicalOrExpr, this),
 			std::make_pair(Assign, BinaryExpr::Operator::ASSIGN));
 }
 /******************************************Expressions end here************************************************/
@@ -337,13 +327,13 @@ std::shared_ptr<IfStmt> Parser::ifStmt() {
 		
 	auto st = (*cur)->pos().first;
 
-	if((*(++cur))->tag != LeftBracket) 
+	if((*(++cur))->tag() != LeftBracket) 
 		throw SyntaxError("Parser error: missing '('.", (*cur)->pos().first);
 	cur++;
 	auto condition = expression();
 	if(condition == nullptr) 
 		throw SyntaxError("Parser error: invalid condition.", (*cur)->pos().first);
-	if ((*cur)->tag != LeftBracket)
+	if ((*cur)->tag() != LeftBracket)
 		throw SyntaxError("Parser error: missing '('.", (*cur)->pos().first);
 	cur++;
 	auto then = statement();
@@ -362,7 +352,7 @@ std::shared_ptr<ForStmt> Parser::forStmt() {
 	if ((*cur)->tag() != For) return nullptr;
 
 	auto st = (*cur)->pos().first;
-	if ((*(++cur))->tag != LeftBracket)
+	if ((*(++cur))->tag() != LeftBracket)
 		throw SyntaxError("Parser error: missing '('.", (*cur)->pos().first);
 	cur++;
 
@@ -382,15 +372,14 @@ std::shared_ptr<ForStmt> Parser::forStmt() {
 	if(body == nullptr)
 		throw SyntaxError("Parser error: missing body after 'for'.", (*cur)->pos().first);
 
-	return newNode<ForStmt>(st,body->endPos(),
-		init,condition,iteration,body);
+	return newNode<ForStmt>(st,body->endPos(),init,condition,iteration,body);
 }
 
 std::shared_ptr<WhileStmt> Parser::whileStmt() {
 	if ((*cur)->tag() != While) return nullptr;
 
 	auto st = (*cur)->pos().first;
-	if ((*(++cur))->tag != LeftBracket)
+	if ((*(++cur))->tag() != LeftBracket)
 		throw SyntaxError("Parser error: missing '('.", (*cur)->pos().first);
 	cur++;
 
@@ -457,7 +446,7 @@ std::shared_ptr<StmtBlock> Parser::stmtBlock() {
 	auto st = (*cur)->pos().first;
 	if ((*cur)->tag() != LeftBrace) return nullptr;
 	cur++;
-	std::vector<Statement> stmts;
+	std::vector<std::shared_ptr<Statement> > stmts;
 	while (true) {
 		auto stmt = statement();
 		if (stmt == nullptr) break;
@@ -503,12 +492,6 @@ std::shared_ptr<Statement> Parser::statement() {
 
 /******************************************Statements end here************************************************/
 
-std::shared_ptr<VarDecl> Parser::varDecl() {
-	auto st = (*cur)->pos().first;
-	auto stmt = varDeclStmt();
-	if (stmt == nullptr) return nullptr;
-	return newNode<VarDecl>(st,stmt->endPos(),stmt);
-}
 
 std::shared_ptr<FunctionDecl> Parser::functionDecl() {
 	auto st = (*cur)->pos().first;
@@ -570,7 +553,7 @@ std::shared_ptr<ClassDecl> Parser::classDecl() {
 			decl = newNode<FunctionDecl>(st, body->endPos(),
 				std::shared_ptr<Type>(nullptr),
 				newNode<Identifier>(POS.first, POS.second, className->name + "::ctor"),
-				std::vector<std::shared_ptr<VarDeclStmt> >(), 
+				std::vector< std::shared_ptr<VarDeclStmt> >(),
 				body
 				);
 		}
@@ -587,7 +570,7 @@ std::shared_ptr<ClassDecl> Parser::classDecl() {
 }
 
 std::shared_ptr<Declaration> Parser::declaration() {
-	std::shared_ptr<Declaration> decl = varDecl();
+	std::shared_ptr<Declaration> decl = varDeclStmt();
 	if (decl != nullptr) return decl;
 	decl = functionDecl();
 	if (decl != nullptr) return decl;
@@ -600,7 +583,7 @@ std::shared_ptr<ProgramAST> Parser::getAST() {
 	while (true) {
 		auto decl = declaration();
 		if (decl == nullptr) break;
-		decls.emplace_back(decls);
+		decls.emplace_back(decl);
 	}
 	if (decls.empty()) return nullptr;
 	return newNode<ProgramAST>(st, decls.back()->endPos(), decls);
@@ -644,10 +627,10 @@ std::shared_ptr<VarDeclStmt> Parser::formalArgument() {
 	auto st = (*cur)->pos().first;
 
 	auto tp = type();
-	if(type == nullptr)
+	if(tp == nullptr)
 		throw SyntaxError("Parser error: invalid argument.", (*cur)->pos().first);
 	auto name = identifier();
 	if (name == nullptr)
 		throw SyntaxError("Parser error: invalid argument.", (*cur)->pos().first);
-	return newNode<VarDeclStmt>(st,name->endPos(),tp,name);
+	return newNode<VarDeclStmt>(st, name->endPos(), tp, name);
 }

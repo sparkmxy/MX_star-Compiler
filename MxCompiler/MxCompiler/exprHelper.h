@@ -10,11 +10,11 @@ public:
 		init();
 	}
 
-	const std::unordered_map<Tag, BinaryExpr::Operator> & additive() { return Additive; }
-	const std::unordered_map<Tag, BinaryExpr::Operator> & multiplicative() { return Multiplicative; }
-	const std::unordered_map<Tag, BinaryExpr::Operator> & rel() { return Rel; }
-	const std::unordered_map<Tag, BinaryExpr::Operator> & shift() { return Shift; }
-	const std::unordered_map<Tag, BinaryExpr::Operator> & equality() { return Equality; }
+	std::unordered_map<Tag, BinaryExpr::Operator> & additive() { return Additive; }
+	std::unordered_map<Tag, BinaryExpr::Operator> & multiplicative() { return Multiplicative; }
+	std::unordered_map<Tag, BinaryExpr::Operator> & rel() { return Rel; }
+	std::unordered_map<Tag, BinaryExpr::Operator> & shift() { return Shift; }
+	std::unordered_map<Tag, BinaryExpr::Operator> & equality() { return Equality; }
 
 private:
 	std::unordered_map<Tag, BinaryExpr::Operator> Equality, Additive, Multiplicative, Rel, Shift;

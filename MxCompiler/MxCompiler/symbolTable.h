@@ -1,5 +1,7 @@
 #pragma once
 #include "pch.h"
+#include "visitor.h"
+#include "astnode.h"
 #include "symbol.h"
 
 
@@ -21,7 +23,6 @@ private:
 
 	//override functions
 	
-	void visit(VarDecl *node) override;
 	void visit(FunctionDecl *node)override;
 	void visit(ClassDecl *node)override;
 	

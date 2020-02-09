@@ -37,7 +37,6 @@ class ContinueStmt;
 class EmptyStmt;
 class StmtBlock;
 
-class VarDecl;
 class FunctionDecl;
 class ClassDecl;
 class ProgramAST;
@@ -74,7 +73,6 @@ public:
 	virtual void visit(EmptyStmt *) {}
 	virtual void visit(StmtBlock *) {}
 
-	virtual void visit(VarDecl *) {}
 	virtual void visit(FunctionDecl *) {}
 	virtual void visit(ClassDecl *) {}
 

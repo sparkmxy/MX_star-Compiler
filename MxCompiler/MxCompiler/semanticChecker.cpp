@@ -1,14 +1,11 @@
 #include "semanticChecker.h"
+#include "astnode.h"
+#include "symbol.h"
 
 void SemanticChecker::visit(ProgramAST *node)
 {
 	auto decls = node->getDecls();
 	for (auto &decl : decls) decl->accept(*this);
-}
-
-void SemanticChecker::visit(VarDecl *node)
-{
-	node->getStmt()->accept(*this);
 }
 
 void SemanticChecker::visit(FunctionDecl * node)
@@ -41,7 +38,7 @@ void SemanticChecker::visit(VarDeclStmt * node)
 		}
 		else {
 			// Array,String , or User Defined Type
-			if (type->getTypeName == "string")
+			if (type->getTypeName() == "string")
 				node->setInitExpr(std::make_shared<StringValue>("nmsl"));
 			else
 				node->setInitExpr(std::make_shared<NullValue>());

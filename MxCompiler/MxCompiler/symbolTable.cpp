@@ -1,5 +1,6 @@
 #include "symbolTable.h"
-
+#include "astnode.h"
+ 
 std::shared_ptr<SymbolType>
 SymbolTable::symbolTypeOfNode(Type *node, std::shared_ptr<GlobalScope> globalScope) {
 	if (node == nullptr) return globalScope->resolveType("void");
@@ -36,10 +37,6 @@ void SymbolTable::visit(ProgramAST *program) {
 }
 
 
-void SymbolTable::visit(VarDecl *node) {
-	node->getStmt()->accept(*this);
-}
-
 void SymbolTable::visit(VarDeclStmt *node) {
 	if (node->getInitExpr() != nullptr)
 		node->getInitExpr()->accept(*this);
@@ -47,8 +44,7 @@ void SymbolTable::visit(VarDeclStmt *node) {
 	node->setSymbolType(type);
 	auto var = std::make_shared<VarSymbol>(node->getIdentifier()->name, type, node);
 	node->setVarSymbol(var);
-	currentScope->define(var);
-	//need to check whether currentScope == globalScope ?
+	currentScope->define(var); //need to check whether currentScope == globalScope ?
 }
 
 void SymbolTable::visit(ExprStmt * node)
@@ -112,7 +108,7 @@ void SymbolTable::visit(FunctionDecl *node) {
 	std::shared_ptr<SymbolType> retType = symbolTypeOfNode(node->getRetType().get(), globalScope);
 	// it can be a constructor
 	bool isConstructor = false;
-	if (currentClassSymbol != nullptr && node->getIdentifier == "::ctor") {
+	if (currentClassSymbol != nullptr && node->getIdentifier()->name == "::ctor") {
 		if (currentClassSymbol->getConstructor() != nullptr)
 			throw SemanticError("Duplicated constructor.", node->Where());
 		isConstructor = true;
@@ -184,7 +180,7 @@ void SymbolTable::visit(WhileStmt * node)
 void SymbolTable::visit(ForStmt * node)
 {
 	loops.push(node);
-	if (node->getInit != nullptr) node->getInit()->accept(*this);
+	if (node->getInit() != nullptr) node->getInit()->accept(*this);
 	if (node->getCondition() != nullptr) node->getCondition()->accept(*this);
 	if (node->getIter() != nullptr) node->getIter()->accept(*this);
 	node->getBody()->accept(*this);
