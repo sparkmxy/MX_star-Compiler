@@ -34,7 +34,8 @@ void SymbolTable::visit(VarDeclStmt *node) {
 	if (node->getInitExpr() != nullptr)
 		node->getInitExpr()->accept(*this);
 	std::shared_ptr<SymbolType> type = symbolTypeOfNode(node->getType().get(), globalScope);
-	if(type)
+	if (type == nullptr)
+		throw SemanticError("undefined type", node->Where());
 	node->setSymbolType(type);
 	auto var = std::make_shared<VarSymbol>(node->getIdentifier()->name, type, node);
 	node->setVarSymbol(var);
@@ -88,6 +89,8 @@ void SymbolTable::visit(IdentifierExpr * node)
 void SymbolTable::visit(NewExpr * node)
 {
 	auto type = symbolTypeOfNode(node->getBaseType().get(), globalScope);
+	if (type == nullptr)
+		throw SemanticError("undefined type", node->Where());
 	node->setSymbolType(type);
 	auto dims = node->getDimensions();
 	for (auto &dim : dims) dim->accept(*this);

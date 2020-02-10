@@ -1,0 +1,174 @@
+----------------------------------------------
+int @ line: 0 col: 0 @ line: 18 col: 1
+n @ line: 18 col: 5
+; @ line: 18 col: 6
+int @ line: 0 col: 0 @ line: 19 col: 1
+[ @ line: 19 col: 4
+] @ line: 19 col: 6
+a @ line: 19 col: 9
+= @ line: 19 col: 11
+new @ line: 0 col: 0 @ line: 19 col: 13
+int @ line: 0 col: 0 @ line: 19 col: 17
+[ @ line: 19 col: 20
+NUM(20) @ line: 19 col: 22
+] @ line: 19 col: 24
+; @ line: 19 col: 26
+int @ line: 0 col: 0 @ line: 20 col: 1
+jud @ line: 20 col: 5
+( @ line: 20 col: 8
+int @ line: 0 col: 0 @ line: 20 col: 10
+x @ line: 20 col: 14
+) @ line: 20 col: 15
+{ @ line: 20 col: 17
+int @ line: 0 col: 0 @ line: 21 col: 2
+i @ line: 21 col: 6
+; @ line: 21 col: 7
+int @ line: 0 col: 0 @ line: 22 col: 2
+j @ line: 22 col: 6
+; @ line: 22 col: 7
+for @ line: 0 col: 0 @ line: 23 col: 2
+( @ line: 23 col: 5
+i @ line: 23 col: 7
+= @ line: 23 col: 8
+NUM(0) @ line: 23 col: 9
+; @ line: 23 col: 10
+i @ line: 23 col: 12
+< @ line: 23 col: 13
+n @ line: 23 col: 14
+/ @ line: 23 col: 15
+x @ line: 23 col: 17
+; @ line: 23 col: 18
+i @ line: 23 col: 20
+++ @ line: 23 col: 21
+) @ line: 23 col: 23
+{ @ line: 23 col: 25
+int @ line: 0 col: 0 @ line: 24 col: 3
+flag @ line: 24 col: 7
+= @ line: 24 col: 11
+NUM(0) @ line: 24 col: 12
+; @ line: 24 col: 13
+for @ line: 0 col: 0 @ line: 25 col: 3
+( @ line: 25 col: 6
+j @ line: 25 col: 8
+= @ line: 25 col: 9
+NUM(0) @ line: 25 col: 10
+; @ line: 25 col: 11
+j @ line: 25 col: 13
+< @ line: 25 col: 14
+x @ line: 25 col: 15
+- @ line: 25 col: 16
+NUM(1) @ line: 25 col: 17
+; @ line: 25 col: 18
+j @ line: 25 col: 20
+++ @ line: 25 col: 21
+) @ line: 25 col: 23
+{ @ line: 25 col: 25
+if @ line: 0 col: 0 @ line: 26 col: 4
+( @ line: 26 col: 6
+a @ line: 26 col: 8
+[ @ line: 26 col: 9
+i @ line: 26 col: 11
+* @ line: 26 col: 12
+x @ line: 26 col: 14
++ @ line: 26 col: 15
+j @ line: 26 col: 16
+] @ line: 26 col: 17
+> @ line: 26 col: 19
+a @ line: 26 col: 20
+[ @ line: 26 col: 21
+i @ line: 26 col: 23
+* @ line: 26 col: 24
+x @ line: 26 col: 26
++ @ line: 26 col: 27
+j @ line: 26 col: 28
++ @ line: 26 col: 29
+NUM(1) @ line: 26 col: 30
+] @ line: 26 col: 31
+) @ line: 26 col: 33
+flag @ line: 26 col: 35
+= @ line: 26 col: 39
+NUM(1) @ line: 26 col: 40
+; @ line: 26 col: 41
+} @ line: 27 col: 3
+if @ line: 0 col: 0 @ line: 28 col: 3
+( @ line: 28 col: 5
+! @ line: 28 col: 7
+flag @ line: 28 col: 8
+) @ line: 28 col: 12
+return @ line: 0 col: 0 @ line: 28 col: 14
+NUM(1) @ line: 28 col: 21
+; @ line: 28 col: 22
+} @ line: 29 col: 2
+return @ line: 0 col: 0 @ line: 30 col: 2
+NUM(0) @ line: 30 col: 9
+; @ line: 30 col: 10
+} @ line: 31 col: 1
+int @ line: 0 col: 0 @ line: 32 col: 1
+i @ line: 32 col: 5
+; @ line: 32 col: 6
+int @ line: 0 col: 0 @ line: 33 col: 1
+main @ line: 33 col: 5
+( @ line: 33 col: 9
+) @ line: 33 col: 11
+{ @ line: 33 col: 13
+n @ line: 34 col: 2
+= @ line: 34 col: 4
+getInt @ line: 34 col: 6
+( @ line: 34 col: 12
+) @ line: 34 col: 14
+; @ line: 34 col: 16
+for @ line: 0 col: 0 @ line: 35 col: 2
+( @ line: 35 col: 5
+i @ line: 35 col: 7
+= @ line: 35 col: 8
+NUM(0) @ line: 35 col: 9
+; @ line: 35 col: 10
+i @ line: 35 col: 12
+< @ line: 35 col: 13
+n @ line: 35 col: 14
+; @ line: 35 col: 15
+i @ line: 35 col: 17
+++ @ line: 35 col: 18
+) @ line: 35 col: 20
+a @ line: 35 col: 23
+[ @ line: 35 col: 24
+i @ line: 35 col: 26
+] @ line: 35 col: 27
+= @ line: 35 col: 30
+getInt @ line: 35 col: 32
+( @ line: 35 col: 38
+) @ line: 35 col: 40
+; @ line: 35 col: 42
+for @ line: 0 col: 0 @ line: 36 col: 2
+( @ line: 36 col: 5
+i @ line: 36 col: 7
+= @ line: 36 col: 8
+n @ line: 36 col: 9
+; @ line: 36 col: 10
+i @ line: 36 col: 13
+> @ line: 36 col: 15
+NUM(0) @ line: 36 col: 17
+; @ line: 36 col: 18
+i @ line: 36 col: 20
+= @ line: 36 col: 22
+i @ line: 36 col: 24
+/ @ line: 36 col: 26
+NUM(2) @ line: 36 col: 29
+) @ line: 36 col: 30
+if @ line: 0 col: 0 @ line: 37 col: 9
+( @ line: 37 col: 11
+jud @ line: 37 col: 13
+( @ line: 37 col: 16
+i @ line: 37 col: 18
+) @ line: 37 col: 19
+> @ line: 37 col: 22
+NUM(0) @ line: 37 col: 24
+) @ line: 37 col: 25
+{ @ line: 37 col: 27
+print @ line: 38 col: 13
+( @ line: 38 col: 18
+toString @ line: 38 col: 20
+( @ line: 38 col: 28
+i @ line: 38 col: 30
+) @ line: 38 col: 31
+) @ line

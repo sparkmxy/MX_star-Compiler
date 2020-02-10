@@ -14,8 +14,8 @@ void complie(std::string src) {
 	}
 	catch (Error & err)
 	{
-		std::clog << "FAILED\n";
-		std::cout << "Unfortunately, complie has failed.\n" << err.what() << std::endl;
+		std::clog << "FAILED\n" << err.what() << '\n';
+		std::cout << "Unfortunately, complie has failed." << std::endl;
 		return;
 	}
 	std::clog << "FINISHED\n";
@@ -23,9 +23,9 @@ void complie(std::string src) {
 }
 
 int main() {
-	//freopen("log.txt", "w", stderr);
+	freopen("log.txt", "w", stderr);
 	
-	std::string src = "code.txt";
+	std::string src = "test/codegen/e2.mx";
 
 	complie(src);
 	

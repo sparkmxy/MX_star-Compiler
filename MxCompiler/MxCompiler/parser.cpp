@@ -79,14 +79,14 @@ std::shared_ptr<NewExpr> Parser::newExpr() {
 	if (baseType == nullptr) return nullptr;
 	std::vector<std::shared_ptr<Expression>> dimensions;
 
-	//()
+	/*
 	if ((*cur)->tag() == LeftBracket) {
 		cur++;
 		if ((*cur)->tag() != RightBracket)
 			throw SyntaxError("Parser error : Missing ')' in new expression", (*cur)->pos().first);
 		return newNode<NewExpr>(st, (*(cur++))->pos().second, baseType, dimensions);
 	}
-
+	*/
 	bool noDim = false;
 	while ((*cur)->tag() == LeftIndex) {
 		cur++;
@@ -102,6 +102,9 @@ std::shared_ptr<NewExpr> Parser::newExpr() {
 		if (expr == nullptr)
 			throw SyntaxError("Parser error: incomplete expression", (*cur)->pos().first);
 		dimensions.push_back(expr);
+		if ((*cur)->tag() != RightIndex)
+			throw SyntaxError("missing ']'", (*cur)->pos().first);
+		cur++;
 	}
 	return newNode<NewExpr>(st, (*cur)->pos().second, baseType, dimensions);
 }
@@ -161,7 +164,7 @@ std::shared_ptr<Expression> Parser::topPriorityExpr() {
 				throw SyntaxError("Parser error: missing expression.",(*cur)->pos().first);
 			if((*cur)->tag() != RightIndex)
 				throw SyntaxError("Parser error: missing ']'", (*cur)->pos().first);
-			lhs =  newNode<BinaryExpr>(st, (*cur)->pos().second, BinaryExpr::INDEX, lhs, rhs);
+			lhs =  newNode<BinaryExpr>(st, (*(cur++))->pos().second, BinaryExpr::INDEX, lhs, rhs);
 		}
 		else if ((*cur)->tag() == Domain){
 			cur++;
@@ -337,19 +340,19 @@ std::shared_ptr<IfStmt> Parser::ifStmt() {
 	auto condition = expression();
 	if(condition == nullptr) 
 		throw SyntaxError("Parser error: invalid condition.", (*cur)->pos().first);
-	if ((*cur)->tag() != LeftBracket)
-		throw SyntaxError("Parser error: missing '('.", (*cur)->pos().first);
+	if ((*cur)->tag() != RightBracket)
+		throw SyntaxError("Parser error: missing ')'.", (*cur)->pos().first);
 	cur++;
 	auto then = singleStmtOrBlock();
 	if(then == nullptr)
 		throw SyntaxError("Parser error: missing statement after 'if'.", (*cur)->pos().first);
 	if ((*cur)->tag() != Else)
-		return newNode<IfStmt>(st, (*(cur++))->pos().second, condition, then); // ne else
+		return newNode<IfStmt>(st, (*cur)->pos().second, condition, then); // ne else
 	cur++;
 	auto _else = singleStmtOrBlock();
 	if (_else == nullptr)
 		throw SyntaxError("Parser error: missing statement after 'else'.", (*cur)->pos().first);
-	return newNode<IfStmt>(st, (*(cur++))->pos().second, condition, then, _else); // ne else
+	return newNode<IfStmt>(st, (*cur)->pos().second, condition, then, _else); // ne else
 }
 
 std::shared_ptr<ForStmt> Parser::forStmt() {
@@ -360,7 +363,8 @@ std::shared_ptr<ForStmt> Parser::forStmt() {
 		throw SyntaxError("Parser error: missing '('", (*cur)->pos().first);
 	cur++;
 
-	auto init = exprStmt();
+	std::shared_ptr<Statement> init = exprStmt();
+	if (init == nullptr) init = varDeclStmt();
 	if(init == nullptr) 
 		throw SyntaxError("Parser error: missing initial statement after 'for'", (*cur)->pos().first);
 	auto condition = expression();
@@ -459,7 +463,6 @@ std::shared_ptr<StmtBlock> Parser::stmtBlock() {
 	cur++;
 	
 	while (true) {
-		cur;
 		auto stmt = statement();
 		if (stmt == nullptr) break;
 		stmts.emplace_back(stmt);

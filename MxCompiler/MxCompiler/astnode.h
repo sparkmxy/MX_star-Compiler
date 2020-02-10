@@ -443,7 +443,7 @@ public:
 		std::vector< std::shared_ptr<VarDeclStmt> > _args,
 		std::shared_ptr<StmtBlock> _body)
 		:retType(std::move(_retType)),name(std::move(_name)), 
-		args(std::move(args)), body(std::move(_body)) {}
+		args(std::move(_args)), body(std::move(_body)) {}
 	
 	/*getters/setters*/
 	std::shared_ptr<Type> getRetType() { return retType; }

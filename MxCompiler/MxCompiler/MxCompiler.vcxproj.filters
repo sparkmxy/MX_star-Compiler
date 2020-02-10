@@ -120,7 +120,7 @@
       <Filter>源文件\semantic</Filter>
     </ClCompile>
     <ClCompile Include="ClassDeclVisitor.cpp">
-      <Filter>源文件</Filter>
+      <Filter>源文件\semantic</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

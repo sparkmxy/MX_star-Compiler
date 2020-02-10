@@ -75,7 +75,7 @@ bool ArraySymbol::compatible(std::shared_ptr<SymbolType> type)
 {
 	if (type == nullptr) return true; // nullptr stands for <null>
 	if (!type->isArrayType()) return false;
-	return std::static_pointer_cast<ArraySymbol>(type)->compatible(this->baseType);
+	return std::static_pointer_cast<ArraySymbol>(type)->getBaseType()->compatible(this->baseType);
 }
 
 bool BuiltInTypeSymbol::compatible(std::shared_ptr<SymbolType> type)

@@ -322,7 +322,7 @@ void SemanticChecker::visit(UnaryExpr * node)
 			node->setExprCategory(Expression::RVALUE);
 			node->setSymbolType(boolSymbol);
 		}
-		else throw SemanticError("'~' should be in front of a boolean value",node->Where());
+		else throw SemanticError("'!' should be in front of a boolean value",node->Where());
 	}
 	else { // + - or ~
 		if (operand->getSymbolType()->getTypeName() == "int") {
