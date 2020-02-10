@@ -40,7 +40,7 @@ std::shared_ptr<SymbolType> GlobalScope::resolveType(const std::string &id)
 
 std::shared_ptr<Symbol> LocalScope::resolve(const std::string & id)
 {
-	auto iter = symbols.find(name);
+	auto iter = symbols.find(id);
 	if (iter != symbols.end()) return iter->second;
 	return enclosingScope->resolve(id);
 }

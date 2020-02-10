@@ -137,11 +137,13 @@ private:
 	// FormalArgment = Type Identifier
 	std::shared_ptr<VarDeclStmt> formalArgument();
 
+	std::shared_ptr<Statement> singleStmtOrBlock();
+
 	template<class T, class...Args>
 	std::shared_ptr<T> newNode(const Position &st, const Position &ed, Args ... args) {
 		auto ret = std::shared_ptr<T>(new T(args...));
 		ret->setPos(std::make_pair(st, ed));
-		std::clog << "newNode between " << st.toString() << " and " << ed.toString() << '\n';
+//		std::clog << "newNode between " << st.toString() << " and " << ed.toString() << '\n';
 		return ret;
 	}
 
@@ -149,7 +151,7 @@ private:
 	std::shared_ptr<T> newNode(const PosPair &pos, Args ... args) {
 		auto ret = std::shared_ptr<T>(new T(args...));
 		ret->setPos(pos);
-		std::clog << "newNode between " << pos.first.toString() << " and " << pos.second.toString() << '\n';
+//		std::clog << "newNode between " << pos.first.toString() << " and " << pos.second.toString() << '\n';
 		return ret;
 	}
 

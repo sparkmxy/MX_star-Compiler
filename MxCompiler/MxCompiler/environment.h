@@ -2,6 +2,8 @@
 #include "pch.h"
 #include "semanticChecker.h"
 #include "symbolTable.h"
+#include "ClassDeclVisitor.h"
+#include "GlobalFuncAndClsDecl.h"
 
 class Environment {
 public:
@@ -22,9 +24,12 @@ public:
 	void semanticCheck();
 private:
 	std::shared_ptr<ProgramAST> ast;
-	std::shared_ptr<SemanticChecker> semanticChecker;
-	std::shared_ptr<SymbolTable> symbolTable;
 
+	std::shared_ptr<ClassDeclVisitor> clsDeclVistor;
+	std::shared_ptr<GlobalFuncAndClsVisitor> glbFuncAndClsVistor;
+	std::shared_ptr<SymbolTable> symbolTable;
+	std::shared_ptr<SemanticChecker> semanticChecker;
+	
 	/*Helper functions*/
 	void bootstrapFuncInit();
 	void builtinTypeInit();

@@ -167,12 +167,15 @@ void SemanticChecker::visit(BinaryExpr * node)
 		node->setExprCategory(Expression::LVALUE);
 		node->setSymbolType(std::static_pointer_cast<ArraySymbol>(lhs->getSymbolType())->getBaseType());
 	}
-	else {  // interger-only operators
-		// both operands must be boolean
+	else {  // interger-only operators :
+		// both operands must be int
 		if (lhsType != "int" || rhsType != "int")
 			throw SemanticError("both operands must be int", node->Where());
 		node->setExprCategory(Expression::RVALUE);
-		node->setSymbolType(intSymbol);
+		if (isComparisonOperator(op))
+			node->setSymbolType(boolSymbol);
+		else 
+			node->setSymbolType(intSymbol);
 	}
 }
 
@@ -197,7 +200,7 @@ void SemanticChecker::visit(ClassMemberExpr * node)
 void SemanticChecker::visit(MemberFuncCallExpr * node)
 {
 	auto obj = node->getInstance();
-	auto funcName = node->getIdentifier()->getIdentifier()->name;
+	auto funcName = node->getIdentifierExpr()->getIdentifier()->name;
 	obj->accept(*this);
 	if (obj->getExprCategory() == Expression::THIS || obj->isObject()) {
 		auto symbol = std::static_pointer_cast<ClassSymbol>(obj->getSymbolType())->resolve(funcName);
@@ -237,11 +240,12 @@ void SemanticChecker::visit(MemberFuncCallExpr * node)
 void SemanticChecker::visit(FuncCallExpr * node)
 {
 	// this is only for global function call
-	node->getIdentifier()->accept(*this);
+	node->getIdentifierExpr()->accept(*this);
 	auto args = node->getArgs();
-	auto func = std::static_pointer_cast<FunctionSymbol>(node->getIdentifier()->getSymbol());
+	auto func = std::static_pointer_cast<FunctionSymbol>(
+		node->getIdentifierExpr()->getSymbol());
 	for (auto &arg : args) arg->accept(*this);
-	auto formalArgs = reinterpret_cast<FunctionDecl *>(func->getDecl())->getArgs();
+	auto formalArgs = func->getFormalArgs();
 	if (args.size() > formalArgs.size())
 		throw SemanticError("too many parameters", node->Where());
 	if (args.size() < formalArgs.size())
@@ -250,7 +254,7 @@ void SemanticChecker::visit(FuncCallExpr * node)
 	for (int i = 0; i < args.size(); i++) {
 		if (!args[i]->isValue())
 			throw SemanticError("parameter should be a valid value", node->Where());
-		if (!formalArgs[i]->getSymbolType()->compatible(args[i]->getSymbolType()))
+		if (!formalArgs[i]->getType()->compatible(args[i]->getSymbolType()))
 			throw SemanticError("wrong parameter type", node->Where());
 	}
 	node->setSymbolType(func->getType());
@@ -296,31 +300,32 @@ void SemanticChecker::visit(NewExpr * node)
 
 void SemanticChecker::visit(UnaryExpr * node)
 {
-	node->getOprand()->accept(*this);
+	node->getOperand()->accept(*this);
 	auto op = node->getOperator();
+	auto operand = node->getOperand();
 	if (op == UnaryExpr::PREDEC || op == UnaryExpr::PREINC) {
-		if (node->isLvalue() && node->getSymbolType()->getTypeName() == "int") {
+		if (operand->isLvalue() && operand->getSymbolType()->getTypeName() == "int") {
 			node->setExprCategory(Expression::LVALUE);
 			node->setSymbolType(intSymbol);
 		}
-		else throw SemanticError("prefix dec/inc require int variable", node->Where());
+		else throw SemanticError("prefix dec/inc require int oprand", node->Where());
 	}
 	else if (op == UnaryExpr::POSTINC || op == UnaryExpr::POSTDEC) {
-		if (node->isLvalue() && node->getSymbolType()->getTypeName() == "int") {
+		if (operand->isLvalue() && operand->getSymbolType()->getTypeName() == "int") {
 			node->setExprCategory(Expression::RVALUE);
 			node->setSymbolType(intSymbol);
 		}
-		else throw SemanticError("post dec/inc require int variable", node->Where());
+		else throw SemanticError("post dec/inc require int oprand", node->Where());
 	}
 	else if (op == UnaryExpr::NOT) {
-		if (node->getSymbolType()->getTypeName() == "bool") {
+		if (operand->getSymbolType()->getTypeName() == "bool") {
 			node->setExprCategory(Expression::RVALUE);
 			node->setSymbolType(boolSymbol);
 		}
 		else throw SemanticError("'~' should be in front of a boolean value",node->Where());
 	}
 	else { // + - or ~
-		if (node->getSymbolType()->getTypeName() == "int") {
+		if (operand->getSymbolType()->getTypeName() == "int") {
 			node->setExprCategory(Expression::RVALUE);
 			node->setSymbolType(intSymbol);
 		}
@@ -357,6 +362,12 @@ bool SemanticChecker::isBoolOnlyOperator(BinaryExpr::Operator op)
 {
 	return   op == BinaryExpr::AND || op == BinaryExpr::NOT
 		|| op == BinaryExpr::GEQ || op == BinaryExpr::OR;
+}
+
+bool SemanticChecker::isComparisonOperator(BinaryExpr::Operator op)
+{
+	return op == BinaryExpr::LESS || op == BinaryExpr::LEQ
+		|| op == BinaryExpr::GREATER || op == BinaryExpr::GEQ;
 }
 
 

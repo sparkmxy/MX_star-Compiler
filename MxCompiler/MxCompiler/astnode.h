@@ -110,7 +110,7 @@ public:
 		if (category != LVALUE) return false;
 		return symbolType->isArrayType() || symbolType->isUserDefinedType();
 	}
-	bool isObject() { return isValue() || symbolType->isUserDefinedType(); }
+	bool isObject() { return isValue() && symbolType->isUserDefinedType(); }
 	ACCEPT_VISITOR_VIRTUAL
 
 private:
@@ -196,7 +196,7 @@ public:
 	UnaryExpr(Operator _op, std::shared_ptr<Expression> _oprand) :
 		op(_op), oprand(std::move(_oprand)) {}
 
-	std::shared_ptr<Expression> getOprand() { return oprand; }
+	std::shared_ptr<Expression> getOperand() { return oprand; }
 	Operator getOperator() { return op; }
 	ACCEPT_VISITOR
 private:
@@ -235,7 +235,7 @@ public:
 		:funcName(std::move(_funcName)), args(std::move(_args)) {}
 
 	std::vector<std::shared_ptr<Expression> > &getArgs() { return args; }
-	std::shared_ptr<IdentifierExpr> getIdentifier() { return funcName; }
+	std::shared_ptr<IdentifierExpr> getIdentifierExpr() { return funcName; }
 	std::shared_ptr<FunctionSymbol> getFuncSymbol() { return funcSymbol; }
 
 	void setFuncSymbol(std::shared_ptr<FunctionSymbol> _funcSymbol) { funcSymbol = _funcSymbol; }
@@ -286,6 +286,12 @@ public:
 	ACCEPT_VISITOR_VIRTUAL
 };
 
+/*
+Interface class <Declararion>
+Since variable declartion might include initial value,
+we need to recongnize it from other declartions,
+and hence we have the method <isVarDecl>
+*/
 class Declaration : public virtual astNode {
 public:
 	virtual bool isVarDecl() { return false; }
@@ -342,7 +348,7 @@ class ForStmt : public Statement{
 public:
 	ForStmt(std::shared_ptr<Statement> _init, std::shared_ptr<Expression> _cond,
 		std::shared_ptr<Statement> _iter, std::shared_ptr<Statement> _body)
-		:init(std::move(init)), condition(std::move(_cond)), iter(std::move(_iter)),
+		:init(std::move(_init)), condition(std::move(_cond)), iter(std::move(_iter)),
 			body(std::move(_body)) {}
 	std::shared_ptr<Expression> getCondition() { return condition; }
 	std::shared_ptr<Statement> getInit() { return init; }
@@ -445,9 +451,11 @@ public:
 	std::vector< std::shared_ptr<VarDeclStmt> > &getArgs() { return args; }
 	std::shared_ptr<StmtBlock> getBody() { return body; }
 
+	std::shared_ptr<FunctionSymbol> getFuncSymbol() { return funcSymbol; }
 	void setFuncSymbol(std::shared_ptr<FunctionSymbol> _funcSymbol) { funcSymbol = _funcSymbol; }
 	
 	bool isConstructor() { return retType == nullptr; }
+
 	ACCEPT_VISITOR
 private:
 	//retType == nullptr if this function return with void type.
@@ -468,6 +476,7 @@ public:
 	std::shared_ptr<Identifier> getIdentifier() { return name; }
 	std::vector< std::shared_ptr<Declaration> > &getMembers(){ return members; }
 
+	std::shared_ptr<ClassSymbol> getClsSymbol() { return clsSymbol; }
 	void setClsSymbol(std::shared_ptr<ClassSymbol> _clsSymbol) { clsSymbol = _clsSymbol; }
 
 	ACCEPT_VISITOR

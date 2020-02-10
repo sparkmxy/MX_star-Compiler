@@ -4,7 +4,7 @@
 std::shared_ptr<Identifier> Parser::identifier() { 
 	if ((*cur)->tag() == ID) {
 		auto p = (*cur)->pos();
-		return newNode<Identifier>(p,(*(cur++))->toString());
+		return newNode<Identifier>(p,(*(cur++))->getLexeme());
 	}
 	return nullptr;
 }
@@ -61,7 +61,7 @@ std::shared_ptr<ConstValue> Parser::constValue() {
 		switch (tag)
 		{
 		case Num: return newNode<NumValue>(p,reinterpret_cast<Number*>(tkptr.get())->value());
-		case ConstString: return newNode<StringValue>(p, tkptr->toString());
+		case ConstString: return newNode<StringValue>(p, tkptr->getLexeme());
 		case True: return newNode<BoolValue>(p, true);
 		case False: return newNode<BoolValue>(p, false);
 		case Null: return newNode<NullValue>(p);
@@ -340,13 +340,13 @@ std::shared_ptr<IfStmt> Parser::ifStmt() {
 	if ((*cur)->tag() != LeftBracket)
 		throw SyntaxError("Parser error: missing '('.", (*cur)->pos().first);
 	cur++;
-	auto then = statement();
+	auto then = singleStmtOrBlock();
 	if(then == nullptr)
 		throw SyntaxError("Parser error: missing statement after 'if'.", (*cur)->pos().first);
 	if ((*cur)->tag() != Else)
 		return newNode<IfStmt>(st, (*(cur++))->pos().second, condition, then); // ne else
 	cur++;
-	auto _else = statement();
+	auto _else = singleStmtOrBlock();
 	if (_else == nullptr)
 		throw SyntaxError("Parser error: missing statement after 'else'.", (*cur)->pos().first);
 	return newNode<IfStmt>(st, (*(cur++))->pos().second, condition, then, _else); // ne else
@@ -357,29 +357,29 @@ std::shared_ptr<ForStmt> Parser::forStmt() {
 
 	auto st = (*cur)->pos().first;
 	if ((*(++cur))->tag() != LeftBracket)
-		throw SyntaxError("Parser error: missing '('.", (*cur)->pos().first);
+		throw SyntaxError("Parser error: missing '('", (*cur)->pos().first);
 	cur++;
 
 	auto init = exprStmt();
 	if(init == nullptr) 
-		throw SyntaxError("Parser error: missing initial statement after 'for'.", (*cur)->pos().first);
+		throw SyntaxError("Parser error: missing initial statement after 'for'", (*cur)->pos().first);
 	auto condition = expression();
 	if (condition == nullptr)
-		throw SyntaxError("Parser error: missing condition after 'for'.", (*cur)->pos().first);
+		throw SyntaxError("Parser error: missing condition after 'for'", (*cur)->pos().first);
 	if ((*(cur++))->tag() != Semicolon)
 		throw SyntaxError("Parser error: missing ';'.", (*cur)->pos().first);
 
 	// only expression statement is allowed for iteration step
 	auto iterationExp = expression();
 	if (iterationExp == nullptr)
-		throw SyntaxError("Parser error: missing iteration after 'for'.", (*cur)->pos().first);
+		throw SyntaxError("Parser error: missing iteration after 'for'", (*cur)->pos().first);
 	auto iteration = newNode<ExprStmt>(iterationExp->getPos(), iterationExp);
 
 	if ((*(cur++))->tag() != RightBracket)
-		throw SyntaxError("Parser error: missing ')'.", (*cur)->pos().first);
-	auto body = statement();
+		throw SyntaxError("Parser error: missing ')'", (*cur)->pos().first);
+	auto body = singleStmtOrBlock();
 	if(body == nullptr)
-		throw SyntaxError("Parser error: missing body after 'for'.", (*cur)->pos().first);
+		throw SyntaxError("Parser error: missing body after 'for'", (*cur)->pos().first);
 
 	return newNode<ForStmt>(st,body->endPos(),init,condition,iteration,body);
 }
@@ -399,7 +399,7 @@ std::shared_ptr<WhileStmt> Parser::whileStmt() {
 
 	if ((*(cur++))->tag() != RightBracket)
 		throw SyntaxError("Parser error: missing ')'.", (*cur)->pos().first);
-	auto body = statement();
+	auto body = singleStmtOrBlock();
 	if (body == nullptr)
 		throw SyntaxError("Parser error: missing body after 'for'.", (*cur)->pos().first);
 	return newNode<WhileStmt>(st, body->endPos(), condition, body);
@@ -453,9 +453,11 @@ std::shared_ptr<EmptyStmt> Parser::emptyStmt() {
 
 std::shared_ptr<StmtBlock> Parser::stmtBlock() {
 	auto st = (*cur)->pos().first;
+	std::vector<std::shared_ptr<Statement> > stmts;
+
 	if ((*cur)->tag() != LeftBrace) return nullptr;
 	cur++;
-	std::vector<std::shared_ptr<Statement> > stmts;
+	
 	while (true) {
 		cur;
 		auto stmt = statement();
@@ -643,4 +645,11 @@ std::shared_ptr<VarDeclStmt> Parser::formalArgument() {
 	if (name == nullptr)
 		throw SyntaxError("Parser error: invalid argument.", (*cur)->pos().first);
 	return newNode<VarDeclStmt>(st, name->endPos(), tp, name);
+}
+
+std::shared_ptr<Statement> Parser::singleStmtOrBlock()
+{
+	if ((*cur)->tag() == LeftBrace)  // a block
+		return stmtBlock();
+	return statement();
 }

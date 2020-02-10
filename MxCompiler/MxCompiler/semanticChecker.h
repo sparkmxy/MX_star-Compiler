@@ -44,15 +44,17 @@ private:
 	void visit(NumValue *node) override;
 	void visit(BoolValue *node) override;
 	void visit(NullValue *node) override;
-	/*Helper Functions*/
-	bool isBoolOnlyOperator(BinaryExpr::Operator op);
-
-	/*Builtin Symbols*/
+	
 private:
+	/*Builtin Symbols*/
 	std::shared_ptr<GlobalScope> globalScope;
 	std::shared_ptr<BuiltInTypeSymbol> intSymbol;
 	std::shared_ptr<BuiltInTypeSymbol> boolSymbol;
 	std::shared_ptr<BuiltInTypeSymbol> voidSymbol;
 	std::shared_ptr<ClassSymbol> stringClassSymbol;
+	/*Helper Functions*/
+	bool isBoolOnlyOperator(BinaryExpr::Operator op);
+	bool isComparisonOperator(BinaryExpr::Operator op);
+
 };
 

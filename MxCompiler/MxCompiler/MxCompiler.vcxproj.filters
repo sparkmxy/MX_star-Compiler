@@ -75,6 +75,15 @@
     <ClInclude Include="MxComplier.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="utility.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="GlobalFuncAndClsDecl.h">
+      <Filter>头文件\semantic</Filter>
+    </ClInclude>
+    <ClInclude Include="ClassDeclVisitor.h">
+      <Filter>头文件\semantic</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="token.cpp">
@@ -105,6 +114,12 @@
       <Filter>源文件\semantic</Filter>
     </ClCompile>
     <ClCompile Include="MxComplier.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="GlobalFuncDeclVistor.cpp">
+      <Filter>源文件\semantic</Filter>
+    </ClCompile>
+    <ClCompile Include="ClassDeclVisitor.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

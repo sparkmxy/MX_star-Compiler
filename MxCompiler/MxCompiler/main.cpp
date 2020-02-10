@@ -23,7 +23,7 @@ void complie(std::string src) {
 }
 
 int main() {
-	freopen("log.txt", "w", stderr);
+	//freopen("log.txt", "w", stderr);
 	
 	std::string src = "code.txt";
 

@@ -36,5 +36,5 @@ void MxComplier::semanticCheck()
 	environment = std::make_shared<Environment>(ast);
 	
 	environment->semanticCheck();
-	std::cout << "Passed emantic check!" << std::endl;
+	std::cout << "Passed semantic check!" << std::endl;
 }

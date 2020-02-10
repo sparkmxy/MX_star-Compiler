@@ -36,8 +36,7 @@ public:
 	
 	enum SymbolCategory
 	{
-		VAR, FUNCTION, CLASS, BUILTIN,
-		FUCK
+		FUCK, VAR, FUNCTION, CLASS, BUILTIN
 	};
 
 	// getters and setters 
@@ -137,8 +136,11 @@ public:
 
 	void define(std::shared_ptr<Symbol> symbol) override;
 	std::shared_ptr<Symbol> resolve(const std::string &id) override;
+
+	std::vector<std::shared_ptr<VarSymbol> > getFormalArgs() { return formalArgs; }
 private:
 	std::unordered_map<std::string, std::shared_ptr<VarSymbol> >  args;
+	std::vector<std::shared_ptr<VarSymbol> > formalArgs;
 };
 
 class NullTypeSymbol : public SymbolType {
@@ -147,3 +149,6 @@ class NullTypeSymbol : public SymbolType {
 	std::string getTypeName() const override { return "null"; }
 };
 
+class Type;
+std::shared_ptr<SymbolType>
+symbolTypeOfNode(Type *node, std::shared_ptr<GlobalScope> globalScope);

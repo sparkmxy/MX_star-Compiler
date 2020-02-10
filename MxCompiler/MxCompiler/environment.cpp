@@ -42,7 +42,7 @@ void Environment::builtinFuncInit()
 	global->define(print);
 	
 	auto println = std::make_shared<FunctionSymbol>("println", voidSymbol, nullptr, global);
-	print->define(std::make_shared<VarSymbol>("str", stringSymbol, nullptr));
+	println->define(std::make_shared<VarSymbol>("str", stringSymbol, nullptr));
 	global->define(println);
 
 	auto getString = std::make_shared<FunctionSymbol>("getString", stringSymbol, nullptr, global);
@@ -61,6 +61,12 @@ void Environment::builtinFuncInit()
 
 void Environment::buildSymbolTable()
 {
+	clsDeclVistor = std::make_shared<ClassDeclVisitor>(global);
+	clsDeclVistor->visit(ast.get());
+
+	glbFuncAndClsVistor = std::make_shared<GlobalFuncAndClsVisitor>(global);
+	glbFuncAndClsVistor->visit(ast.get());
+
 	symbolTable = std::make_shared<SymbolTable>(global);
 	symbolTable->visit(ast.get());
 }
@@ -109,9 +115,9 @@ void Environment::bootstrapFuncInit()
 
 	// define bootstrap and put it into AST
 	auto bootstrap = std::make_shared<FunctionDecl>(
-			nullptr, // stands for void type
+			std::make_shared<BuiltinType>(BuiltinType::INT), // bootstrap() simple return the value returned by main()
 			std::make_shared<Identifier>("bootstrap"),
-			std::vector< std::shared_ptr<VarDeclStmt> >(), // <bootstrap> has no args
+			std::vector< std::shared_ptr<VarDeclStmt> >(), //	bootstrap() has no args
 			std::make_shared<StmtBlock>(stmts)
 		);
 	ast->getDecls().emplace_back(bootstrap);

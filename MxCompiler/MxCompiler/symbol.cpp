@@ -1,6 +1,17 @@
 #include "symbol.h"
 #include "astnode.h"
 
+std::shared_ptr<SymbolType>
+symbolTypeOfNode(Type *node, std::shared_ptr<GlobalScope> globalScope) {
+	if (node == nullptr) return globalScope->resolveType("void");
+	std::shared_ptr<SymbolType> tp = globalScope->resolveType(node->getIdentifier());
+	if (tp == nullptr) return nullptr;
+	if (node->isArrayType())
+		return std::shared_ptr<ArraySymbol>(new ArraySymbol(tp));
+	return tp;
+}
+
+
 std::shared_ptr<Symbol> ClassSymbol::resolveMember(const std::string & id)
 {
 	auto var = memberVars.find(id);
@@ -43,10 +54,14 @@ std::shared_ptr<Symbol> ClassSymbol::resolve(const std::string & id)
 
 void FunctionSymbol::define(std::shared_ptr<Symbol> symbol)
 {
+	if (symbol->category() != VAR)
+		throw SemanticError("argument can only be variable",symbol->getDecl()->Where());
 	if (args.find(symbol->getSymbolName()) != args.end())
 		throw SemanticError("Duplicated identifier for argument(s).", symbol->getDecl()->Where());
-	args[symbol->getSymbolName()] = std::static_pointer_cast<VarSymbol>(symbol);
+
 	symbol->setScope(shared_from_this());
+	args[symbol->getSymbolName()] = std::static_pointer_cast<VarSymbol>(symbol);
+	formalArgs.push_back(std::static_pointer_cast<VarSymbol>(symbol));
 }
 
 std::shared_ptr<Symbol> FunctionSymbol::resolve(const std::string & id)
@@ -68,3 +83,4 @@ bool BuiltInTypeSymbol::compatible(std::shared_ptr<SymbolType> type)
 	if (type == nullptr) return false;
 	return this->getTypeName() == type->getTypeName();
 }
+

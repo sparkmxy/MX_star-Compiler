@@ -8,7 +8,7 @@ class Lexer {
 
 public:
 	Lexer(std::istream& _is):is(_is),line(1),col(1){
-		finish = std::shared_ptr<Token>(new Token(FINISH, defaultPos));
+		finish = std::shared_ptr<Token>(new Word("finish" ,FINISH, defaultPos));
 		keywordsInit();
 		tokens = _getTokens();
 	}

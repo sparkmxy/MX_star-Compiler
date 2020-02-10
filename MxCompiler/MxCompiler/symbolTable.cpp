@@ -1,18 +1,11 @@
 #include "symbolTable.h"
 #include "astnode.h"
- 
-std::shared_ptr<SymbolType>
-SymbolTable::symbolTypeOfNode(Type *node, std::shared_ptr<GlobalScope> globalScope) {
-	if (node == nullptr) return globalScope->resolveType("void");
-	std::shared_ptr<SymbolType> tp = globalScope->resolveType(node->getIdentifier());
-	if (node->isArrayType())
-		return std::shared_ptr<ArraySymbol>(new ArraySymbol(tp));
-	return tp;
-}
 
 void SymbolTable::checkMainFunc()
 {
 	auto symbol = globalScope->resolve("main");
+	if (symbol == nullptr)
+		throw SemanticError("missing main function", Position());
 	if (symbol->category() != Symbol::FUNCTION)
 		throw SemanticError("'main' must be a function", Position());
 	auto main = std::static_pointer_cast<FunctionSymbol>(symbol);
@@ -41,10 +34,13 @@ void SymbolTable::visit(VarDeclStmt *node) {
 	if (node->getInitExpr() != nullptr)
 		node->getInitExpr()->accept(*this);
 	std::shared_ptr<SymbolType> type = symbolTypeOfNode(node->getType().get(), globalScope);
+	if(type)
 	node->setSymbolType(type);
 	auto var = std::make_shared<VarSymbol>(node->getIdentifier()->name, type, node);
 	node->setVarSymbol(var);
 	currentScope->define(var); //need to check whether currentScope == globalScope ?
+	std::clog << "define variable " << var->getSymbolName()
+		<< " in scopce " << currentScope->getScopeName() << '\n';
 }
 
 void SymbolTable::visit(ExprStmt * node)
@@ -54,6 +50,7 @@ void SymbolTable::visit(ExprStmt * node)
 
 void SymbolTable::visit(FuncCallExpr * node)
 {
+	node->getIdentifierExpr()->accept(*this);
 	auto args = node->getArgs();
 	for (auto &arg : args) arg->accept(*this);
 }
@@ -67,6 +64,7 @@ void SymbolTable::visit(ClassMemberExpr * node)
 void SymbolTable::visit(MemberFuncCallExpr * node)
 {
 	node->getInstance()->accept(*this);
+	//auto cls = std::static_pointer_cast<ClassSymbol>(node->getInstance()->getSymbolType());
 	auto args = node->getArgs();
 	for (auto &arg : args) arg->accept(*this);
 }
@@ -81,6 +79,8 @@ void SymbolTable::visit(IdentifierExpr * node)
 	}
 	else {
 		auto symbol = currentScope->resolve(node->getIdentifier()->name);
+		if (symbol == nullptr)
+			throw SemanticError("undefined identifier", node->Where());
 		node->setSymbol(symbol);
 	}
 }
@@ -95,7 +95,7 @@ void SymbolTable::visit(NewExpr * node)
 
 void SymbolTable::visit(UnaryExpr * node)
 {
-	node->getOprand()->accept(*this);
+	node->getOperand()->accept(*this);
 }
 
 void SymbolTable::visit(BinaryExpr * node)
@@ -104,29 +104,13 @@ void SymbolTable::visit(BinaryExpr * node)
 	node->getRHS()->accept(*this);
 }
 
-void SymbolTable::visit(FunctionDecl *node) {
-	std::shared_ptr<SymbolType> retType = symbolTypeOfNode(node->getRetType().get(), globalScope);
-	// it can be a constructor
-	bool isConstructor = false;
-	if (currentClassSymbol != nullptr && node->getIdentifier()->name == "::ctor") {
-		if (currentClassSymbol->getConstructor() != nullptr)
-			throw SemanticError("Duplicated constructor.", node->Where());
-		isConstructor = true;
-		retType = currentClassSymbol;
-	}
-	auto funcSymbol = std::make_shared<FunctionSymbol>(node->getIdentifier()->name,retType, node, currentScope);
-	if (isConstructor)
-		currentClassSymbol->setConstructor(funcSymbol);
-	node->setFuncSymbol(funcSymbol);
-	auto args = node->getArgs();
-	for (auto &varDeclStmt : args) {
-		auto argType = symbolTypeOfNode(varDeclStmt->getType().get(), globalScope);
-		auto varSymbol = std::make_shared<VarSymbol>(varDeclStmt->getIdentifier()->name, argType, node);
-		varDeclStmt->setVarSymbol(varSymbol);
-		funcSymbol->define(varSymbol);
-	}
-	currentScope->define(funcSymbol);
 
+/*
+Function symbol and formal argumnets are already defined in <GlobalFuncAndClsVistor>
+*/
+void SymbolTable::visit(FunctionDecl *node) {
+
+	auto funcSymbol = node->getFuncSymbol();
 	currentScope = funcSymbol;
 	currentFunctionSymbol = funcSymbol;
 	node->getBody()->accept(*this);
@@ -134,24 +118,23 @@ void SymbolTable::visit(FunctionDecl *node) {
 
 void SymbolTable::visit(ClassDecl *node)
 {
-	auto clsSymbol = std::make_shared<ClassSymbol>(node->getIdentifier()->name, node, globalScope);
-	globalScope->define(clsSymbol);
-	node->setClsSymbol(clsSymbol);
-	//maintian pointers
+	//maintain pointers
+	auto clsSymbol = node->getClsSymbol();
 	currentScope = clsSymbol;
 	currentClassSymbol = clsSymbol;
 
 	//deal with members
 	auto members = node->getMembers();
-	for (auto &decl : members) {
-		decl->accept(*this);
-		currentScope = currentClassSymbol;
-	}
+	for (auto &decl : members) 
+		if(!decl->isVarDecl()){   // variable members has been defined in <GlobalFuncAndClsVisitor>
+			decl->accept(*this);
+			currentScope = currentClassSymbol;
+		}
 }
 
 void SymbolTable::visit(StmtBlock * node)
 {
-	auto local = std::make_shared<LocalScope>("just a name", currentScope);
+	auto local = std::make_shared<LocalScope>(currentScope->getScopeName() + "_LOCAL", currentScope);
 	currentScope = local;
 
 	auto stmts = node->getStmts();

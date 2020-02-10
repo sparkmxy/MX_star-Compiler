@@ -44,8 +44,5 @@ private:
 	void visit(BinaryExpr *node) override;
 
 private:
-	std::shared_ptr<SymbolType>
-		symbolTypeOfNode(Type *node, std::shared_ptr<GlobalScope> globalScope);
-
 	void checkMainFunc();
 };
