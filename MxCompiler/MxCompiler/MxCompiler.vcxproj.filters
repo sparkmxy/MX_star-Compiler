@@ -39,9 +39,6 @@
     <ClInclude Include="token.h">
       <Filter>头文件\parser</Filter>
     </ClInclude>
-    <ClInclude Include="error.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="exprHelper.h">
       <Filter>头文件\parser</Filter>
     </ClInclude>
@@ -84,11 +81,14 @@
     <ClInclude Include="ClassDeclVisitor.h">
       <Filter>头文件\semantic</Filter>
     </ClInclude>
+    <ClInclude Include="test.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="error.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="token.cpp">
-      <Filter>源文件\parser</Filter>
-    </ClCompile>
     <ClCompile Include="lexer.cpp">
       <Filter>源文件\parser</Filter>
     </ClCompile>
@@ -122,11 +122,11 @@
     <ClCompile Include="ClassDeclVisitor.cpp">
       <Filter>源文件\semantic</Filter>
     </ClCompile>
+    <ClCompile Include="test.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="code.txt">
-      <Filter>资源文件</Filter>
-    </Text>
     <Text Include="log.txt">
       <Filter>资源文件</Filter>
     </Text>

@@ -24,7 +24,7 @@ private:
 	PosPair pos;
 };
 
-class Identifier : public astNode{
+class Identifier :public virtual  astNode{
 public:
 	Identifier(const std::string &_name) : name(_name) {}
 	ACCEPT_VISITOR
@@ -80,8 +80,8 @@ class ArrayType : public Type{
 public:
 	ArrayType(std::shared_ptr<Type> _typeName) : baseTypeName(_typeName) {}
 	bool isArrayType() override { return true; }
-	std::string getIdentifier() override { return baseTypeName->getIdentifier(); }
-
+	std::string getIdentifier() override { return baseTypeName->getIdentifier() + "_array"; }
+	std::shared_ptr<Type>  getBaseType() { return baseTypeName; }
 	ACCEPT_VISITOR
 private:
 	std::shared_ptr<Type> baseTypeName;
@@ -89,7 +89,7 @@ private:
 
 /******************************************Types end here************************************************/
 
-class Expression : public astNode {
+class Expression : public virtual astNode {
 public:
 	enum ExprCategory
 	{
@@ -103,7 +103,7 @@ public:
 	void setExprCategory(ExprCategory _c) { category = _c; }
 
 	bool isLvalue() { return category == LVALUE; }
-	bool isValue() { return category == LVALUE || category == RVALUE; }
+	bool isValue() { return category == LVALUE || category == RVALUE || category == THIS; }
 	bool isNull() { return symbolType->isNull(); }
 	bool nullable() {
 		if (symbolType->isNull()) return false;
@@ -169,20 +169,25 @@ public:
 
 class NewExpr : public Expression {
 public:
-	NewExpr(std::shared_ptr<Type>_type, std::vector<std::shared_ptr<Expression> > v)
-		:type(std::move(_type)),dimensions(std::move(v)){}
+	NewExpr(std::shared_ptr<Type>_type, std::vector<std::shared_ptr<Expression> > v,
+		bool _hasLastDim)
+		:type(std::move(_type)),dimensions(std::move(v)),lastDim(_hasLastDim){}
 	
-	std::shared_ptr<Type> getBaseType() { return type; }
+	std::shared_ptr<Type> getType() { return type; }
 	std::vector<std::shared_ptr<Expression> > &getDimensions() { return dimensions; }
 	
 	std::shared_ptr<FunctionSymbol> getConstructor() { return constructor;}
 	void setConstructor(std::shared_ptr<FunctionSymbol> ctor) { constructor = ctor; }
+
+	bool hasLastDim() { return lastDim; }
 	ACCEPT_VISITOR
 private:
 	std::shared_ptr<Type> type;
 	std::vector<std::shared_ptr<Expression> > dimensions;
-	
+	bool lastDim;
+
 	std::shared_ptr<FunctionSymbol> constructor;
+
 };
 
 class UnaryExpr : public Expression{
@@ -277,6 +282,17 @@ private:
 	std::shared_ptr<IdentifierExpr> identifier;
 
 	std::shared_ptr<VarSymbol> symbol;
+};
+
+class ThisExpr :public Expression,public Identifier{
+public:
+	ThisExpr() :Identifier("this") {}
+
+	std::shared_ptr<ClassSymbol> getCls() { return cls; }
+	void setClass(std::shared_ptr<ClassSymbol> _cls) { cls = _cls; }
+	ACCEPT_VISITOR
+private:
+	std::shared_ptr<ClassSymbol> cls;
 };
 
 /******************************************Expressions end here************************************************/
@@ -497,4 +513,16 @@ public:
 	std::vector<std::shared_ptr<Declaration> > &getDecls(){ return decls; }
 private:
 	std::vector<std::shared_ptr<Declaration> > decls;
+};
+
+class MultiVarDecl : public Statement, public Declaration {
+public:
+	MultiVarDecl(std::vector<std::shared_ptr<VarDeclStmt> > _decls) :decls(_decls) {}
+
+	std::vector<std::shared_ptr<VarDeclStmt> > &getDecls() { return decls; }
+
+	bool isVarDecl() override{ return true; }
+	ACCEPT_VISITOR
+private:
+	std::vector<std::shared_ptr<VarDeclStmt> > decls;
 };

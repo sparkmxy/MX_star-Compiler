@@ -130,6 +130,7 @@
     <ClInclude Include="semanticChecker.h" />
     <ClInclude Include="symbol.h" />
     <ClInclude Include="symbolTable.h" />
+    <ClInclude Include="test.h" />
     <ClInclude Include="token.h" />
     <ClInclude Include="utility.h" />
     <ClInclude Include="visitor.h" />
@@ -146,10 +147,9 @@
     <ClCompile Include="semanticChecker.cpp" />
     <ClCompile Include="symbol.cpp" />
     <ClCompile Include="symbolTable.cpp" />
-    <ClCompile Include="token.cpp" />
+    <ClCompile Include="test.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="code.txt" />
     <Text Include="log.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

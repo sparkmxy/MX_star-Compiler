@@ -33,7 +33,10 @@ void GlobalFuncAndClsVisitor::visit(FunctionDecl * node)
 
 	currentScope = funcSymbol;
 	auto args = node->getArgs();
-	for (auto &arg : args) arg->accept(*this);
+	for (auto &arg : args) {
+		arg->accept(*this);
+		//funcSymbol->define(arg->getVarSymbol()); 
+	}
 }
 
 void GlobalFuncAndClsVisitor::visit(ClassDecl * node)
@@ -65,4 +68,10 @@ void GlobalFuncAndClsVisitor::visit(VarDeclStmt * node)
 	currentScope->define(var); //need to check whether currentScope == globalScope ?
 	std::clog << "define variable " << var->getSymbolName()
 		<< " in scopce " << currentScope->getScopeName() << '\n';
+}
+
+void GlobalFuncAndClsVisitor::visit(MultiVarDecl * node)
+{
+	auto vars = node->getDecls();
+	for (auto &var : vars) var->accept(*this);
 }

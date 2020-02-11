@@ -79,14 +79,6 @@ std::shared_ptr<NewExpr> Parser::newExpr() {
 	if (baseType == nullptr) return nullptr;
 	std::vector<std::shared_ptr<Expression>> dimensions;
 
-	/*
-	if ((*cur)->tag() == LeftBracket) {
-		cur++;
-		if ((*cur)->tag() != RightBracket)
-			throw SyntaxError("Parser error : Missing ')' in new expression", (*cur)->pos().first);
-		return newNode<NewExpr>(st, (*(cur++))->pos().second, baseType, dimensions);
-	}
-	*/
 	bool noDim = false;
 	while ((*cur)->tag() == LeftIndex) {
 		cur++;
@@ -94,7 +86,7 @@ std::shared_ptr<NewExpr> Parser::newExpr() {
 			noDim = true;
 			cur++;
 			baseType = newNode<ArrayType>(st, (*cur)->pos().second, baseType);
-			continue;
+			break;			//??
 		}
 		if (noDim)
 			throw SyntaxError("no dimension declaration",(*cur)->pos().first);
@@ -104,15 +96,26 @@ std::shared_ptr<NewExpr> Parser::newExpr() {
 		dimensions.push_back(expr);
 		if ((*cur)->tag() != RightIndex)
 			throw SyntaxError("missing ']'", (*cur)->pos().first);
+		baseType = newNode<ArrayType>(st, (*cur)->pos().second, baseType);
 		cur++;
 	}
-	return newNode<NewExpr>(st, (*cur)->pos().second, baseType, dimensions);
+	
+	return newNode<NewExpr>(st, (*cur)->pos().second, baseType, dimensions,!noDim);
+}
+
+std::shared_ptr<ThisExpr> Parser::thisExpr()
+{
+	if ((*cur)->tag() == This) {
+		cur++;
+		return std::make_shared<ThisExpr>();
+	}
+	return nullptr;
 }
 
 std::shared_ptr<Expression> Parser::identifierExpr() {
-	auto ret = identifier();
-	if (ret == nullptr) return nullptr;
-	return newNode<IdentifierExpr>(ret->getPos(),ret);
+	auto id = identifier();
+	if (id == nullptr) return nullptr;
+	return newNode<IdentifierExpr>(id->getPos(),id);
 }
 
 std::shared_ptr<Expression> Parser::basicExpr() {
@@ -152,24 +155,24 @@ std::shared_ptr<Expression> Parser::basicExpr() {
 std::shared_ptr<Expression> Parser::topPriorityExpr() {
 	auto st = (*cur)->pos().first;
 
-	auto lhs = basicExpr();
+	std::shared_ptr<Expression> lhs = basicExpr();
+	if (lhs == nullptr) lhs = thisExpr();
 	if (lhs == nullptr) return nullptr;
 
 	while (true) {
 		if ((*cur)->tag() == LeftIndex) {
-			// index operation e.g. a[i+1]
 			cur++;
 			auto rhs = expression();
 			if (rhs == nullptr)
-				throw SyntaxError("Parser error: missing expression.",(*cur)->pos().first);
-			if((*cur)->tag() != RightIndex)
+				throw SyntaxError("Parser error: missing expression.", (*cur)->pos().first);
+			if ((*cur)->tag() != RightIndex)
 				throw SyntaxError("Parser error: missing ']'", (*cur)->pos().first);
-			lhs =  newNode<BinaryExpr>(st, (*(cur++))->pos().second, BinaryExpr::INDEX, lhs, rhs);
+			lhs = newNode<BinaryExpr>(st, (*(cur++))->pos().second, BinaryExpr::INDEX, lhs, rhs);
 		}
 		else if ((*cur)->tag() == Domain){
 			cur++;
-			auto identifier = std::static_pointer_cast<IdentifierExpr>(identifierExpr());
-			if (!identifier)
+			auto idExpr= std::static_pointer_cast<IdentifierExpr>(identifierExpr());
+			if (idExpr == nullptr)
 				throw SyntaxError("Parser error: miss identifier." ,(*cur)->pos().first);
 			if ((*cur)->tag() == LeftBracket) {
 				// fucntion call with domain
@@ -177,18 +180,16 @@ std::shared_ptr<Expression> Parser::topPriorityExpr() {
 				auto args = arguments();
 				if ((*cur)->tag() != RightBracket)
 					throw SyntaxError("Parser error: miss ')'.", (*cur)->pos().first);
-				lhs =  newNode<MemberFuncCallExpr>(st,(*(cur++))->pos().second, lhs, identifier, args);
+				lhs =  newNode<MemberFuncCallExpr>(st,(*(cur++))->pos().second, lhs, idExpr, args);
 			}
 			else {
-				// identifier in domain
-				lhs =  newNode<ClassMemberExpr>(st, (*cur)->pos().second, lhs, identifier);
+				lhs =  newNode<ClassMemberExpr>(st, (*cur)->pos().second, lhs, idExpr);
 			}
 		}
 		else break;
 	}
 	return lhs;
 }
-
 
 std::shared_ptr<Expression> Parser::suffixUnaryExpr() {
 	// ++ --
@@ -298,35 +299,21 @@ std::shared_ptr<Expression> Parser::expression() {
 }
 /******************************************Expressions end here************************************************/
 
-std::shared_ptr<VarDeclStmt> Parser::varDeclStmt() {
+std::shared_ptr<VarDeclStmt> Parser::varDeclStmt(std::shared_ptr<Type> _type) {
 	auto st = (*cur)->pos().first;
 	auto iter = cur;
-
-	auto _type = type();
-	if (_type == nullptr) { cur = iter; return nullptr; }
 
 	auto id = identifier();
 	if (id == nullptr) { cur = iter; return nullptr; }
 
-	Tag nextToken = (*cur)->tag();
-	if (nextToken == LeftBracket) { // this might be a funciton declaration
-		cur = iter;
-		return nullptr;
-	}
-	else if (nextToken == Semicolon) {
-		// no initial value
-		return newNode<VarDeclStmt>(st,(*(cur++))->pos().second, _type, id);
-	}
-	else if(nextToken == Assign){
+	if((*cur)->tag() == Assign){
 		cur++;
 		auto expr = expression();				// initial value exprssion
 		if (expr == nullptr) 
 			throw SyntaxError("Parser error: invaild initial value.", (*cur)->pos().first);
-		if((*cur)->tag() != Semicolon)
-			throw SyntaxError("Parser error: Missing ';'.", (*cur)->pos().first);
-		return newNode<VarDeclStmt>(st, (*(cur++))->pos().second, _type, id, expr);
+		return newNode<VarDeclStmt>(st, (*cur)->pos().second, _type, id, expr);
 	}
-	throw SyntaxError("Parser error: invaild variable declaration.", (*cur)->pos().first);
+	return newNode<VarDeclStmt>(st, (*cur)->pos().second, _type, id, nullptr);
 }
 
 std::shared_ptr<IfStmt> Parser::ifStmt() {
@@ -364,20 +351,22 @@ std::shared_ptr<ForStmt> Parser::forStmt() {
 	cur++;
 
 	std::shared_ptr<Statement> init = exprStmt();
-	if (init == nullptr) init = varDeclStmt();
+	if (init == nullptr) init = multiVarDecl();
+	if (init == nullptr) init = emptyStmt();
 	if(init == nullptr) 
 		throw SyntaxError("Parser error: missing initial statement after 'for'", (*cur)->pos().first);
 	auto condition = expression();
-	if (condition == nullptr)
-		throw SyntaxError("Parser error: missing condition after 'for'", (*cur)->pos().first);
+	// condition could be nullptr
 	if ((*(cur++))->tag() != Semicolon)
 		throw SyntaxError("Parser error: missing ';'.", (*cur)->pos().first);
 
 	// only expression statement is allowed for iteration step
 	auto iterationExp = expression();
-	if (iterationExp == nullptr)
-		throw SyntaxError("Parser error: missing iteration after 'for'", (*cur)->pos().first);
-	auto iteration = newNode<ExprStmt>(iterationExp->getPos(), iterationExp);
+	std::shared_ptr<Statement> iteration;
+	if (iterationExp == nullptr) 
+		iteration = std::make_shared<EmptyStmt>();
+	else 
+		iteration = newNode<ExprStmt>(iterationExp->getPos(), iterationExp);
 
 	if ((*(cur++))->tag() != RightBracket)
 		throw SyntaxError("Parser error: missing ')'", (*cur)->pos().first);
@@ -484,7 +473,7 @@ std::shared_ptr<ExprStmt> Parser::exprStmt() {
 
 std::shared_ptr<Statement> Parser::statement() {
 	std::shared_ptr<Statement> stmt;
-	stmt = varDeclStmt();
+	stmt = multiVarDecl();
 	if (stmt != nullptr) return stmt;
 	stmt = ifStmt();
 	if (stmt != nullptr) return stmt;
@@ -507,6 +496,41 @@ std::shared_ptr<Statement> Parser::statement() {
 
 /******************************************Statements end here************************************************/
 
+
+std::shared_ptr<MultiVarDecl> Parser::multiVarDecl()
+{
+	auto st = (*cur)->pos().first;
+	auto iter = cur;
+
+	auto _type = type();
+	if (_type == nullptr) { cur = iter; return nullptr; }
+	
+	auto temp = cur;
+	auto firstId = identifier();
+	if (firstId == nullptr) { cur = iter; return nullptr; }
+
+	if ((*cur)->tag() == LeftBracket) { // maybe a fucntion declaration
+		cur = iter;
+		return nullptr;
+	}
+
+	cur = temp;
+	auto firstVar = varDeclStmt(_type);
+	std::vector<std::shared_ptr<VarDeclStmt> > vars;
+	vars.emplace_back(firstVar);
+	
+	while ((*cur)->tag() != Semicolon) {
+		if ((*cur)->tag() != Comma)
+			throw SyntaxError("invalid variable declaration", (*cur)->pos().first);
+		cur++; // skip comma
+		auto var = varDeclStmt(_type);
+		if (var == nullptr)
+			throw SyntaxError("invalid variable declaration", (*cur)->pos().first);
+		vars.emplace_back(var);
+	}
+
+	return newNode<MultiVarDecl>(st, (*(cur++))->pos().second, vars);
+}
 
 std::shared_ptr<FunctionDecl> Parser::functionDecl() {
 	auto st = (*cur)->pos().first;
@@ -541,51 +565,37 @@ std::shared_ptr<FunctionDecl> Parser::functionDecl() {
 std::shared_ptr<ClassDecl> Parser::classDecl() {
 	auto st = (*cur)->pos().first;
 	if ((*cur)->tag() != Class) return nullptr;
+	cur++;
 
 	auto className = identifier();
 	if(className == nullptr)
 		throw SyntaxError("Parser error: missing class name.", (*cur)->pos().first);
-	if((*(++cur))->tag() != LeftBrace) 
+	if((*cur)->tag() != LeftBrace) 
 		throw SyntaxError("Parser error: missing '{'.", (*cur)->pos().first);
 	cur++; // skip '{'
 
 	std::vector<std::shared_ptr<Declaration> > decls;
 	while (true) {
 		auto decl = declaration();
-		if (decl == nullptr) {	// might be constructors
-			if ((*cur)->tag() != ID || (*cur)->toString() != className->name) return nullptr;
-			auto POS = (*cur)->pos();
-			if ((*(++cur))->tag() != LeftBracket) return nullptr;
-			cur++; // skip '('
-			// constructors has no arguments
-			if ((*cur)->tag() != RightBracket)
-				throw SyntaxError("Parser error: missing ')'.", (*cur)->pos().first);
-			cur++; // skip ')'
-
-			auto body = stmtBlock();
-			if (body == nullptr) return nullptr;
-
-			decl = newNode<FunctionDecl>(st, body->endPos(),
-				std::shared_ptr<Type>(nullptr),
-				newNode<Identifier>(POS.first, POS.second, className->name + "::ctor"),
-				std::vector< std::shared_ptr<VarDeclStmt> >(),
-				body
-				);
-		}
+		if (decl == nullptr) decl = constructor(className->name);
 		if (decl == nullptr) break;
 		decls.push_back(decl);
 	}
 	
 	if ((*cur)->tag() != RightBrace)
 		throw SyntaxError("Parser error: missing '}'.", (*cur)->pos().first);
-	if ((*(++cur))->tag() != Semicolon)
+	cur++;
+	if ((*cur)->tag() == Semicolon) cur++;  // skip semicolon
+	/*
+	cur++
+	if ((*cur)->tag() != Semicolon)
 		throw SyntaxError("Parser error: missing ';'.", (*cur)->pos().first);
-
-	return newNode<ClassDecl>(st, (*(cur++))->pos().second, className, decls);
+	*/
+	return newNode<ClassDecl>(st, (*cur)->pos().second, className, decls);
 }
 
 std::shared_ptr<Declaration> Parser::declaration() {
-	std::shared_ptr<Declaration> decl = varDeclStmt();
+	std::shared_ptr<Declaration> decl = multiVarDecl();
 	if (decl != nullptr) return decl;
 	decl = functionDecl();
 	if (decl != nullptr) return decl;
@@ -650,9 +660,42 @@ std::shared_ptr<VarDeclStmt> Parser::formalArgument() {
 	return newNode<VarDeclStmt>(st, name->endPos(), tp, name);
 }
 
+/*
+this is for <ForStmt>, <IfStmt> and <WhileStmt>, 
+their body could be a single statment or a block.
+*/
 std::shared_ptr<Statement> Parser::singleStmtOrBlock()
 {
 	if ((*cur)->tag() == LeftBrace)  // a block
 		return stmtBlock();
 	return statement();
+}
+
+std::shared_ptr<FunctionDecl> Parser::constructor(const std::string & className)
+{
+	auto st = (*cur)->pos().first;
+	auto iter = cur;
+
+	if ((*cur)->tag() != ID || (*cur)->getLexeme() != className){
+		cur = iter;
+		return nullptr;
+	}
+	auto POS = (*cur)->pos();
+	if ((*(++cur))->tag() != LeftBracket) { cur = iter; return nullptr; }
+	cur++; // skip '('
+	// constructors has no arguments
+	if ((*cur)->tag() != RightBracket)
+		throw SyntaxError("Parser error: missing ')'.", (*cur)->pos().first);
+	cur++; // skip ')'
+
+	auto body = stmtBlock();
+	if (body == nullptr)
+		throw SyntaxError("invalid constructor", (*cur)->pos().first);
+
+	return newNode<FunctionDecl>(st, body->endPos(),
+		std::shared_ptr<Type>(nullptr),
+		newNode<Identifier>(POS.first, POS.second, className + "::ctor"),
+		std::vector< std::shared_ptr<VarDeclStmt> >(),
+		body
+		);
 }

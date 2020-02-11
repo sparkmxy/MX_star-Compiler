@@ -5,7 +5,19 @@
 void SemanticChecker::visit(ProgramAST *node)
 {
 	auto decls = node->getDecls();
-	for (auto &decl : decls) decl->accept(*this);
+
+	isScanGlobalVar = true;
+	for (auto &decl : decls) 
+		if(decl->isVarDecl())decl->accept(*this);
+	isScanGlobalVar = false;
+	for (auto &decl : decls)
+		if (!decl->isVarDecl())decl->accept(*this);
+}
+
+void SemanticChecker::visit(MultiVarDecl * node)
+{
+	auto vars = node->getDecls();
+	for (auto &var : vars) var->accept(*this);
 }
 
 void SemanticChecker::visit(FunctionDecl * node)
@@ -21,7 +33,7 @@ void SemanticChecker::visit(ClassDecl * node)
 
 void SemanticChecker::visit(VarDeclStmt * node)
 {
-	if (node->getInitExpr() != nullptr) {
+	if (!isScanGlobalVar && node->getInitExpr() != nullptr) {
 		node->getInitExpr()->accept(*this);
 		// the initial value must be of the same type.
 		if (!node->getSymbolType()->compatible(node->getInitExpr()->getSymbolType()))
@@ -78,9 +90,12 @@ void SemanticChecker::visit(WhileStmt * node)
 
 void SemanticChecker::visit(ForStmt * node)
 {
-	node->getCondition()->accept(*this);
-	if (node->getCondition()->getSymbolType()->getTypeName() != "bool")
-		throw SemanticError("condition must be boolean value", node->Where());
+	auto condition = node->getCondition();
+	if (condition != nullptr) {
+		node->getCondition()->accept(*this);
+		if (node->getCondition()->getSymbolType()->getTypeName() != "bool")
+			throw SemanticError("condition must be boolean value", node->Where());
+	}
 	node->getInit()->accept(*this);
 	node->getIter()->accept(*this);
 	node->getBody()->accept(*this);
@@ -94,7 +109,7 @@ void SemanticChecker::visit(ReturnStmt * node)
 
 	auto retType = node->getFuncSymbol()->getType();
 	if (node->getValue() == nullptr) { // a void value is returned.
-		if (!(retType->getTypeName() != "void"))
+		if (retType->getTypeName() != "void")
 			throw SemanticError("return value is expected", node->Where());
 	}
 	else {
@@ -123,7 +138,7 @@ void SemanticChecker::visit(BinaryExpr * node)
 	else if (op == BinaryExpr::ADD) {
 		// <int + int> or <string + string> is requied
 		if (!((lhsType == "int" && rhsType == "int") ||
-			(lhsType == "stirng" && rhsType == "string")))
+			(lhsType == "string" && rhsType == "string")))
 			throw SemanticError("<int + int> or <string + string> is requied", node->Where());
 		node->setExprCategory(Expression::RVALUE);
 		if(lhsType == "int") node->setSymbolType(intSymbol);
@@ -149,13 +164,14 @@ void SemanticChecker::visit(BinaryExpr * node)
 		node->setExprCategory(Expression::RVALUE);
 		node->setSymbolType(boolSymbol);
 	}
-	else if (op == BinaryExpr::ASSIGN) {
+	else if (op == BinaryExpr::ASSIGN) { 
+		//note that rhs could be null value
+	
 		if (!(lhs->isLvalue()))
 			throw SemanticError("only left value can be assigned", node->Where());
-		if (rhs->isObject())
-			throw SemanticError("the assigning value cannot be an Object", node->Where());
 		if (!(lhs->getSymbolType()->compatible(rhs->getSymbolType())))
 			throw SemanticError("assigning between incompatible types",node->Where());
+		
 		node->setSymbolType(voidSymbol);
 		node->setExprCategory(Expression::RVALUE);
 	}
@@ -186,7 +202,9 @@ void SemanticChecker::visit(ClassMemberExpr * node)
 	auto varName = node->getIdentifier()->getIdentifier()->name;
 	obj->accept(*this);
 	if (obj->getExprCategory() == Expression::THIS || obj->isObject()) {
-		auto symbol = std::static_pointer_cast<ClassSymbol>(obj->getSymbolType())->resolve(varName);
+		auto cls = std::static_pointer_cast<ClassSymbol>(obj->getSymbolType());
+		auto symbol = cls->resolve(varName);
+		//symbol->setScope(cls); ??
 		if (symbol == nullptr || symbol->category() != Symbol::VAR)
 			throw SemanticError("variable is undefined in class", node->Where());
 
@@ -213,18 +231,18 @@ void SemanticChecker::visit(MemberFuncCallExpr * node)
 
 		for (auto &arg : args)
 			arg->accept(*this);
-		auto formalArgs = reinterpret_cast<FunctionDecl *>(func->getDecl())->getArgs();
+		auto formalArgs = func->getFormalArgs();
 		if (args.size() > formalArgs.size())
 			throw SemanticError("too many parameters", node->Where());
 		if (args.size() < formalArgs.size())
 			throw SemanticError("too few parameters", node->Where());
-
 		for (int i = 0; i < args.size(); i++) {
 			if (!args[i]->isValue())
 				throw SemanticError("parameter should be a valid value", node->Where());
-			if (!formalArgs[i]->getSymbolType()->compatible(args[i]->getSymbolType()))
+			if (!formalArgs[i]->getType()->compatible(args[i]->getSymbolType()))
 				throw SemanticError("wrong parameter type", node->Where());
 		}
+
 		node->setSymbolType(func->getType());
 		node->setExprCategory(Expression::RVALUE);
 	}
@@ -233,6 +251,8 @@ void SemanticChecker::visit(MemberFuncCallExpr * node)
 		if(node->getArgs().size() != 0)
 			throw SemanticError("too many parameters", node->Where());
 		node->setFuncSymbol(globalScope->getArraySizeFuncSymbol());
+		node->setExprCategory(Expression::RVALUE);
+		node->setSymbolType(intSymbol);
 	}
 	else throw SemanticError("'.' must be after an object type", node->Where());
 }
@@ -286,15 +306,9 @@ void SemanticChecker::visit(NewExpr * node)
 
 	auto type = node->getSymbolType();
 
-	if (dims.empty()) {  // a single variable
-		node->setSymbolType(type);
-		if (type->isUserDefinedType()) { // might have constructor
-			auto ctor = std::static_pointer_cast<ClassSymbol>(type)->getConstructor();
-			if (ctor != nullptr) node->setConstructor(ctor);
-		}
-	}
-	else {  // a new array
-		node->setSymbolType(std::make_shared<ArraySymbol>(type));
+	if (type->isUserDefinedType()) { // might have constructor
+		auto ctor = std::static_pointer_cast<ClassSymbol>(type)->getConstructor();
+		if (ctor != nullptr) node->setConstructor(ctor);
 	}
 }
 
@@ -318,7 +332,8 @@ void SemanticChecker::visit(UnaryExpr * node)
 		else throw SemanticError("post dec/inc require int oprand", node->Where());
 	}
 	else if (op == UnaryExpr::NOT) {
-		if (operand->getSymbolType()->getTypeName() == "bool") {
+		auto TypeName = operand->getSymbolType()->getTypeName();
+		if (TypeName == "bool" || TypeName == "int") { // int value works too
 			node->setExprCategory(Expression::RVALUE);
 			node->setSymbolType(boolSymbol);
 		}
@@ -360,8 +375,7 @@ void SemanticChecker::visit(NullValue * node)
 
 bool SemanticChecker::isBoolOnlyOperator(BinaryExpr::Operator op)
 {
-	return   op == BinaryExpr::AND || op == BinaryExpr::NOT
-		|| op == BinaryExpr::GEQ || op == BinaryExpr::OR;
+	return   op == BinaryExpr::AND || op == BinaryExpr::NOT || op == BinaryExpr::OR;
 }
 
 bool SemanticChecker::isComparisonOperator(BinaryExpr::Operator op)

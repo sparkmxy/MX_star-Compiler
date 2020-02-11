@@ -17,8 +17,9 @@ public:
 	void visit(ProgramAST *node) override;
 
 private:
-
+	bool isScanGlobalVar;
 	//override functions
+	void visit(MultiVarDecl *node) override;
 	void visit(FunctionDecl *node) override;
 	void visit(ClassDecl *node) override;
 
@@ -39,6 +40,7 @@ private:
 	void visit(IdentifierExpr *node) override;
 	void visit(NewExpr *node)override;
 	void visit(UnaryExpr *node) override;
+	//void visit(ThisExpr *node) override;  nothing to be done
 
 	void visit(StringValue *node) override;
 	void visit(NumValue *node) override;

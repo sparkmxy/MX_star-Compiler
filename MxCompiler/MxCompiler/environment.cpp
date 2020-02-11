@@ -12,17 +12,26 @@ void Environment::builtinTypeInit()
 	global->define(voidSymbol);
 	global->setVoidSymbol(voidSymbol);
 
-	//Class string : length(), substring()
+	//Class string : length(), substring(),int parseInt(), int ord(int)
 	auto length = std::make_shared<FunctionSymbol>("length", intSymbol, nullptr, stringSymbol);
 	stringSymbol->define(length);
+
 	auto substring = std::make_shared<FunctionSymbol>("substring", stringSymbol, nullptr, stringSymbol);
 	auto arg1 = std::make_shared<VarSymbol>("left", intSymbol, nullptr);
 	auto arg2 = std::make_shared<VarSymbol>("right", intSymbol, nullptr);
-
 	substring->define(arg1);
 	substring->define(arg2);
-
 	stringSymbol->define(substring);
+
+	auto parseInt = std::make_shared<FunctionSymbol>("parseInt", intSymbol, nullptr, stringSymbol);
+	stringSymbol->define(parseInt);
+	
+	auto ord = std::make_shared<FunctionSymbol>("ord", intSymbol, nullptr, stringSymbol);
+	auto i = std::make_shared<VarSymbol>("i", intSymbol, nullptr);
+	ord->define(i);
+	stringSymbol->define(ord);
+
+	global->define(stringSymbol);
 	global->setStringSymbol(stringSymbol);
 }
 
@@ -32,6 +41,8 @@ void print(string)
 void println(string)
 string getString()
 int getInt()
+void printInt(int)
+void printlnInt(int)
 string toString(int)
 int array.size()
 */
@@ -50,6 +61,14 @@ void Environment::builtinFuncInit()
 
 	auto getInt = std::make_shared<FunctionSymbol>("getInt", intSymbol, nullptr, global);
 	global->define(getInt);
+
+	auto printInt = std::make_shared<FunctionSymbol>("printInt", voidSymbol, nullptr, global);
+	printInt->define(std::make_shared<VarSymbol>("i", intSymbol, nullptr));
+	global->define(printInt);
+
+	auto printlnInt = std::make_shared<FunctionSymbol>("printlnInt", voidSymbol, nullptr, global);
+	printlnInt->define(std::make_shared<VarSymbol>("i", intSymbol, nullptr));
+	global->define(printlnInt);
 
 	auto toString = std::make_shared<FunctionSymbol>("toString", stringSymbol, nullptr, global);
 	toString->define(std::make_shared<VarSymbol>("i", intSymbol, nullptr));
@@ -91,16 +110,18 @@ void Environment::bootstrapFuncInit()
 
 	// initialization of global variables 
 	auto decls = ast->getDecls();
-	for (auto &decl : decls) 
+	for (auto &decl: decls) 
 		if(decl->isVarDecl()){
-			auto initExpr = std::static_pointer_cast<VarDeclStmt>(decl)->getInitExpr();
-			auto idExpr = std::make_shared<IdentifierExpr>(
-				std::static_pointer_cast<VarDeclStmt>(decl)->getIdentifier());
-			if (initExpr != nullptr) {
-				auto assignExpr = 
-					std::make_shared<BinaryExpr>(BinaryExpr::ASSIGN, idExpr, initExpr);
-				auto stmt = std::make_shared<ExprStmt>(assignExpr);
-				stmts.emplace_back(stmt);
+			auto vars = std::static_pointer_cast<MultiVarDecl>(decl)->getDecls();
+			for (auto &var : vars) {
+				auto initExpr = var->getInitExpr();
+				auto idExpr = std::make_shared<IdentifierExpr>(var->getIdentifier());
+				if (initExpr != nullptr) {
+					auto assignExpr =
+						std::make_shared<BinaryExpr>(BinaryExpr::ASSIGN, idExpr, initExpr);
+					auto stmt = std::make_shared<ExprStmt>(assignExpr);
+					stmts.emplace_back(stmt);
+				}
 			}
 		}
 

@@ -59,7 +59,7 @@ void SymbolTable::visit(FuncCallExpr * node)
 void SymbolTable::visit(ClassMemberExpr * node)
 {
 	node->getObj()->accept(*this);
-	node->getIdentifier()->accept(*this);
+	//node->getIdentifier()->accept(*this);
 }
 
 void SymbolTable::visit(MemberFuncCallExpr * node)
@@ -88,7 +88,7 @@ void SymbolTable::visit(IdentifierExpr * node)
 
 void SymbolTable::visit(NewExpr * node)
 {
-	auto type = symbolTypeOfNode(node->getBaseType().get(), globalScope);
+	auto type = symbolTypeOfNode(node->getType().get(), globalScope);
 	if (type == nullptr)
 		throw SemanticError("undefined type", node->Where());
 	node->setSymbolType(type);
@@ -107,6 +107,20 @@ void SymbolTable::visit(BinaryExpr * node)
 	node->getRHS()->accept(*this);
 }
 
+void SymbolTable::visit(ThisExpr * node)
+{
+	if (currentClassSymbol == nullptr)
+		throw SemanticError("'this' must be used in class declaration", node->Where());
+	node->setExprCategory(Expression::THIS);
+	node->setSymbolType(currentClassSymbol);
+}
+
+
+void SymbolTable::visit(MultiVarDecl * node)
+{
+	auto vars = node->getDecls();
+	for (auto &var : vars) var->accept(*this);
+}
 
 /*
 Function symbol and formal argumnets are already defined in <GlobalFuncAndClsVistor>

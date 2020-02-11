@@ -15,6 +15,7 @@ private:
 	void visit(FunctionDecl *node) override;
 	void visit(ClassDecl *node) override;
 	void visit(VarDeclStmt *node) override;
+	void visit(MultiVarDecl *node) override;
 
 	std::shared_ptr<GlobalScope> globalScope;
 	std::shared_ptr<Scope> currentScope;

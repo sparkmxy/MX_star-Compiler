@@ -20,11 +20,12 @@ class NullValue;
 class BoolValue;
 class IdentifierExpr;
 class FuncCallExpr;
-class MemberFuncCallExpr;
 class NewExpr;
 class UnaryExpr;
 class BinaryExpr;
+class MemberFuncCallExpr;
 class ClassMemberExpr;
+class ThisExpr;
 
 class IfStmt;
 class WhileStmt;
@@ -39,6 +40,8 @@ class StmtBlock;
 
 class FunctionDecl;
 class ClassDecl;
+class MultiVarDecl;
+
 class ProgramAST;
 
 class Visitor {
@@ -61,6 +64,7 @@ public:
 	virtual void visit(UnaryExpr *) {}
 	virtual void visit(BinaryExpr *) {}
 	virtual void visit(ClassMemberExpr *) {}
+	virtual void visit(ThisExpr *) {}
 
 	virtual void visit(IfStmt *) {}
 	virtual void visit(WhileStmt *) {}
@@ -75,6 +79,7 @@ public:
 
 	virtual void visit(FunctionDecl *) {}
 	virtual void visit(ClassDecl *) {}
+	virtual void visit(MultiVarDecl *) {}
 
 	virtual void visit(ProgramAST *) {}
 };

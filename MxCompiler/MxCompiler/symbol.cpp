@@ -4,11 +4,12 @@
 std::shared_ptr<SymbolType>
 symbolTypeOfNode(Type *node, std::shared_ptr<GlobalScope> globalScope) {
 	if (node == nullptr) return globalScope->resolveType("void");
-	std::shared_ptr<SymbolType> tp = globalScope->resolveType(node->getIdentifier());
-	if (tp == nullptr) return nullptr;
 	if (node->isArrayType())
-		return std::shared_ptr<ArraySymbol>(new ArraySymbol(tp));
-	return tp;
+		return std::make_shared<ArraySymbol>(
+			symbolTypeOfNode(reinterpret_cast<ArrayType *>(node)->getBaseType().get(),
+			globalScope
+			));
+	return globalScope->resolveType(node->getIdentifier());
 }
 
 
@@ -23,10 +24,10 @@ std::shared_ptr<Symbol> ClassSymbol::resolveMember(const std::string & id)
 bool ClassSymbol::compatible(std::shared_ptr<SymbolType> type)
 {
 	if (this->getTypeName() == "string") {
-		if (type == nullptr) return false;
+		if (type->isNull()) return false;
 		return type->getTypeName() == "string";
 	}
-	if (type == nullptr) return true;
+	if (type->isNull()) return true;
 	return this->getTypeName() == type->getTypeName();
 }
 
@@ -73,7 +74,7 @@ std::shared_ptr<Symbol> FunctionSymbol::resolve(const std::string & id)
 
 bool ArraySymbol::compatible(std::shared_ptr<SymbolType> type)
 {
-	if (type == nullptr) return true; // nullptr stands for <null>
+	if (type->isNull()) return true; // nullptr stands for <null>
 	if (!type->isArrayType()) return false;
 	return std::static_pointer_cast<ArraySymbol>(type)->getBaseType()->compatible(this->baseType);
 }

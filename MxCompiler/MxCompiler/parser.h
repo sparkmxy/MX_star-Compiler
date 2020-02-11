@@ -47,6 +47,8 @@ private:
 	//							| LeftIndex expr RightIndex (LeftIndex RightIndex)*)
 	std::shared_ptr<NewExpr> newExpr();
 
+	std::shared_ptr<ThisExpr> thisExpr();
+
 	std::shared_ptr<Expression> identifierExpr();
 
 	std::shared_ptr<Expression> expression();
@@ -78,9 +80,10 @@ private:
 	/*
 	TopPriorityExpr
 		= BasicExpr(
-		| LeftBracket expr RightBracket
+		| LeftIdex expr RightIndex
 		| Dot IdentifierExpr   
 		| Dot Identifier LeftBracket (expr % ',') RightBracket
+		)*
 	*/
 	std::shared_ptr<Expression> topPriorityExpr();
 
@@ -96,7 +99,7 @@ private:
 	/****************************************Statements*****************************************/
 
 	// VarDeclStmt = Type Identifier (Assign Expression) ? Semicolon
-	std::shared_ptr<VarDeclStmt> varDeclStmt();
+	std::shared_ptr<VarDeclStmt> varDeclStmt(std::shared_ptr<Type> _type);
 
 	// Ifstmt = If LeftBracket expr RightBracket stmt
 	std::shared_ptr<IfStmt> ifStmt();
@@ -123,6 +126,8 @@ private:
 	/*
 	FunctionDecl = Type Identifier LeftBracket formalDecl RightBracket Statement
 	*/
+	std::shared_ptr<MultiVarDecl> multiVarDecl();
+
 	std::shared_ptr<FunctionDecl> functionDecl();
 
 	std::shared_ptr<ClassDecl> classDecl();
@@ -138,6 +143,8 @@ private:
 	std::shared_ptr<VarDeclStmt> formalArgument();
 
 	std::shared_ptr<Statement> singleStmtOrBlock();
+
+	std::shared_ptr<FunctionDecl> constructor(const std::string &className);
 
 	template<class T, class...Args>
 	std::shared_ptr<T> newNode(const Position &st, const Position &ed, Args ... args) {

@@ -1,11 +1,14 @@
 #include "MxComplier.h"
 
+#define SHOW_TOKENS
+
 void MxComplier::getCode()
 {
 	src.open(fileName);
 	if (!src) 
 		throw Error("file not found",Position());
-	std::cout << "File found!" << std::endl;
+	std::cout << "File found." << std::endl;
+	std::clog << "--------------------Open: " << fileName << "-------------------\n";
 }
 
 void MxComplier::parse()
@@ -13,12 +16,15 @@ void MxComplier::parse()
 	lexer = std::make_shared<Lexer>(src);
 	tokens = lexer->getTokens();
 
-	//print tokens to log.txt
-	std::clog << "----------------------------------------------\n";
+	
+#ifdef  SHOW_TOKENS			//print tokens to log.txt
+	std::clog << "------------------------Tokens---------------------\n";
 	for (auto &token : tokens)
 		std::clog << token->toString() << '\n';
-	std::clog << "----------------------------------------------\n";
+	std::clog << "---------------------------------------------------\n";
+#endif //  SHOW_TOKENS
 
+	
 	std::cout << "Parse done!" << std::endl;
 }
 

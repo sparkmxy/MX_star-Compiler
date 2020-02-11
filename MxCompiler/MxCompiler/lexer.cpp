@@ -1,6 +1,6 @@
 #include "lexer.h"
 
-const std::string Lexer::SYMBOLS = "+-*/.<>&{}[]()=!|%,;";
+const std::string Lexer::SYMBOLS = "+-*/.<>&{}[]()=!|%,;^~";
 const PosPair Lexer::defaultPos = std::make_pair(Position(0, 0),Position(0,0));
 
 bool Lexer::isSymbolChar(char ch) const {
@@ -39,7 +39,8 @@ std::shared_ptr<Token> Lexer::nextToken() {
 				if (ch == '\n')
 					col = 1, line++;
 				else col++;
-				if (ch == '\n' || ch == '\r' || ch == EOF) break;
+				if (ch == '\n' || ch == '\r' || ch == EOF) 
+					break;
 			}
 			return nextToken();
 		}
@@ -77,7 +78,7 @@ std::shared_ptr<Token> Lexer::nextToken() {
 		is.unget();
 		return scanIdentifier();
 	}
-    throw SyntaxError("illegal character: " + ch, currentPos());
+    throw SyntaxError(std::string("illeagal character") + ch, currentPos());
 }
 
 void Lexer::skipSpaces() {

@@ -23,6 +23,7 @@ private:
 
 	//override functions
 	
+	void visit(MultiVarDecl *node) override;
 	void visit(FunctionDecl *node)override;
 	void visit(ClassDecl *node)override;
 	
@@ -42,6 +43,7 @@ private:
 	void visit(NewExpr *node) override;
 	void visit(UnaryExpr *node) override;
 	void visit(BinaryExpr *node) override;
+	void visit(ThisExpr *node) override;
 
 private:
 	void checkMainFunc();
