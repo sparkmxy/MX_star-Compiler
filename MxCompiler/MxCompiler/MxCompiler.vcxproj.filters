@@ -28,6 +28,9 @@
     <Filter Include="头文件\AST">
       <UniqueIdentifier>{e198161b-6ea6-4e92-aee6-94f951b23837}</UniqueIdentifier>
     </Filter>
+    <Filter Include="头文件\IR">
+      <UniqueIdentifier>{00b50e20-ac42-43d8-b395-c8babb46bdad}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -86,6 +89,33 @@
     </ClInclude>
     <ClInclude Include="error.h">
       <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="IRinstruction.h">
+      <Filter>头文件\IR</Filter>
+    </ClInclude>
+    <ClInclude Include="basicblock.h">
+      <Filter>头文件\IR</Filter>
+    </ClInclude>
+    <ClInclude Include="IR.h">
+      <Filter>头文件\IR</Filter>
+    </ClInclude>
+    <ClInclude Include="IR_Generator.h">
+      <Filter>头文件\IR</Filter>
+    </ClInclude>
+    <ClInclude Include="Function.h">
+      <Filter>头文件\IR</Filter>
+    </ClInclude>
+    <ClInclude Include="GlobalVar.h">
+      <Filter>头文件\IR</Filter>
+    </ClInclude>
+    <ClInclude Include="StaticString.h">
+      <Filter>头文件\IR</Filter>
+    </ClInclude>
+    <ClInclude Include="ThreeAddressCode.h">
+      <Filter>头文件\IR</Filter>
+    </ClInclude>
+    <ClInclude Include="ControlFlowGraph.h">
+      <Filter>头文件\IR</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
