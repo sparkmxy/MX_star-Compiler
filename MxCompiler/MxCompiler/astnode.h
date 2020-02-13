@@ -10,6 +10,8 @@ This file implements the <astNode> class family.
 #define ACCEPT_VISITOR void accept (Visitor &vis) override {vis.visit(this);} 
 #define ACCEPT_VISITOR_VIRTUAL void accept (Visitor &vis) override = 0;
 
+class Register;
+class BasicBlock;
 
 class astNode{
 public:
@@ -116,6 +118,9 @@ public:
 private:
 	ExprCategory category;
 	std::shared_ptr<SymbolType> symbolType;
+
+	//IR 
+	std::shared_ptr<BasicBlock> trueBlock, falseBlock;
 };
 
 class IdentifierExpr : public Expression{
@@ -333,6 +338,10 @@ public:
 	void setInitExpr(std::shared_ptr<Expression> _init) { init = _init; }
 
 	bool isVarDecl() override { return true; }
+
+	//IR
+	void markAsArg() { isArg = true; }
+	bool isArgument() { return isArg; }
 	ACCEPT_VISITOR
 private:
 	std::shared_ptr<Type> type;
@@ -341,6 +350,10 @@ private:
 
 	std::shared_ptr<VarSymbol> varSymbol;
 	std::shared_ptr<SymbolType> typeOfSymbol;
+
+	//IR
+	std::shared_ptr<Register> reg;
+	bool isArg;
 };
 
 class IfStmt : public Statement {

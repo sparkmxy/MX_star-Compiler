@@ -1,7 +1,10 @@
 #pragma once
 #include "pch.h"
 #include "scope.h"
+
 class Declaration;
+
+class Register;
 
 /*Symbol type*/
 class SymbolType {  //interface class
@@ -62,9 +65,15 @@ private:
 class VarSymbol : public Symbol{
 public:
 	VarSymbol(const std::string &_name, std::shared_ptr<SymbolType> _type,
-		Declaration *_decl) :Symbol(_name, _type, _decl) {}
+		Declaration *_decl) :Symbol(_name, _type, _decl), isArg(false){}
 
 	SymbolCategory category() const override { return VAR; }
+
+	void setReg(std::shared_ptr<Register> _reg) { reg = _reg; }
+	std::shared_ptr<Register> getReg() { return reg; }
+
+private:
+
 };
 
 class BuiltInTypeSymbol : public Symbol, public SymbolType {

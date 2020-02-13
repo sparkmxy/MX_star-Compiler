@@ -10,6 +10,7 @@
 #include<fstream>
 #include<functional>
 #include<stack>
+#include<set>
 
 #include "error.h"
 

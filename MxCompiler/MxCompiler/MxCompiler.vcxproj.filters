@@ -31,6 +31,12 @@
     <Filter Include="头文件\IR">
       <UniqueIdentifier>{00b50e20-ac42-43d8-b395-c8babb46bdad}</UniqueIdentifier>
     </Filter>
+    <Filter Include="源文件\IR">
+      <UniqueIdentifier>{b26080e0-b97f-4329-ab02-7255ae2fa8de}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\interpreter">
+      <UniqueIdentifier>{22791917-990c-4f66-bf0f-e98f892c6007}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -75,9 +81,6 @@
     <ClInclude Include="MxComplier.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="utility.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="GlobalFuncAndClsDecl.h">
       <Filter>头文件\semantic</Filter>
     </ClInclude>
@@ -108,13 +111,7 @@
     <ClInclude Include="GlobalVar.h">
       <Filter>头文件\IR</Filter>
     </ClInclude>
-    <ClInclude Include="StaticString.h">
-      <Filter>头文件\IR</Filter>
-    </ClInclude>
-    <ClInclude Include="ThreeAddressCode.h">
-      <Filter>头文件\IR</Filter>
-    </ClInclude>
-    <ClInclude Include="ControlFlowGraph.h">
+    <ClInclude Include="Operand.h">
       <Filter>头文件\IR</Filter>
     </ClInclude>
   </ItemGroup>
@@ -154,6 +151,15 @@
     </ClCompile>
     <ClCompile Include="test.cpp">
       <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="basicblock.cpp">
+      <Filter>源文件\IR</Filter>
+    </ClCompile>
+    <ClCompile Include="IR_Generator.cpp">
+      <Filter>源文件\IR</Filter>
+    </ClCompile>
+    <ClCompile Include="IR.cpp">
+      <Filter>源文件\IR</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

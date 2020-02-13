@@ -35,6 +35,7 @@ void GlobalFuncAndClsVisitor::visit(FunctionDecl * node)
 	auto args = node->getArgs();
 	for (auto &arg : args) {
 		arg->accept(*this);
+		arg->markAsArg();
 		//funcSymbol->define(arg->getVarSymbol()); 
 	}
 }
