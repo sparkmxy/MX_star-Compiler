@@ -1,6 +1,7 @@
 #pragma once
 #include "pch.h"
 #include "scope.h"
+#include "configuration.h"
 
 class Declaration;
 
@@ -16,6 +17,8 @@ public:
 	virtual bool isArrayType() { return false; }
 	virtual bool isUserDefinedType() { return false; }
 	virtual bool isNull() { return false; }
+
+	virtual int getSize() = 0;
 };
 
 class ArraySymbol : public SymbolType {
@@ -26,6 +29,9 @@ public:
 	std::shared_ptr<SymbolType> getBaseType() { return baseType; }
 	bool compatible(std::shared_ptr<SymbolType> type) override;
 	bool isArrayType() override { return true; }
+	int getElementSize() {
+		baseType->isArrayType() ? Configuration::SIZE_OF_PTR : baseType->getSize();
+	}
 private:
 	std::shared_ptr<SymbolType> baseType;
 };
@@ -86,6 +92,13 @@ public:
 	bool isBulitInType() override{ return true; }
 
 	SymbolCategory category() const override { return BUILTIN; }
+
+	int getSize() override {
+		auto name = getTypeName();
+		if (name == "int") return Configuration::SIZE_OF_INT;
+		if (name == "bool") return Configuration::SIZE_OF_BOOL;
+	}
+
 };
 
 /*Scoped symbols*/
@@ -111,7 +124,7 @@ class ClassSymbol : public ScopedSymbol, public SymbolType {
 public:
 	ClassSymbol(const std::string &_name, 
 		Declaration*_decl, std::shared_ptr<Scope> _enclosingScope)
-		:ScopedSymbol(_name, nullptr, _decl,_enclosingScope){}
+		:ScopedSymbol(_name, nullptr, _decl,_enclosingScope), size(0){}
 
 	std::shared_ptr<Symbol> resolveMember(const std::string &id);
 
@@ -128,10 +141,13 @@ public:
 
 	std::shared_ptr<FunctionSymbol> getConstructor() { return constructor; }
 	void setConstructor(std::shared_ptr<FunctionSymbol> _constructor) { constructor = _constructor; }
+
+	int getSize() override { return size; }
 private:
 	std::unordered_map<std::string, std::shared_ptr<VarSymbol> >  memberVars;
 	std::unordered_map<std::string, std::shared_ptr<FunctionSymbol> >  memberFuncs;
 	std::shared_ptr<FunctionSymbol> constructor;
+	int size;
 };
 
 class FunctionSymbol : public ScopedSymbol {
@@ -147,9 +163,16 @@ public:
 	std::shared_ptr<Symbol> resolve(const std::string &id) override;
 
 	std::vector<std::shared_ptr<VarSymbol> > getFormalArgs() { return formalArgs; }
+
+	//IR
+	std::shared_ptr<Function> getModule() { return _module; }
+	void setModule(const std::shared_ptr<Function> &f) { _module = f; }
 private:
 	std::unordered_map<std::string, std::shared_ptr<VarSymbol> >  args;
 	std::vector<std::shared_ptr<VarSymbol> > formalArgs;
+
+	//IR
+	std::shared_ptr<Function> _module;
 };
 
 class NullTypeSymbol : public SymbolType {

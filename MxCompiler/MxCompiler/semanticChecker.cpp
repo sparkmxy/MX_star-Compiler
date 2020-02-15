@@ -1,6 +1,4 @@
 #include "semanticChecker.h"
-#include "astnode.h"
-#include "symbol.h"
 
 void SemanticChecker::visit(ProgramAST *node)
 {
@@ -72,8 +70,9 @@ void SemanticChecker::visit(ExprStmt * node)
 
 void SemanticChecker::visit(IfStmt * node)
 {
-	node->getCondition()->accept(*this);
-	if (node->getCondition()->getSymbolType()->getTypeName() != "bool")
+	auto cond = node->getCondition();
+	cond->accept(*this);
+	if (cond->getSymbolType()->getTypeName() != "bool")
 		throw SemanticError("condition must be boolean value", node->Where());
 	node->getThen()->accept(*this);
 	if (node->getElse() != nullptr)
@@ -82,8 +81,9 @@ void SemanticChecker::visit(IfStmt * node)
 
 void SemanticChecker::visit(WhileStmt * node)
 {
-	node->getCondition()->accept(*this);
-	if (node->getCondition()->getSymbolType()->getTypeName() != "bool")
+	auto cond = node->getCondition();
+	cond->accept(*this);
+	if (cond->getSymbolType()->getTypeName() != "bool")
 		throw SemanticError("condition must be boolean value", node->Where());
 	node->getBody()->accept(*this);
 }
@@ -372,10 +372,9 @@ void SemanticChecker::visit(NullValue * node)
 	node->setSymbolType(std::make_shared<NullTypeSymbol>());
 }
 
-
 bool SemanticChecker::isBoolOnlyOperator(BinaryExpr::Operator op)
 {
-	return   op == BinaryExpr::AND || op == BinaryExpr::NOT || op == BinaryExpr::OR;
+	return op == BinaryExpr::AND || op == BinaryExpr::OR;
 }
 
 bool SemanticChecker::isComparisonOperator(BinaryExpr::Operator op)
@@ -383,7 +382,6 @@ bool SemanticChecker::isComparisonOperator(BinaryExpr::Operator op)
 	return op == BinaryExpr::LESS || op == BinaryExpr::LEQ
 		|| op == BinaryExpr::GREATER || op == BinaryExpr::GEQ;
 }
-
 
 
 

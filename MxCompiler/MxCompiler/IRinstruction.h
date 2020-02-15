@@ -15,7 +15,14 @@ next and previous one.
 */
 class IRInstruction {
 public:
-	IRInstruction(std::shared_ptr<BasicBlock> block) : residingBlock(block){}
+	enum InstrTag
+	{
+		QUADR, 
+		CALL, RET, JUMP, BRANCH,   // control-related instructions
+		ALLOC,
+	};
+	IRInstruction(InstrTag _tag, std::shared_ptr<BasicBlock> block) 
+		:tag(_tag), residingBlock(block){}
 	
 	std::shared_ptr<BasicBlock> getBlock() { return residingBlock; }
 
@@ -28,14 +35,19 @@ public:
 	void setPreviousInstr(const std::shared_ptr<IRInstruction> &_prev) { prev = _prev; }
 
 	std::vector<std::shared_ptr<Register> > &getRegs() { return regs; }
+
+	InstrTag getTag() { return tag; }
 protected:
 	std::shared_ptr<BasicBlock> residingBlock;
 	std::vector<std::shared_ptr<Register> > regs;
 	std::shared_ptr<IRInstruction> next, prev;
+	InstrTag tag;
 };
 
 /*
 Class : Quadruple
+Constructor : Quadruple(currentBlock, dst, src1, src2 = nullptr);
+Note :
 This class deal with the binary opeations,
 using the same <Operator> enum class as <BinaryExpr>. 
 dst <- src1 op src2
@@ -50,18 +62,17 @@ public:
 		ADD, MINUS, TIMES, DIVIDE, MOD,
 		LESS, LEQ, GREATER, GEQ, NEQ, EQ,
 		LSHIFT, RSHIFT,
-		
-		AND, NOT, OR,
+
 		BITAND, BITOR, BITXOR,
-		//Unary
-		NEG, POS, NOT, INV,
-		PREINC, POSTINC,
-		PREDEC, POSTDEC, ASSIGN // is ASSIGN special ?
+		//unary
+		NEG, INV,
+		// momory access
+		MOVE, LOAD, STORE
 	};
 	Quadruple(std::shared_ptr<BasicBlock> _block, Operator _op,
 		std::shared_ptr<Operand> _dst,
-		std::shared_ptr<Operand> _src1, std::shared_ptr<Operand> _src2)
-		:IRInstruction(_block), op(_op),dst(_dst),src1(_src1), src2(_src2) {}
+		std::shared_ptr<Operand> _src1, std::shared_ptr<Operand> _src2 = nullptr)  
+		:IRInstruction(QUADR,_block), op(_op),dst(_dst),src1(_src1), src2(_src2) {}
 
 	Operator getOp() { return op; }
 	std::shared_ptr<Operand> getSrc1() { return src1; }
@@ -72,77 +83,54 @@ private:
 	Operator op;
 };
 
+/*
+Class: Branch
+Constructor: Branch(block, cond, trueBlock, falseBlock)
+*/
 class Branch : public IRInstruction {
 public:
-	Branch(std::shared_ptr<Operand> _cond,
-		std::shared_ptr<BasicBlock> _residingBlock,
-		std::shared_ptr<BasicBlock> _then, std::shared_ptr<BasicBlock> _else)
-		:IRInstruction(_residingBlock),
-		condition(_cond), thenBlock(_then), elseBlock(_else) {}
+	Branch(std::shared_ptr<BasicBlock> _residingBlock,
+		std::shared_ptr<Operand> _cond,
+		std::shared_ptr<BasicBlock> _true, std::shared_ptr<BasicBlock> _false)
+		:IRInstruction(BRANCH,_residingBlock),
+		condition(_cond), trueBlock(_true), falseBlock(_false) {}
 
 	std::shared_ptr<Operand> getCondition() { return condition; }
-	std::shared_ptr<BasicBlock> getThenBlock() { return thenBlock; }
-	std::shared_ptr<BasicBlock> getElseBlock() { return elseBlock; }
+	std::shared_ptr<BasicBlock> getTrueBlock() { return trueBlock; }
+	std::shared_ptr<BasicBlock> getFalseBlock() { return falseBlock; }
 private:
 	std::shared_ptr<Operand> condition;
-	std::shared_ptr<BasicBlock> thenBlock, elseBlock;
+	std::shared_ptr<BasicBlock> trueBlock, falseBlock;
 };
 
 class Call : public IRInstruction {
 public:
 	Call(std::shared_ptr<BasicBlock> _block,
 		std::shared_ptr<Function> _func, std::shared_ptr<Operand> _result)
-		: IRInstruction(_block), func(_func), result(_result) {}
+		: IRInstruction(CALL, _block), func(_func), result(_result) {}
 
 	std::shared_ptr<Function> getFunction() { return func; }
-	std::vector<std::shared_ptr<Operand> > getParameters() { return parameters; }
+
+	std::vector<std::shared_ptr<Operand> > getArgs() { return args; }
+	void addArg(std::shared_ptr<Operand> arg) { args.emplace_back(arg); }
 	std::shared_ptr<Operand> getResult() { return result; }
+	void setResult(const std::shared_ptr<Operand> &_res) { result = _res; }
 
 	std::shared_ptr<Operand> getInstance() { return instancePtr;}
 	void setInstance(const std::shared_ptr<Operand> &_instance) { instancePtr = _instance; }
 private:
 	std::shared_ptr<Function> func;
 	std::shared_ptr<Operand> result, instancePtr;
-	std::vector<std::shared_ptr<Operand> > parameters;
+	std::vector<std::shared_ptr<Operand> > args;
 }; 
 
-/*
-Class : Load
-Load the value at the address <src> to <dst>.
-*/
-class Load : IRInstruction {
-public:
-	Load(std::shared_ptr<BasicBlock> block,
-		std::shared_ptr<Operand> _src, std::shared_ptr<Operand> _dst)
-		: IRInstruction(block), src(_src), dst(_dst) {}
 
-	std::shared_ptr<Operand> getSrc() { return src; }
-	std::shared_ptr<Operand> getDst() { return dst; }
-private:
-	std::shared_ptr<Operand> src, dst;
-};
 
-/*
-Class : Store
-Store the value in <src> to the address <dst>.
-*/
-class Store : IRInstruction {
-public:
-	Store(std::shared_ptr<BasicBlock> block,
-		std::shared_ptr<Operand> _src, std::shared_ptr<Operand> _dst)
-		: IRInstruction(block), src(_src), dst(_dst) {}
-
-	std::shared_ptr<Operand> getSrc() { return src; }
-	std::shared_ptr<Operand> getDst() { return dst; }
-private:
-	std::shared_ptr<Operand> src, dst;
-};
-
-class Malloc : IRInstruction {
+class Malloc : public IRInstruction {
 public:
 	Malloc(std::shared_ptr<BasicBlock> block,
 		std::shared_ptr<Operand> _size, std::shared_ptr<Operand> _ptr)
-		:IRInstruction(block), size(_size), ptr(_ptr) {}
+		:IRInstruction(ALLOC, block), size(_size), ptr(_ptr) {}
 
 	std::shared_ptr<Operand> getSize() { return size; }
 	void setSize(const std::shared_ptr<Operand> &_size) { size = _size; }
@@ -153,23 +141,24 @@ private:
 	std::shared_ptr<Operand> size, ptr;
 };
 
-class Return : IRInstruction {
+class Return : public IRInstruction {
 public: 
 	Return(std::shared_ptr<BasicBlock> block, std::shared_ptr<Operand> _value)
-		:IRInstruction(block), value(_value) {}
+		:IRInstruction(RET, block), value(_value) {}
 
 	std::shared_ptr<Operand> getValue() { return value; }
 private:
 	std::shared_ptr<Operand> value;
 };
 
-class Jump : IRInstruction {
+class Jump : public IRInstruction {
 public:
 	Jump(std::shared_ptr<BasicBlock> _residing, std::shared_ptr<BasicBlock> _target)
-		:IRInstruction(_residing), target(_target) {}
+		:IRInstruction(JUMP, _residing), target(_target) {}
 
 	std::shared_ptr<BasicBlock> getTarget() { return target; }
 	void setTarget(const std::shared_ptr<BasicBlock> &_target) { target = _target; }
+	std::shared_ptr<BasicBlock> getTarget() { return target; }
 private:
 	std::shared_ptr<BasicBlock> target;
 };

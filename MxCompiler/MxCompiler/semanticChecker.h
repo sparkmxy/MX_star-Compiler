@@ -54,9 +54,8 @@ private:
 	std::shared_ptr<BuiltInTypeSymbol> boolSymbol;
 	std::shared_ptr<BuiltInTypeSymbol> voidSymbol;
 	std::shared_ptr<ClassSymbol> stringClassSymbol;
-	/*Helper Functions*/
-	bool isBoolOnlyOperator(BinaryExpr::Operator op);
-	bool isComparisonOperator(BinaryExpr::Operator op);
 
+	static bool isBoolOnlyOperator(BinaryExpr::Operator op);
+	static bool isComparisonOperator(BinaryExpr::Operator op);
 };
 

@@ -118,6 +118,7 @@
     <ClInclude Include="astnode.h" />
     <ClInclude Include="basicblock.h" />
     <ClInclude Include="ClassDeclVisitor.h" />
+    <ClInclude Include="configuration.h" />
     <ClInclude Include="environment.h" />
     <ClInclude Include="error.h" />
     <ClInclude Include="exprHelper.h" />
@@ -145,6 +146,7 @@
     <ClCompile Include="basicblock.cpp" />
     <ClCompile Include="ClassDeclVisitor.cpp" />
     <ClCompile Include="environment.cpp" />
+    <ClCompile Include="Function.cpp" />
     <ClCompile Include="GlobalFuncDeclVistor.cpp" />
     <ClCompile Include="IR.cpp" />
     <ClCompile Include="IR_Generator.cpp" />

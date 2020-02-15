@@ -6,40 +6,55 @@
 Class Operand: an interface class
 */
 class Operand {
+public:
 	enum Category
 	{
-		REG_PTR, IMM, REG_VAL
+		REG_REF, IMM, REG_VAL, STATICSTR
 	};
 	virtual Category category() = 0;
 };
 
+/*
+Class : Register
+The variables that has real address in the RAM should
+be tagged as <REG_REF>.
+On the contrary, <REG_VAL> means
+it is just a temperory value in the register.
+*/
 class Register : public Operand {
 public:
 	Register() {}
-	Register(const std::string &_name) : name(_name) {}
+	Register(Category _tag, std::string _name) : name(_name),tag(_tag){}
 	std::string getName() { return name; }
+
+	Category category() override { return tag; }
 private:
 	std::string name;
+	Category tag;
 };
 
 class Immediate : public Operand {
 public:
 	Immediate(int _val) : value(_val) {}
 	int getValue() { return value; }
+
+	Category category() override { return IMM; }
 private:
 	int value;
 };
 
 
-class Int64Reg : public Register {
+class VirtualReg: public Register {
 public:
-	Int64Reg(const std::string &_name) :Register(_name) {}
+	VirtualReg(Category tag = REG_VAL, std::string _name = "") :Register(tag, _name) {}
 };
 
-class Int64Ptr : public Register {
-	Int64Ptr(const std::string &_name) :Register(_name) {}
-};
+class StaticString : public Operand {
+public:
+	StaticString(const std::string &_text) :text(_text) {}
 
-class Int64Global : public Register {  // is this necessary?
-	Int64Global(const std::string &_name) :Register(_name) {}
+	std::string getText() { return text; }
+	Category category() override { return STATICSTR; }
+private:
+	std::string text;
 };

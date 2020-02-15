@@ -1,6 +1,7 @@
 #pragma once
 /*
 This file implements the <astNode> class family.
+Much information is attached in later stage.
 */
 #include "pch.h"
 #include "position.h"
@@ -10,8 +11,8 @@ This file implements the <astNode> class family.
 #define ACCEPT_VISITOR void accept (Visitor &vis) override {vis.visit(this);} 
 #define ACCEPT_VISITOR_VIRTUAL void accept (Visitor &vis) override = 0;
 
-class Register;
 class BasicBlock;
+class Operand;
 
 class astNode{
 public:
@@ -98,6 +99,9 @@ public:
 		UNDETERMINED, 
 		LVALUE, RVALUE, CLASS, FUNCTION, THIS
 	};
+
+	Expression(){}
+	//Semantic information
 	void setSymbolType(std::shared_ptr<SymbolType> _symbolType) { symbolType = _symbolType; }
 	std::shared_ptr<SymbolType> getSymbolType() { return symbolType; }
 
@@ -108,19 +112,34 @@ public:
 	bool isValue() { return category == LVALUE || category == RVALUE || category == THIS; }
 	bool isNull() { return symbolType->isNull(); }
 	bool nullable() {
-		if (symbolType->isNull()) return false;
-		if (category != LVALUE) return false;
+		if (symbolType->isNull() | category != LVALUE) return false;
 		return symbolType->isArrayType() || symbolType->isUserDefinedType();
 	}
 	bool isObject() { return isValue() && symbolType->isUserDefinedType(); }
-	ACCEPT_VISITOR_VIRTUAL
 
+	// For IR 
+	//In IR stage, bool expression require extra information.
+	bool isBool() { return isValue() && symbolType->getTypeName() == "bool"; }
+	bool isString() { return isValue() && symbolType->getTypeName() == "string"; }
+	std::shared_ptr<BasicBlock> getTrueBlock() { return trueBlock; }
+	void setTrueBlock(std::shared_ptr<BasicBlock> block) { trueBlock = block; }
+
+	std::shared_ptr<BasicBlock> getFalseBlock() { return falseBlock; }
+	void setFalseBlock(std::shared_ptr<BasicBlock> block) { falseBlock = block; }
+
+	std::shared_ptr<Operand> getResultOprand() { return result; }
+	void setResultOprand(const std::shared_ptr<Operand> &op) { result = op; }
+	
+	bool isControl() { return trueBlock == nullptr; }
+	ACCEPT_VISITOR_VIRTUAL
 private:
+	//semantic
 	ExprCategory category;
 	std::shared_ptr<SymbolType> symbolType;
 
 	//IR 
 	std::shared_ptr<BasicBlock> trueBlock, falseBlock;
+	std::shared_ptr<Operand> result;
 };
 
 class IdentifierExpr : public Expression{
@@ -200,8 +219,8 @@ public:
 	enum Operator
 	{
 		NEG, POS, NOT, INV,
-		PREINC, POSTINC,
-		PREDEC, POSTDEC
+		PREINC, PREDEC,
+		POSTINC, POSTDEC
 	};
 	UnaryExpr(Operator _op, std::shared_ptr<Expression> _oprand) :
 		op(_op), oprand(std::move(_oprand)) {}
@@ -222,10 +241,11 @@ public:
 		LESS, LEQ, GREATER, GEQ, NEQ, EQ,
 		LSHIFT,RSHIFT,
 		ASSIGN,
-		AND, NOT, OR,
+		AND,OR,
 		BITAND, BITOR, BITXOR,
 		INDEX
 	};
+
 	BinaryExpr(Operator _op, std::shared_ptr<Expression> _oprand1, std::shared_ptr<Expression> _oprand2)
 		:op(_op), oprand1(std::move(_oprand1)), oprand2(std::move(_oprand2)) {}
 

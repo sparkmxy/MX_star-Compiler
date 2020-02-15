@@ -1,7 +1,9 @@
 #pragma once
 
 #include "pch.h"
-#include "basicblock.h"
+#include "IRinstruction.h"
+
+class BasicBlock;
 
 /*
 Class: Function

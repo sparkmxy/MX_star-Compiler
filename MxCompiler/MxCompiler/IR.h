@@ -6,11 +6,17 @@
 
 class IR {
 public:
-
-	void addGlobalVar(std::shared_ptr<Int64Global> var);
+	IR();
+	void addGlobalVar(std::shared_ptr<Register> var);
 	void addFunction(std::shared_ptr<Function> func);
-
+	
+	std::shared_ptr<Function> stringLength, substring, parseInt, ord, print, println;
+	std::shared_ptr<Function> stringAdd, stringNEQ, stringEQ;
+	std::shared_ptr<Function> getInt, getString;
+	std::shared_ptr<Function> toString, printInt, printlnInt;
 private:
-	std::vector<std::shared_ptr<Int64Global> > glbVars;
+	std::vector<std::shared_ptr<Register> > glbVars;
 	std::vector<std::shared_ptr<Function> > functions;
+	
+	std::shared_ptr<Function> newBuiltInFunc(const std::string &name);
 };
