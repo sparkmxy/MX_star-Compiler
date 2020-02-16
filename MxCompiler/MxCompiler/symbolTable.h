@@ -19,7 +19,7 @@ private:
 	std::shared_ptr<FunctionSymbol> currentFunctionSymbol;
 
 	//This is for <break> and <continue> statement 
-	std::stack<Statement *> loops;
+	std::stack<Loop *> loops;
 
 	//override functions
 	

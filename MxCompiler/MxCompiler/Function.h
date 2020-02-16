@@ -25,10 +25,14 @@ public:
 	std::shared_ptr<BasicBlock> getExit() { return exit; }
 	void setExit(const std::shared_ptr<BasicBlock> &_exit) { exit = _exit; }
 
+	std::shared_ptr<Operand> getObjRef() { return objRef; }
+	void setObjRef(const std::shared_ptr<Operand> &ref) { objRef = ref; }
 private:
 	std::shared_ptr<BasicBlock> entry, exit;
 	std::string name;
 
 	std::vector<std::shared_ptr<Return> > retInstrs;
 	std::vector<std::shared_ptr<Register> > args;
+
+	std::shared_ptr<Operand> objRef;
 };

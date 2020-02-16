@@ -51,10 +51,16 @@ public:
 
 class StaticString : public Operand {
 public:
-	StaticString(const std::string &_text) :text(_text) {}
+	StaticString(std::shared_ptr<VirtualReg> _reg, const std::string &_text) 
+		:reg(_reg), text(_text) {}
 
 	std::string getText() { return text; }
 	Category category() override { return STATICSTR; }
+
+	std::shared_ptr<VirtualReg> getReg() { return reg; }
+	void setReg(std::shared_ptr<VirtualReg> _reg) { reg = _reg; }
+
 private:
 	std::string text;
+	std::shared_ptr<VirtualReg> reg;
 };

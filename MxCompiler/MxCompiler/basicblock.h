@@ -11,7 +11,9 @@ class BasicBlock : public std::enable_shared_from_this<BasicBlock>{
 public:
 	enum Tag  // for debugging
 	{
-		FOR_BODY,
+		FOR_BODY, FOR_COND, FOR_ITER, FOR_FINAL,
+		WHILE_BODY, WHILE_COND, WHILE_FINAL,
+		IF_TRUE, IF_FALSE, IF_FINAL,
 		TRUE, FALSE, FINAL,
 		LHS_TRUE, LHS_FALSE
 	};
@@ -35,7 +37,7 @@ public:
 
 	bool ended() { return endFlag; }
 private:
-	BlockTag tag;
+	Tag tag;
 	std::shared_ptr<Function> func;
 	
 	// instructions form a list

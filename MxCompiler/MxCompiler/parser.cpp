@@ -70,6 +70,7 @@ std::shared_ptr<ConstValue> Parser::constValue() {
 	return nullptr;
 }
 
+
 std::shared_ptr<NewExpr> Parser::newExpr() {
 	auto st = (*cur)->pos().first;
 	if ((*cur)->tag() != New) return nullptr;
@@ -80,13 +81,15 @@ std::shared_ptr<NewExpr> Parser::newExpr() {
 	std::vector<std::shared_ptr<Expression>> dimensions;
 
 	bool noDim = false;
+	int dimension = 0;
 	while ((*cur)->tag() == LeftIndex) {
 		cur++;
+		dimension++;
 		if ((*cur)->tag() == RightIndex) {  // no more dimensions
 			noDim = true;
-			cur++;
 			baseType = newNode<ArrayType>(st, (*cur)->pos().second, baseType);
-			break;			//??
+			cur++;
+			continue;			//??
 		}
 		if (noDim)
 			throw SyntaxError("no dimension declaration",(*cur)->pos().first);
@@ -100,7 +103,7 @@ std::shared_ptr<NewExpr> Parser::newExpr() {
 		cur++;
 	}
 	
-	return newNode<NewExpr>(st, (*cur)->pos().second, baseType, dimensions,!noDim);
+	return newNode<NewExpr>(st, (*cur)->pos().second, baseType, dimensions,dimension);
 }
 
 std::shared_ptr<ThisExpr> Parser::thisExpr()

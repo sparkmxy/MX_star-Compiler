@@ -35,10 +35,12 @@ void IR_Generator::visit(VarDeclStmt * node)
 	}
 }
 
-void IR_Generator::visit(FunctionDecl * node)
+void IR_Generator::visit(FunctionDecl * node)   // Function is linked to function symbol here
 {
 	auto symbol = node->getFuncSymbol();
-	auto funcModule = std::make_shared<Function>(symbol->getSymbolName());
+	auto funcModule = std::make_shared<Function>(symbol->getSymbolName());    
+	if (currentClsSymbol != nullptr)
+		funcModule->setObjRef(std::make_shared<VirtualReg>(Operand::REG_VAL, "this"));
 	symbol->setModule(funcModule);
 	currentFunction = funcModule;
 	ir->addFunction(funcModule);
@@ -50,8 +52,24 @@ void IR_Generator::visit(FunctionDecl * node)
 
 }
 
+/*
+Note : 
+1. Set fucntion modules for member functions;
+2. Maintain <currentClsSymbol>;
+3. Declaretion of mamber varibles are of no significance here.
+*/
 void IR_Generator::visit(ClassDecl * node)
 {
+	currentClsSymbol = node->getClsSymbol();
+	auto members = node->getMembers();
+	for (auto &member : members) 
+		if(!member->isVarDecl()){
+			auto symbol = std::static_pointer_cast<FunctionDecl>(member)->getFuncSymbol();
+			auto funcName = node->getClsSymbol()->getSymbolName() 
+				+ "::" + symbol->getScopeName();
+			symbol->setModule(std::make_shared<Function>(funcName));
+		}
+	currentClsSymbol = nullptr;
 }
 
 void IR_Generator::visit(StmtBlock * node)
@@ -63,6 +81,153 @@ void IR_Generator::visit(StmtBlock * node)
 void IR_Generator::visit(ExprStmt * node)
 {
 	node->getExpr()->accept(*this);
+}
+
+void IR_Generator::visit(ForStmt * node)
+{
+	if (node->getInit() != nullptr) node->getInit()->accept(*this);
+	auto cond = node->getCondition();
+	auto iter = node->getIter();
+
+	auto bodyBlk = std::make_shared<BasicBlock>(currentFunction, BasicBlock::FOR_BODY);
+	auto finalBlk = std::make_shared<BasicBlock>(currentFunction, BasicBlock::FOR_FINAL);
+	auto condBlk = cond == nullptr ? 
+		bodyBlk : std::make_shared<BasicBlock>(currentFunction, BasicBlock::FOR_COND);
+	auto iterBlk = iter == nullptr ?
+		condBlk : std::make_shared<BasicBlock>(currentFunction, BasicBlock::FOR_ITER);
+	node->setStartBlk(condBlk);
+	node->setFinalBlk(finalBlk);
+	// Jump to condition if there is, or else jump to body.
+	currentBlock->endWith(std::make_shared<Jump>(currentBlock, condBlk));
+	if (cond != nullptr) {
+		currentBlock = condBlk;
+		cond->setTrueBlock(bodyBlk);
+		cond->setFalseBlock(finalBlk);  // jump out of loop
+		cond->accept(*this);
+	}
+
+	currentBlock = bodyBlk;
+	node->getBody()->accept(*this);
+
+	if (!currentBlock->ended())
+		currentBlock->endWith(std::make_shared<Jump>(currentBlock, iterBlk));
+	if (iter != nullptr) {
+		currentBlock = iterBlk;
+		iter->accept(*this);
+		if (!currentBlock->ended())
+			currentBlock->endWith(std::make_shared<Jump>(currentBlock, condBlk));
+	}
+	currentBlock = finalBlk;
+}
+
+void IR_Generator::visit(WhileStmt * node)
+{
+	auto bodyBlk = std::make_shared<BasicBlock>(currentFunction, BasicBlock::WHILE_BODY);
+	auto finalBlk = std::make_shared<BasicBlock>(currentFunction, BasicBlock::WHILE_FINAL);
+	
+	auto cond = node->getCondition();
+	auto condBlk = std::make_shared<BasicBlock>(currentFunction, BasicBlock::WHILE_COND);
+	node->setStartBlk(condBlk);
+	node->setFinalBlk(finalBlk);
+
+	currentBlock->endWith(std::make_shared<Jump>(currentBlock, condBlk));
+	currentBlock = condBlk;
+	cond->setTrueBlock(bodyBlk);
+	cond->setFalseBlock(finalBlk);
+	cond->accept(*this);
+
+	currentBlock = bodyBlk;
+	node->getBody()->accept(*this);
+	if (!currentBlock->ended())
+		currentBlock->endWith(std::make_shared<Jump>(currentBlock, condBlk));
+	currentBlock = finalBlk;
+}
+
+void IR_Generator::visit(IfStmt * node)
+{
+	auto trueBlk = std::make_shared<BasicBlock>(currentFunction, BasicBlock::IF_TRUE);
+	auto finalBlk = std::make_shared<BasicBlock>(currentFunction, BasicBlock::IF_FINAL);
+
+	auto cond = node->getCondition();
+	cond->setTrueBlock(trueBlk);
+
+	auto _else = node->getElse();
+	if (_else == nullptr) {
+		cond->setFalseBlock(finalBlk);
+		cond->accept(*this);
+		currentBlock = trueBlk;
+		node->getThen()->accept(*this);
+		if (!currentBlock->ended())
+			currentBlock->endWith(std::make_shared<Jump>(currentBlock, finalBlk));
+	}
+	else {
+		auto falseBlk = std::make_shared<BasicBlock>(currentFunction, BasicBlock::IF_FALSE);
+		cond->setFalseBlock(falseBlk);
+		cond->accept(*this);
+		currentBlock = trueBlk;
+		node->getThen()->accept(*this);
+		if (!currentBlock->ended())
+			currentBlock->endWith(std::make_shared<Jump>(currentBlock, finalBlk));
+		currentBlock = falseBlk;
+		_else->accept(*this);
+		if (!currentBlock->ended())
+			currentBlock->endWith(std::make_shared<Jump>(currentBlock, finalBlk));
+	}
+	currentBlock = finalBlk;
+}
+
+void IR_Generator::visit(ReturnStmt * node)
+{
+	if (node->getValue() == nullptr)
+		currentBlock->endWith(std::make_shared<Return>(currentBlock, nullptr));
+	else {
+		auto reg = std::make_shared<VirtualReg>();
+		assign(reg, node->getValue().get());
+		currentBlock->endWith(std::make_shared<Return>(currentBlock, reg));
+	}
+}
+
+void IR_Generator::visit(ContinueStmt * node)
+{
+	currentBlock->endWith(std::make_shared<Jump>(currentBlock, node->getLoop()->getStartBlk()));
+}
+
+void IR_Generator::visit(BreakStmt * node)
+{
+	currentBlock->endWith(std::make_shared<Jump>(currentBlock, node->getLoop()->getFinalBlk()));
+}
+
+
+//Note: resolve offset.
+void IR_Generator::visit(IdentifierExpr * node)
+{
+	auto symbol = node->getSymbol();
+	if (symbol->getScope() == currentClsSymbol) {
+		// x is equivalent to this.x
+		if (symbol->category() == Symbol::VAR) {
+			auto ref = std::make_shared<VirtualReg>(Operand::REG_REF);
+			auto offset = std::make_shared<Immediate>(std::static_pointer_cast<VarSymbol>(symbol)->getOffset());
+			currentBlock->append_back(std::make_shared<Quadruple>(
+				currentBlock, Quadruple::ADD, ref, currentFunction->getObjRef(), offset));
+			node->setResultOprand(ref);
+			if (node->isControl()) {
+				auto value = getValueReg(ref);
+				currentBlock->endWith(std::make_shared<Branch>(
+					currentBlock, value, node->getTrueBlock(), node->getFalseBlock()));
+			}
+		}
+		else
+			node->setResultOprand(currentFunction->getObjRef());
+	}
+	else if (symbol->category() == Symbol::VAR) { 
+		// for normal variable, return its reference directly
+		auto ref = std::static_pointer_cast<VarSymbol>(symbol)->getReg();
+		auto result = getValueReg(ref);
+		node->setResultOprand(result);
+		if (node->isControl())
+			currentBlock->endWith(std::make_shared<Branch>(
+				currentBlock, result, node->getTrueBlock(), node->getFalseBlock()));
+	}
 }
 
 void IR_Generator::visit(BinaryExpr * node)
@@ -96,47 +261,49 @@ void IR_Generator::visit(BinaryExpr * node)
 		currentBlock->append_back(call);
 		return;
 	}
-	// integer op integer, bool == bool or bool != bool
-	Quadruple::Operator instOp;
-	switch (op)
-	{
-	case BinaryExpr::ADD: instOp = Quadruple::ADD;
-		break;
-	case BinaryExpr::MINUS: instOp = Quadruple::MINUS;
-		break;
-	case BinaryExpr::TIMES: instOp = Quadruple::TIMES;
-		break;
-	case BinaryExpr::DIVIDE: instOp = Quadruple::DIVIDE;
-		break;
-	case BinaryExpr::MOD: instOp = Quadruple::MOD;
-		break;
-	case BinaryExpr::LESS: instOp = Quadruple::LESS;
-		break;
-	case BinaryExpr::LEQ: instOp = Quadruple::LEQ;
-		break;
-	case BinaryExpr::GREATER: instOp = Quadruple::GREATER;
-		break;
-	case BinaryExpr::GEQ: instOp = Quadruple::GEQ;
-		break;
-	case BinaryExpr::NEQ: instOp = Quadruple::NEQ;
-		break;
-	case BinaryExpr::EQ: instOp = Quadruple::NEQ;
-		break;
-	case BinaryExpr::LSHIFT: instOp = Quadruple::LSHIFT;
-		break;
-	case BinaryExpr::RSHIFT: instOp = Quadruple::RSHIFT;
-		break;
-	case BinaryExpr::BITAND: instOp = Quadruple::BITAND;
-		break;
-	case BinaryExpr::BITOR: instOp = Quadruple::BITOR;
-		break;
-	case BinaryExpr::BITXOR: instOp = Quadruple::BITXOR;
-		break;
-	default:
-		break;
+	else {
+		// integer op integer, bool == bool or bool != bool
+		Quadruple::Operator instOp;
+		switch (op)
+		{
+		case BinaryExpr::ADD: instOp = Quadruple::ADD;
+			break;
+		case BinaryExpr::MINUS: instOp = Quadruple::MINUS;
+			break;
+		case BinaryExpr::TIMES: instOp = Quadruple::TIMES;
+			break;
+		case BinaryExpr::DIVIDE: instOp = Quadruple::DIVIDE;
+			break;
+		case BinaryExpr::MOD: instOp = Quadruple::MOD;
+			break;
+		case BinaryExpr::LESS: instOp = Quadruple::LESS;
+			break;
+		case BinaryExpr::LEQ: instOp = Quadruple::LEQ;
+			break;
+		case BinaryExpr::GREATER: instOp = Quadruple::GREATER;
+			break;
+		case BinaryExpr::GEQ: instOp = Quadruple::GEQ;
+			break;
+		case BinaryExpr::NEQ: instOp = Quadruple::NEQ;
+			break;
+		case BinaryExpr::EQ: instOp = Quadruple::NEQ;
+			break;
+		case BinaryExpr::LSHIFT: instOp = Quadruple::LSHIFT;
+			break;
+		case BinaryExpr::RSHIFT: instOp = Quadruple::RSHIFT;
+			break;
+		case BinaryExpr::BITAND: instOp = Quadruple::BITAND;
+			break;
+		case BinaryExpr::BITOR: instOp = Quadruple::BITOR;
+			break;
+		case BinaryExpr::BITXOR: instOp = Quadruple::BITXOR;
+			break;
+		default:
+			break;
+		}
+		currentBlock->append_back(std::make_shared<Quadruple>(currentBlock, instOp, result, lhsReg, rhsReg));
 	}
-	currentBlock->append_back(std::make_shared<Quadruple>(currentBlock, instOp, result, lhsReg, rhsReg));
-	if (node->isControl()) {
+	if (node->isControl()) { // This is only for comparison between integers or strings
 		currentBlock->endWith(std::make_shared<Branch>(
 			currentBlock, result, node->getTrueBlock(), node->getFalseBlock()));
 	}
@@ -223,6 +390,218 @@ void IR_Generator::visit(UnaryExpr * node)
 	}
 }
 
+void IR_Generator::visit(FuncCallExpr * node)
+{
+	auto func = node->getFuncSymbol();
+	std::shared_ptr<Operand> result;
+	if (node->getSymbolType()->getTypeName() == "void")
+		result = nullptr;
+	else result = std::make_shared<VirtualReg>();
+	node->setResultOprand(result);
+
+	auto call = std::make_shared<Call>(currentBlock, func->getModule(), result);
+	auto args = node->getArgs();
+	for (auto &arg : args) {
+		arg->accept(*this);
+		call->addArg(getValueReg(arg->getResultOprand()));
+	}
+	currentBlock->append_back(call);
+	if (node->isControl())
+		currentBlock->endWith(std::make_shared<Branch>(
+			currentBlock, result, node->getTrueBlock(), node->getFalseBlock()));
+}
+
+void IR_Generator::visit(MemberFuncCallExpr * node)
+{
+	if (!node->getInstance()->isObject())
+		return arraySize(node);
+	node->getInstance()->accept(*this);
+	auto func = node->getFuncSymbol();
+	std::shared_ptr<Operand> result;
+	if (node->getSymbolType()->getTypeName() == "void")
+		result = nullptr;
+	else result = std::make_shared<VirtualReg>();
+	node->setResultOprand(result);
+
+	auto call = std::make_shared<Call>(currentBlock, func->getModule(), result);
+	auto args = node->getArgs();
+	for (auto &arg : args) {
+		arg->accept(*this);
+		call->addArg(getValueReg(arg->getResultOprand()));
+	}
+	auto base = getValueReg(node->getInstance()->getResultOprand());
+	call->setObjRef(base);
+	currentBlock->append_back(call);
+	if (node->isControl())
+		currentBlock->endWith(std::make_shared<Branch>(
+			currentBlock, result, node->getTrueBlock(), node->getFalseBlock()));
+}
+
+/*
+Note: To access a member variable, we need 
+store the offset of each variable in corresponding
+symbol in advance.
+*/
+void IR_Generator::visit(ClassMemberExpr * node)
+{
+	node->getObj()->accept(*this);
+	auto base = getValueReg(node->getObj()->getResultOprand());
+	auto symbol = std::static_pointer_cast<VarSymbol>(node->getSymbol());
+	auto ref = std::make_shared<VirtualReg>(Operand::REG_REF);
+	auto offset = std::make_shared<Immediate>(symbol->getOffset());
+	node->setResultOprand(ref);
+	currentBlock->append_back(std::make_shared<Quadruple>(
+		currentBlock, Quadruple::ADD, ref, base, offset));
+}
+
+void IR_Generator::visit(ThisExpr * node)
+{
+	node->setResultOprand(currentFunction->getObjRef());
+}
+
+/*
+Note : note that builtinTypes cannot use <new>, only object and array are allowed.
+*/
+void IR_Generator::visit(NewExpr * node)
+{
+	auto result = std::make_shared<VirtualReg>();
+	node->setResultOprand(result);
+	if (node->getSymbolType()->isArrayType()) newArray(node,node->getResultOprand());
+	else { // object
+		//1. allocate memory
+		auto clsSymbol = std::static_pointer_cast<ClassSymbol>(node->getSymbolType());
+		auto objSize = std::make_shared<Immediate>(clsSymbol->getSize());
+		currentBlock->append_back(std::make_shared<Malloc>(
+			currentBlock, objSize, result));
+		if (clsSymbol->getConstructor() != nullptr) {
+			//2. call constructor
+			auto call = std::make_shared<Call>(currentBlock,clsSymbol->getConstructor()->getModule());
+			call->setObjRef(node->getResultOprand());
+			currentBlock->append_back(call);
+		}
+	}
+}
+
+void IR_Generator::visit(NumValue * node)
+{
+	node->setResultOprand(std::make_shared<Immediate>(node->getValue()));
+}
+
+void IR_Generator::visit(BoolValue * node)
+{
+	node->setResultOprand(std::make_shared<Immediate>(node->getValue()));
+	if (node->isControl()) {
+		std::shared_ptr<Jump> jump;
+		if (node->getValue())
+			jump = std::make_shared<Jump>(currentBlock, node->getTrueBlock());
+		else jump = std::make_shared<Jump>(currentBlock, node->getFalseBlock());
+		currentBlock->endWith(jump);
+	}
+}
+
+void IR_Generator::visit(StringValue * node)
+{
+	auto reg = std::make_shared<VirtualReg>(Operand::REG_VAL, "__static_str__");
+	auto str = std::make_shared<StaticString>(reg, node->getText());
+	node->setResultOprand(reg);
+	// Need to put it into IR?
+}
+
+void IR_Generator::visit(NullValue * node)
+{
+	// is this necessary?
+	node->setResultOprand(std::make_shared<Immediate>(0));
+}
+
+/*
+Note: The size of array is stored at the begining address.
+Hence,  memorySize = N * elementSize + <regSize>.
+*/
+void IR_Generator::newArray(NewExpr * node, std::shared_ptr<Operand> addrReg, int dimension)
+{
+	auto sizeExpr = (node->getDimensions())[dimension];
+	sizeExpr->accept(*this);
+	auto N_reg = getValueReg(sizeExpr->getResultOprand());
+	auto size = std::make_shared<VirtualReg>();
+	if (dimension == node->getDimensions().size() - 1) {	// the last dimension
+		//1. calaulate <size>.
+		auto elemSize = std::make_shared<Immediate>(
+			dimension == node->getNumberOfDim() - 1 ?
+			node->getSymbolType()->getSize() : Configuration::SIZE_OF_PTR);
+		currentBlock->append_back(std::make_shared<Quadruple>(
+			currentBlock, Quadruple::TIMES, size, elemSize, N_reg));
+		currentBlock->append_back(std::make_shared<Quadruple>(
+			currentBlock, Quadruple::ADD, size, size, Configuration::SIZE_OF_INT));
+		// 2. Allocate memory.
+		allocateMemory(addrReg,size);
+	}
+	else {  // elemSize = size_of_ptr
+		//1. Allocate memory for pointers.
+		currentBlock->append_back(std::make_shared<Quadruple>(
+			currentBlock, Quadruple::TIMES, size, Configuration::SIZE_OF_PTR, N_reg));
+		currentBlock->append_back(std::make_shared<Quadruple>(
+			currentBlock, Quadruple::ADD, size, size, Configuration::SIZE_OF_INT));
+		auto arrayAddr = allocateMemory(addrReg, size);
+		//2.Use a for loop to allocate memory for each pointers in the array.
+		auto bodyBlk = std::make_shared<BasicBlock>(currentFunction, BasicBlock::FOR_BODY);
+		auto finalBlk = std::make_shared<BasicBlock>(currentFunction, BasicBlock::FOR_FINAL);
+		auto condBlk = std::make_shared<BasicBlock>(currentFunction, BasicBlock::FOR_COND);
+		auto iterBlk = std::make_shared<BasicBlock>(currentFunction, BasicBlock::FOR_ITER);
+		// 3. Calaulate the begining address and upperbound.
+		auto curAddr = std::make_shared<VirtualReg>();
+		auto upperBound = std::make_shared<VirtualReg>();
+		currentBlock->append_back(std::make_shared<Quadruple>(
+			currentBlock, Quadruple::ADD, curAddr, arrayAddr, Configuration::SIZE_OF_INT));
+		currentBlock->append_back(std::make_shared<Quadruple>(
+			currentBlock, Quadruple::ADD, upperBound, curAddr, size));
+		currentBlock->endWith(std::make_shared<Jump>(currentBlock, condBlk));
+		// 4. condtion : curAddr < upperBound
+		auto cmp = std::make_shared<VirtualReg>();
+		condBlk->append_back(std::make_shared<Quadruple>(
+			condBlk, Quadruple::LESS, cmp, curAddr, upperBound));
+		condBlk->endWith(std::make_shared<Branch>(condBlk, cmp, bodyBlk, finalBlk));
+		// 5. Body : curAddr = new array (recursively)
+		currentBlock = bodyBlk;
+		newArray(node, curAddr, dimension + 1);
+		currentBlock->endWith(std::make_shared<Jump>(currentBlock, iterBlk));
+		// 6. Iteration : curAddr += size_of_ptr
+		auto size_of_ptr = std::make_shared<Immediate>(Configuration::SIZE_OF_PTR);
+		iterBlk->append_back(std::make_shared<Quadruple>(
+			iterBlk, Quadruple::ADD, curAddr, size_of_ptr, curAddr));
+		iterBlk->endWith(std::make_shared<Jump>(iterBlk, condBlk));
+		currentBlock = finalBlk;
+	}
+}
+
+//Usage: addrValReg = allocateMemory(addr,size)
+std::shared_ptr<Operand>
+IR_Generator::allocateMemory(std::shared_ptr<Operand> addrReg, std::shared_ptr<Operand> size)
+{
+	if (addrReg->category() == Operand::REG_REF) {
+		auto temp = std::make_shared<VirtualReg>();
+		currentBlock->append_back(std::make_shared<Malloc>(currentBlock, size, temp));
+		//store size to the begining address;
+		currentBlock->append_back(std::make_shared<Quadruple>(currentBlock, Quadruple::STORE, temp, size));
+		currentBlock->append_back(std::make_shared<Quadruple>(currentBlock, Quadruple::STORE, addrReg, temp));
+		return temp;
+	}
+	else {
+		currentBlock->append_back(std::make_shared<Malloc>(currentBlock, size, addrReg));
+		currentBlock->append_back(std::make_shared<Quadruple>(currentBlock, Quadruple::STORE, addrReg, size));
+		return addrReg;
+	}
+}
+
+void IR_Generator::arraySize(MemberFuncCallExpr * node)
+{
+	node->getInstance()->accept(*this);
+	auto ref = node->getInstance()->getResultOprand();
+	auto result = std::make_shared<VirtualReg>();
+	node->setResultOprand(result);
+	currentBlock->append_back(std::make_shared<Quadruple>(
+		currentBlock, Quadruple::LOAD, result, ref));
+}
+
 void IR_Generator::arrayAccess(BinaryExpr * node)
 {
 	auto lhs = node->getLHS();
@@ -232,16 +611,21 @@ void IR_Generator::arrayAccess(BinaryExpr * node)
 	auto typeSymbol = std::static_pointer_cast<ArraySymbol>(lhs->getSymbolType());
 	auto baseAddr = getValueReg(rhs->getResultOprand());
 	auto index = getValueReg(rhs->getResultOprand());
+	// the result is a reference(i.e. address in RAM)
 	auto result = std::make_shared<VirtualReg>(Operand::REG_REF);
 	auto elemSize = std::make_shared<Immediate>(typeSymbol->getElementSize());
 	node->setResultOprand(result);
 
 	auto offset = std::make_shared<VirtualReg>;
+	auto temp = std::make_shared<VirtualReg>;
+	auto reg_size = std::make_shared<Immediate>(Configuration::SIZE_OF_INT);
 	currentBlock->append_back(std::make_shared<Quadruple>
-		(currentBlock, Quadruple::TIMES, index,elemSize, offset));
+		(currentBlock, Quadruple::TIMES, temp, index,elemSize));
 	currentBlock->append_back(std::make_shared<Quadruple>
-		(currentBlock, Quadruple::ADD, baseAddr, offset, result));
-
+		(currentBlock, Quadruple::ADD, offset, temp, reg_size));
+	// note: their is a register at the begining to store size of array.
+	currentBlock->append_back(std::make_shared<Quadruple>
+		(currentBlock, Quadruple::ADD, result, offset, baseAddr));
 	if (node->isControl()) {
 		// short-circuit evaluation for boolean value
 		auto temp = std::make_shared<VirtualReg>();
@@ -291,7 +675,7 @@ void IR_Generator::boolOnlyExpr(BinaryExpr * node)
 
 void IR_Generator::assign(std::shared_ptr<Operand> lhs, Expression * rhsExpr)
 {
-	if (rhsExpr->isBool()) assignBool(lhs, rhsExpr);
+	if (rhsExpr->isBool()) return assignBool(lhs, rhsExpr);
 	rhsExpr->accept(*this);
 	auto rhsValReg = getValueReg(rhsExpr->getResultOprand());
 	if (lhs->category() == Operand::REG_REF)

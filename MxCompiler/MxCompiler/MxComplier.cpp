@@ -2,6 +2,15 @@
 
 #define SHOW_TOKENS
 
+void MxComplier::complie()
+{
+	getCode();
+	parse();
+	buildAST();
+	semanticCheck();
+	generateIR();
+}
+
 void MxComplier::getCode()
 {
 	src.open(fileName);
@@ -43,4 +52,11 @@ void MxComplier::semanticCheck()
 	
 	environment->semanticCheck();
 	std::cout << "Passed semantic check!" << std::endl;
+}
+
+void MxComplier::generateIR()
+{
+	irGenerator = std::make_shared<IR_Generator>(environment->globalScope());
+	irGenerator->visit(ast.get());
+	ir = irGenerator->getIR();
 }

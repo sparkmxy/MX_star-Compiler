@@ -71,15 +71,18 @@ private:
 class VarSymbol : public Symbol{
 public:
 	VarSymbol(const std::string &_name, std::shared_ptr<SymbolType> _type,
-		Declaration *_decl) :Symbol(_name, _type, _decl), isArg(false){}
+		Declaration *_decl) :Symbol(_name, _type, _decl){}
 
 	SymbolCategory category() const override { return VAR; }
 
 	void setReg(std::shared_ptr<Register> _reg) { reg = _reg; }
 	std::shared_ptr<Register> getReg() { return reg; }
 
+	int getOffset() { return offset; }
+	void setOffset(int _offset) { offset = _offset; }
 private:
-
+	std::shared_ptr<Register> reg;
+	int offset;
 };
 
 class BuiltInTypeSymbol : public Symbol, public SymbolType {

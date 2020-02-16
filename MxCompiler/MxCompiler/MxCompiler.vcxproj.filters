@@ -49,9 +49,6 @@
     <Filter Include="源文件\frontend\semantic">
       <UniqueIdentifier>{fe65a064-ed98-4568-9f17-71ec0cd84d32}</UniqueIdentifier>
     </Filter>
-    <Filter Include="头文件\NewFilter1">
-      <UniqueIdentifier>{9e521d92-d7b7-4862-9654-774a8c3a5469}</UniqueIdentifier>
-    </Filter>
     <Filter Include="源文件\backend">
       <UniqueIdentifier>{5a9952d1-c3ca-46ca-8bc4-0c9bff64b54c}</UniqueIdentifier>
     </Filter>
@@ -102,9 +99,6 @@
     <ClInclude Include="ClassDeclVisitor.h">
       <Filter>头文件\frontend\semantic</Filter>
     </ClInclude>
-    <ClInclude Include="test.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="IRinstruction.h">
       <Filter>头文件\IR</Filter>
     </ClInclude>
@@ -132,8 +126,11 @@
     <ClInclude Include="configuration.h">
       <Filter>头文件\toplevel</Filter>
     </ClInclude>
-    <ClInclude Include="error.h">
+    <ClInclude Include="test.h">
       <Filter>头文件\toplevel</Filter>
+    </ClInclude>
+    <ClInclude Include="error.h">
+      <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

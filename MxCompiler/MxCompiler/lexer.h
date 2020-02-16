@@ -12,7 +12,7 @@ public:
 		keywordsInit();
 		tokens = _getTokens();
 	}
-	std::vector< std::shared_ptr<Token> > getTokens() {
+	std::vector< std::shared_ptr<Token> > &getTokens() {
 		return tokens;
 	}
 

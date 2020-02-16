@@ -165,6 +165,7 @@ public:
 class BoolValue : public ConstValue {
 public:
 	BoolValue(bool v) : value(v) {}
+	bool getValue() { return value; }
 	ACCEPT_VISITOR
 private:
 	bool value;
@@ -173,6 +174,7 @@ private:
 class StringValue : public ConstValue{
 public:
 	StringValue(const std::string &_str) :str(_str) {}
+	std::string getText() { return str; }
 	ACCEPT_VISITOR
 private:
 	std::string str;
@@ -181,6 +183,7 @@ private:
 class NumValue : public ConstValue{
 public:
 	NumValue(int _num) : num(_num) {}
+	int getValue() { return num; }
 	ACCEPT_VISITOR
 private:
 	int num;
@@ -191,11 +194,13 @@ public:
 	ACCEPT_VISITOR
 };
 
+/*
+Usage: type array[][]...[] = new type[dim_1][dim_2]...[dim_n][]..[]
+*/
 class NewExpr : public Expression {
 public:
-	NewExpr(std::shared_ptr<Type>_type, std::vector<std::shared_ptr<Expression> > v,
-		bool _hasLastDim)
-		:type(std::move(_type)),dimensions(std::move(v)),lastDim(_hasLastDim){}
+	NewExpr(std::shared_ptr<Type>_type, std::vector<std::shared_ptr<Expression> > v, int _dim)
+		:type(std::move(_type)), dimensions(std::move(v)), dimension(_dim) {}
 	
 	std::shared_ptr<Type> getType() { return type; }
 	std::vector<std::shared_ptr<Expression> > &getDimensions() { return dimensions; }
@@ -203,15 +208,14 @@ public:
 	std::shared_ptr<FunctionSymbol> getConstructor() { return constructor;}
 	void setConstructor(std::shared_ptr<FunctionSymbol> ctor) { constructor = ctor; }
 
-	bool hasLastDim() { return lastDim; }
+	int getNumberOfDim() { return dimension; }
 	ACCEPT_VISITOR
 private:
 	std::shared_ptr<Type> type;
 	std::vector<std::shared_ptr<Expression> > dimensions;
-	bool lastDim;
-
+	int dimension;
+	//semantic
 	std::shared_ptr<FunctionSymbol> constructor;
-
 };
 
 class UnaryExpr : public Expression{
@@ -339,6 +343,23 @@ public:
 	ACCEPT_VISITOR_VIRTUAL
 };
 
+/*
+Note: This is baseClass for ForStmt and WhileStmt.
+It is designed for necessary information in IR generation.
+*/
+class Loop {
+public:
+	void setStartBlk(const std::shared_ptr<BasicBlock> &st) { start = st; }
+	std::shared_ptr<BasicBlock> getStartBlk() { return start; }
+
+	void setFinalBlk(const std::shared_ptr<BasicBlock> &blk) { _final = blk; }
+	std::shared_ptr<BasicBlock> getFinalBlk() { return _final; }
+private:
+	std::shared_ptr<BasicBlock> start, _final;
+};
+
+/*****************************************Base classes end here*********************************************/
+
 //Particularly, <VarDeclStmt> belongs to <Statement> and <Declaration> at the same time.
 class VarDeclStmt : public Statement, public Declaration{
 public:
@@ -393,7 +414,7 @@ private:
 	std::shared_ptr<Statement> ELSE;
 };
 
-class ForStmt : public Statement{
+class ForStmt : public Statement, public Loop{
 public:
 	ForStmt(std::shared_ptr<Statement> _init, std::shared_ptr<Expression> _cond,
 		std::shared_ptr<Statement> _iter, std::shared_ptr<Statement> _body)
@@ -409,7 +430,7 @@ private:
 	std::shared_ptr<Expression> condition;
 };
 
-class WhileStmt : public Statement {
+class WhileStmt : public Statement, public Loop{
 public:
 	WhileStmt(std::shared_ptr<Expression> _condition,
 		std::shared_ptr<Statement> _body) 
@@ -448,20 +469,20 @@ private:
 
 class BreakStmt : public Statement{
 public:
-	void setLoop(Statement *_loop) { loop = _loop; }
-	Statement *getLoop() { return loop; }
+	void setLoop(Loop *_loop) { loop = _loop; }
+	Loop  *getLoop() { return loop; }
 	ACCEPT_VISITOR
 private:
-	Statement *loop; // the related loop
+	Loop  *loop; // the related loop
 };
 
 class ContinueStmt : public Statement{
 public:
-	void setLoop(Statement *_loop) { loop = _loop; }
-	Statement *getLoop() { return loop; }
+	void setLoop(Loop *_loop) { loop = _loop; }
+	Loop *getLoop() { return loop; }
 	ACCEPT_VISITOR
 private:
-	Statement *loop; // the related loop
+	Loop *loop; // the related loop
 };
 
 // EmptyStmt: Semicolon
@@ -483,7 +504,17 @@ private:
 };
 
 /******************************************Statements end here************************************************/
+class MultiVarDecl : public Statement, public Declaration {
+public:
+	MultiVarDecl(std::vector<std::shared_ptr<VarDeclStmt> > _decls) :decls(_decls) {}
 
+	std::vector<std::shared_ptr<VarDeclStmt> > &getDecls() { return decls; }
+
+	bool isVarDecl() override { return true; }
+	ACCEPT_VISITOR
+private:
+	std::vector<std::shared_ptr<VarDeclStmt> > decls;
+};
 
 class FunctionDecl : public Declaration{
 public:
@@ -546,16 +577,4 @@ public:
 	std::vector<std::shared_ptr<Declaration> > &getDecls(){ return decls; }
 private:
 	std::vector<std::shared_ptr<Declaration> > decls;
-};
-
-class MultiVarDecl : public Statement, public Declaration {
-public:
-	MultiVarDecl(std::vector<std::shared_ptr<VarDeclStmt> > _decls) :decls(_decls) {}
-
-	std::vector<std::shared_ptr<VarDeclStmt> > &getDecls() { return decls; }
-
-	bool isVarDecl() override{ return true; }
-	ACCEPT_VISITOR
-private:
-	std::vector<std::shared_ptr<VarDeclStmt> > decls;
 };

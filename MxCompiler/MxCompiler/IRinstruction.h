@@ -103,10 +103,14 @@ private:
 	std::shared_ptr<BasicBlock> trueBlock, falseBlock;
 };
 
+/*
+Class : Call
+Constructor: Call(block, funcModule, result = nullptr);
+*/
 class Call : public IRInstruction {
 public:
 	Call(std::shared_ptr<BasicBlock> _block,
-		std::shared_ptr<Function> _func, std::shared_ptr<Operand> _result)
+		std::shared_ptr<Function> _func, std::shared_ptr<Operand> _result = nullptr)
 		: IRInstruction(CALL, _block), func(_func), result(_result) {}
 
 	std::shared_ptr<Function> getFunction() { return func; }
@@ -118,12 +122,15 @@ public:
 
 	std::shared_ptr<Operand> getInstance() { return instancePtr;}
 	void setInstance(const std::shared_ptr<Operand> &_instance) { instancePtr = _instance; }
+
+	std::shared_ptr<Operand> getObjRef() { return object; }
+	void setObjRef(const std::shared_ptr<Operand> &obj) { object = obj; }
 private:
 	std::shared_ptr<Function> func;
 	std::shared_ptr<Operand> result, instancePtr;
 	std::vector<std::shared_ptr<Operand> > args;
+	std::shared_ptr<Operand> object;
 }; 
-
 
 
 class Malloc : public IRInstruction {

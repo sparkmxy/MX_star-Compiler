@@ -9,6 +9,9 @@
 #include "IR.h"
 #include "basicblock.h"
 
+/*
+Usage : generator = new IR_Generator(globalScope);
+*/
 class IR_Generator : public Visitor {
 public:
 
@@ -35,15 +38,44 @@ private:
 
 	void visit(StmtBlock *node) override;
 	void visit(ExprStmt *node) override;
-
+	void visit(ForStmt *node) override;
+	void visit(WhileStmt *node) override;
+	void visit(IfStmt *node) override;
+	void visit(ReturnStmt *node) override;
+	void visit(ContinueStmt *node) override;
+	void visit(BreakStmt *node) override;
+	// EmptyStmt is ignored
+	void visit(IdentifierExpr *node) override;
 	void visit(BinaryExpr *node) override;
 	void visit(UnaryExpr *node) override;
-	/*Helper Functions*/
+	void visit(FuncCallExpr *node) override;
+	void visit(MemberFuncCallExpr *node) override;
+	void visit(ClassMemberExpr *node) override;
+	void visit(ThisExpr *node) override;
+	void visit(NewExpr *node) override;
+
+	void visit(NumValue *node) override;
+	void visit(BoolValue *node) override;
+	void visit(StringValue *node) override;
+	void visit(NullValue *node) override;
+
+	/*Helper Functions*/ 
+	void newArray(NewExpr *node, std::shared_ptr<Operand> addrReg, int dimension = 0);
+	std::shared_ptr<Operand>
+		allocateMemory(std::shared_ptr<Operand> addrReg, std::shared_ptr<Operand> size);
+
 	// for binary exprssions
+	void arraySize(MemberFuncCallExpr *node);
+
 	void arrayAccess(BinaryExpr *node);
+
 	void boolOnlyExpr(BinaryExpr *node);
+
 	void assign(std::shared_ptr<Operand> lhs, Expression * rhs);
+
 	void assignBool(std::shared_ptr<Operand> lhs, Expression * rhs);
+
 	static bool isBoolOnlyOperator(BinaryExpr::Operator op);
+
 	std::shared_ptr<Operand> getValueReg(std::shared_ptr<Operand> reg);
 };
