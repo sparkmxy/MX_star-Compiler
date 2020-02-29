@@ -37,9 +37,6 @@
     <Filter Include="头文件\backend">
       <UniqueIdentifier>{0cc990c1-ac9a-401a-861a-23777a5786ac}</UniqueIdentifier>
     </Filter>
-    <Filter Include="头文件\backend\interpreter">
-      <UniqueIdentifier>{22791917-990c-4f66-bf0f-e98f892c6007}</UniqueIdentifier>
-    </Filter>
     <Filter Include="源文件\frontend">
       <UniqueIdentifier>{3e90a092-ff94-4aa9-8c7f-5b05c7cad64b}</UniqueIdentifier>
     </Filter>
@@ -51,6 +48,12 @@
     </Filter>
     <Filter Include="源文件\backend">
       <UniqueIdentifier>{5a9952d1-c3ca-46ca-8bc4-0c9bff64b54c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\backend\optimize">
+      <UniqueIdentifier>{51a8eb28-4e6f-4139-8e27-18d079e126b7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\backend\optimize">
+      <UniqueIdentifier>{705da797-45e1-40f7-8f33-7a25d7bee28f}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -114,9 +117,6 @@
     <ClInclude Include="Function.h">
       <Filter>头文件\IR</Filter>
     </ClInclude>
-    <ClInclude Include="GlobalVar.h">
-      <Filter>头文件\IR</Filter>
-    </ClInclude>
     <ClInclude Include="Operand.h">
       <Filter>头文件\IR</Filter>
     </ClInclude>
@@ -131,6 +131,18 @@
     </ClInclude>
     <ClInclude Include="error.h">
       <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="SSAConstructor.h">
+      <Filter>头文件\backend\optimize</Filter>
+    </ClInclude>
+    <ClInclude Include="SSADestructor.h">
+      <Filter>头文件\backend\optimize</Filter>
+    </ClInclude>
+    <ClInclude Include="Optimizer.h">
+      <Filter>头文件\backend\optimize</Filter>
+    </ClInclude>
+    <ClInclude Include="cfg_pass.h">
+      <Filter>头文件\backend\optimize</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -182,10 +194,20 @@
     <ClCompile Include="Function.cpp">
       <Filter>源文件\IR</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="log.txt">
-      <Filter>资源文件</Filter>
-    </Text>
+    <ClCompile Include="SSADestructor.cpp">
+      <Filter>源文件\backend\optimize</Filter>
+    </ClCompile>
+    <ClCompile Include="SSAConstructor.cpp">
+      <Filter>源文件\backend\optimize</Filter>
+    </ClCompile>
+    <ClCompile Include="Optimizer.cpp">
+      <Filter>源文件\backend\optimize</Filter>
+    </ClCompile>
+    <ClCompile Include="cfg_pass.cpp">
+      <Filter>源文件\backend</Filter>
+    </ClCompile>
+    <ClCompile Include="IRinstruction.cpp">
+      <Filter>源文件\IR</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

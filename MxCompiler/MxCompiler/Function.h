@@ -2,8 +2,7 @@
 
 #include "pch.h"
 #include "IRinstruction.h"
-
-class BasicBlock;
+#include "basicblock.h"
 
 /*
 Class: Function
@@ -27,6 +26,10 @@ public:
 
 	std::shared_ptr<Operand> getObjRef() { return objRef; }
 	void setObjRef(const std::shared_ptr<Operand> &ref) { objRef = ref; }
+
+	std::vector<std::shared_ptr<BasicBlock> > &getBlockList() { return blocks; }
+	//for SSA
+	void buildDominanceTree();
 private:
 	std::shared_ptr<BasicBlock> entry, exit;
 	std::string name;
@@ -35,4 +38,11 @@ private:
 	std::vector<std::shared_ptr<Register> > args;
 
 	std::shared_ptr<Operand> objRef;
+
+	//for SSA
+	std::vector<std::shared_ptr<BasicBlock> > blocks;
+
+	void DFS(std::shared_ptr<BasicBlock> blk,int dep = 0);
+	std::unordered_set<std::shared_ptr<BasicBlock> > visited;
+	int dfs_clock;
 };

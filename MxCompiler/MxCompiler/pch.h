@@ -10,7 +10,7 @@
 #include<fstream>
 #include<functional>
 #include<stack>
-#include<set>
+#include<unordered_set>
 
 #include "error.h"
 

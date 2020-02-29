@@ -2,7 +2,16 @@
 
 #include "pch.h"
 #include "IRinstruction.h"
-#include "Function.h"
+
+class Function;
+/*
+This struct hold the informations related to the dominance tree.
+*/
+struct DT_Info {
+	std::vector<std::shared_ptr<BasicBlock> > DEdges, JEdges;
+	int depth; // the depth in dominance tree
+	int dfn;
+};
 
 /*
 Class: BasicBlock
@@ -36,6 +45,11 @@ public:
 	void endWith(std::shared_ptr<IRInstruction> instr);
 
 	bool ended() { return endFlag; }
+
+	DT_Info &getDTInfo() { return dtInfo;}
+
+	std::unordered_set<std::shared_ptr<BasicBlock> > &getBlocksTo() { return to; }
+	std::unordered_set<std::shared_ptr<BasicBlock> > &getBlocksFrom() { return from; }
 private:
 	Tag tag;
 	std::shared_ptr<Function> func;
@@ -43,7 +57,11 @@ private:
 	// instructions form a list
 	std::shared_ptr<IRInstruction> front, back;
 	
-	std::set<std::shared_ptr<BasicBlock> > from, to;
+	std::unordered_set<std::shared_ptr<BasicBlock> > from, to;
 
 	bool endFlag;
+
+	// for SSA	
+	DT_Info dtInfo;
+
 };

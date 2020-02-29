@@ -30,7 +30,7 @@ public:
 	bool compatible(std::shared_ptr<SymbolType> type) override;
 	bool isArrayType() override { return true; }
 	int getElementSize() {
-		baseType->isArrayType() ? Configuration::SIZE_OF_PTR : baseType->getSize();
+		return baseType->isArrayType() ? Configuration::SIZE_OF_PTR : baseType->getSize();
 	}
 private:
 	std::shared_ptr<SymbolType> baseType;

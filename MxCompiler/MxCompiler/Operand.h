@@ -12,6 +12,7 @@ public:
 		REG_REF, IMM, REG_VAL, STATICSTR
 	};
 	virtual Category category() = 0;
+	static bool isRegister(Category tag) { return tag == REG_REF || tag == REG_VAL; }
 };
 
 /*

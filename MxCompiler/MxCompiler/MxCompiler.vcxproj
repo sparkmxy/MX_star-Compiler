@@ -119,6 +119,7 @@
     <ClInclude Include="basicblock.h" />
     <ClInclude Include="ClassDeclVisitor.h" />
     <ClInclude Include="configuration.h" />
+    <ClInclude Include="cfg_pass.h" />
     <ClInclude Include="environment.h" />
     <ClInclude Include="error.h" />
     <ClInclude Include="exprHelper.h" />
@@ -128,11 +129,14 @@
     <ClInclude Include="IR_Generator.h" />
     <ClInclude Include="lexer.h" />
     <ClInclude Include="MxComplier.h" />
+    <ClInclude Include="Optimizer.h" />
     <ClInclude Include="parser.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="position.h" />
     <ClInclude Include="scope.h" />
     <ClInclude Include="semanticChecker.h" />
+    <ClInclude Include="SSAConstructor.h" />
+    <ClInclude Include="SSADestructor.h" />
     <ClInclude Include="symbol.h" />
     <ClInclude Include="symbolTable.h" />
     <ClInclude Include="test.h" />
@@ -140,28 +144,29 @@
     <ClInclude Include="token.h" />
     <ClInclude Include="visitor.h" />
     <ClInclude Include="Function.h" />
-    <ClInclude Include="GlobalVar.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="basicblock.cpp" />
+    <ClCompile Include="cfg_pass.cpp" />
     <ClCompile Include="ClassDeclVisitor.cpp" />
     <ClCompile Include="environment.cpp" />
     <ClCompile Include="Function.cpp" />
     <ClCompile Include="GlobalFuncDeclVistor.cpp" />
     <ClCompile Include="IR.cpp" />
+    <ClCompile Include="IRinstruction.cpp" />
     <ClCompile Include="IR_Generator.cpp" />
     <ClCompile Include="lexer.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MxComplier.cpp" />
+    <ClCompile Include="Optimizer.cpp" />
     <ClCompile Include="parser.cpp" />
     <ClCompile Include="scope.cpp" />
     <ClCompile Include="semanticChecker.cpp" />
+    <ClCompile Include="SSAConstructor.cpp" />
+    <ClCompile Include="SSADestructor.cpp" />
     <ClCompile Include="symbol.cpp" />
     <ClCompile Include="symbolTable.cpp" />
     <ClCompile Include="test.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="log.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

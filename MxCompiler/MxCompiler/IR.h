@@ -14,6 +14,9 @@ public:
 	std::shared_ptr<Function> stringAdd, stringNEQ, stringEQ;
 	std::shared_ptr<Function> getInt, getString;
 	std::shared_ptr<Function> toString, printInt, printlnInt;
+
+	std::vector<std::shared_ptr<Function> > & getFunctions() { return functions; }
+	std::vector<std::shared_ptr<Register> > & getGlbVars() { return glbVars; }
 private:
 	std::vector<std::shared_ptr<Register> > glbVars;
 	std::vector<std::shared_ptr<Function> > functions;
