@@ -7,22 +7,22 @@ enum Tag
 {
 	Bool, Int, String, Null, // basic types
 	Void,
-	True, False,	
+	True, False,
 	If, Else,
 	For, While, Break, Continue,
-	Return,
-	New, 
+	Ret,
+	New,
 	Class, This,					// class 
 	/* operators */
 	Add, Minus, Multiply, Divide, Mod,
 	Less, Greater, Leq, Geq, Neq, Equal,
 	And, Or, Not,
 	RShift, LShift, Inverse, BitOr, BitAnd, Xor,
-	Assign, Inc, Dec, Domain, 
+	Assign, Inc, Dec, Domain,
 	LeftIndex, RightIndex,
 	LeftBracket, RightBracket, LeftBrace, RightBrace,
 	/*Others*/
-	ID, Comma, Semicolon, 
+	ID, Comma, Semicolon,
 	ConstString, Num,
 	FINISH
 };
@@ -30,7 +30,6 @@ enum Tag
 class Token
 {
 public:
-
 	Token(Tag t,const Position &st, const Position &ed) 
 		:_tag(t),_pos(std::make_pair(st,ed)){}
 	Token(Tag t, const PosPair &__pos)

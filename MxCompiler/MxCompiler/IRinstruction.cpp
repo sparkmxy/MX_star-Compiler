@@ -78,3 +78,11 @@ void Return::updateUseRegs()
 	if (Operand::isRegister(value->category())) 
 		useRegs.push_back(std::static_pointer_cast<Register>(value));
 }
+
+void Malloc::renameUseRegs(std::unordered_map<std::shared_ptr<Register>, std::shared_ptr<Register>>& table)
+{
+}
+
+void Malloc::updateUseRegs()
+{
+}

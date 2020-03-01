@@ -28,8 +28,6 @@ public:
 	
 	std::shared_ptr<BasicBlock> getBlock() { return residingBlock; }
 
-	bool hasNextInstr() { return next != nullptr; }
-
 	std::shared_ptr<IRInstruction> getNextInstr() { return next;}
 	void setNextInstr(const std::shared_ptr<IRInstruction> &_next) { next = _next; }
 
@@ -91,13 +89,13 @@ public:
 	std::shared_ptr<Operand> getDst() { return dst; }
 
 	//override functions
-	virtual void renameUseRegs(std::unordered_map<std::shared_ptr<Register>,
+	void renameUseRegs(std::unordered_map<std::shared_ptr<Register>,
 		std::shared_ptr<Register> > &table)override;
-	virtual void updateUseRegs()override;
+	void updateUseRegs()override;
 
-	virtual std::shared_ptr<Register> getDefReg() override
+	std::shared_ptr<Register> getDefReg() override
 	{ return std::static_pointer_cast<Register>(dst); } // is this safe ?
-	virtual void setDefReg(std::shared_ptr<Register> _defReg) override { dst = _defReg; }
+	void setDefReg(std::shared_ptr<Register> _defReg) override { dst = _defReg; }
 private:
 	std::shared_ptr<Operand> dst, src1, src2;
 	Operator op;
@@ -120,9 +118,9 @@ public:
 	std::shared_ptr<BasicBlock> getFalseBlock() { return falseBlock; }
 
 	//override functions (there is no def-register in branch instructions)
-	virtual void renameUseRegs(std::unordered_map<std::shared_ptr<Register>,
+	void renameUseRegs(std::unordered_map<std::shared_ptr<Register>,
 		std::shared_ptr<Register> > &table)override;
-	virtual void updateUseRegs()override;
+	void updateUseRegs()override;
 private:
 	std::shared_ptr<Operand> condition;
 	std::shared_ptr<BasicBlock> trueBlock, falseBlock;
@@ -175,15 +173,15 @@ public:
 	std::shared_ptr<Operand> getPtr() { return ptr; }
 	void setPtr(const std::shared_ptr<Operand> &_ptr) { ptr = _ptr; }
 	// override functions
-	virtual void renameUseRegs(std::unordered_map<std::shared_ptr<Register>,
+	void renameUseRegs(std::unordered_map<std::shared_ptr<Register>,
 		std::shared_ptr<Register> > &table)override;
-	virtual void updateUseRegs()override;
+	void updateUseRegs()override;
 
-	virtual std::shared_ptr<Register> getDefReg() override
+	std::shared_ptr<Register> getDefReg() override
 	{
 		return std::static_pointer_cast<Register>(ptr);
 	} // is this safe ?
-	virtual void setDefReg(std::shared_ptr<Register> _defReg) override { ptr = _defReg; }
+	void setDefReg(std::shared_ptr<Register> _defReg) override { ptr = _defReg; }
 private:
 	std::shared_ptr<Operand> size, ptr;
 };

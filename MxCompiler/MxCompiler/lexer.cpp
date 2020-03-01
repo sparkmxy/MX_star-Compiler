@@ -288,7 +288,7 @@ void Lexer::keywordsInit() {
 	keywords["while"] = std::make_shared<Word>("while",While, defaultPos);
 	keywords["break"] = std::make_shared<Word>("break",Break, defaultPos);
 	keywords["continue"] = std::make_shared<Word>("continue",Continue, defaultPos);
-	keywords["return"] = std::make_shared<Word>("return",Return, defaultPos);
+	keywords["return"] = std::make_shared<Word>("return",Ret, defaultPos);
 	keywords["new"] = std::make_shared<Word>("new",New, defaultPos);
 	keywords["class"] = std::make_shared<Word>("class",Class, defaultPos);
 	keywords["this"] = std::make_shared<Word>("this",This, defaultPos);

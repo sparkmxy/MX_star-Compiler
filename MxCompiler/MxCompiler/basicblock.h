@@ -47,9 +47,12 @@ public:
 	bool ended() { return endFlag; }
 
 	DT_Info &getDTInfo() { return dtInfo;}
-
+	const DT_Info &getDTInfo() const { return dtInfo; }
 	std::unordered_set<std::shared_ptr<BasicBlock> > &getBlocksTo() { return to; }
 	std::unordered_set<std::shared_ptr<BasicBlock> > &getBlocksFrom() { return from; }
+
+	std::shared_ptr<IRInstruction> getFront() { return front; }
+
 private:
 	Tag tag;
 	std::shared_ptr<Function> func;

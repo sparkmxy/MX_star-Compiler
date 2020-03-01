@@ -30,6 +30,9 @@ public:
 	std::vector<std::shared_ptr<BasicBlock> > &getBlockList() { return blocks; }
 	//for SSA
 	void buildDominanceTree();
+
+	void append_var(std::shared_ptr<VirtualReg> reg) { vars.emplace_back(reg); }
+	std::vector<std::shared_ptr<VirtualReg> > &getVars() { return vars; }
 private:
 	std::shared_ptr<BasicBlock> entry, exit;
 	std::string name;
@@ -41,7 +44,7 @@ private:
 
 	//for SSA
 	std::vector<std::shared_ptr<BasicBlock> > blocks;
-
+	std::vector<std::shared_ptr<VirtualReg> > vars;
 	void DFS(std::shared_ptr<BasicBlock> blk,int dep = 0);
 	std::unordered_set<std::shared_ptr<BasicBlock> > visited;
 	int dfs_clock;

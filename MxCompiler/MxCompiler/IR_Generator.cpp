@@ -471,8 +471,7 @@ void IR_Generator::visit(NewExpr * node)
 		//1. allocate memory
 		auto clsSymbol = std::static_pointer_cast<ClassSymbol>(node->getSymbolType());
 		auto objSize = std::make_shared<Immediate>(clsSymbol->getSize());
-		currentBlock->append_back(std::make_shared<Malloc>(
-			currentBlock, objSize, result));
+		currentBlock->append_back(std::make_shared<Malloc>(currentBlock, objSize, result));
 		if (clsSymbol->getConstructor() != nullptr) {
 			//2. call constructor
 			auto call = std::make_shared<Call>(currentBlock,clsSymbol->getConstructor()->getModule());

@@ -402,7 +402,7 @@ std::shared_ptr<WhileStmt> Parser::whileStmt() {
 }
 
 std::shared_ptr<ReturnStmt> Parser::returnStmt() {
-	if ((*cur)->tag() != Return) return nullptr;
+	if ((*cur)->tag() != Ret) return nullptr;
 
 	auto st = (*cur)->pos().first;
 

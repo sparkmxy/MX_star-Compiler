@@ -48,6 +48,20 @@ private:
 class VirtualReg: public Register {
 public:
 	VirtualReg(Category tag = REG_VAL, std::string _name = "") :Register(tag, _name) {}
+	VirtualReg(int no, VirtualReg *_prototype)
+		:Register(REG_VAL, ""), ssaNo(no), prototype(_prototype) {}
+	std::vector<std::shared_ptr<BasicBlock> > &getDefBlocks() { return defBlocks; }
+	void append_def_block(std::shared_ptr<BasicBlock> block) { defBlocks.emplace_back(block); }
+	std::shared_ptr<VirtualReg> newName() {
+		ssaNames.emplace_back(std::make_shared<VirtualReg>(ssaNames.size(),this));
+		return ssaNames.back();
+	}
+private:
+	//for SSA
+	std::vector<std::shared_ptr<BasicBlock> > defBlocks;
+	std::vector<std::shared_ptr<VirtualReg> > ssaNames;
+	int ssaNo;
+	VirtualReg *prototype;
 };
 
 class StaticString : public Operand {
