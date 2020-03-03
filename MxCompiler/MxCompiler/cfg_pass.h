@@ -21,8 +21,6 @@ protected:
 	std::unordered_map<std::shared_ptr<Register>, std::shared_ptr<IRInstruction> > def;
 	std::unordered_map<std::shared_ptr<Register>, 
 		std::unordered_set<std::shared_ptr<IRInstruction> > > use;
-
-	void buildDominanceTree();
 private:
 };
 

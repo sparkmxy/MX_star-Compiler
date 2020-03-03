@@ -47,21 +47,37 @@ private:
 
 class VirtualReg: public Register {
 public:
-	VirtualReg(Category tag = REG_VAL, std::string _name = "") :Register(tag, _name) {}
-	VirtualReg(int no, VirtualReg *_prototype)
-		:Register(REG_VAL, ""), ssaNo(no), prototype(_prototype) {}
+	VirtualReg(Category tag = REG_VAL, std::string _name = "") 
+		:Register(tag, _name),reachingDef(nullptr){}
+
 	std::vector<std::shared_ptr<BasicBlock> > &getDefBlocks() { return defBlocks; }
 	void append_def_block(std::shared_ptr<BasicBlock> block) { defBlocks.emplace_back(block); }
-	std::shared_ptr<VirtualReg> newName() {
-		ssaNames.emplace_back(std::make_shared<VirtualReg>(ssaNames.size(),this));
+	std::shared_ptr<RegForSSA> newName(std::shared_ptr<BasicBlock> block) {
+		ssaNames.emplace_back(std::make_shared<RegForSSA>(ssaNames.size(),this, block));
 		return ssaNames.back();
 	}
+
+	std::shared_ptr<RegForSSA> getReachingDef() { return reachingDef; }
+	void setReachingDef(const std::shared_ptr<RegForSSA> rdef) { reachingDef = rdef; }
 private:
 	//for SSA
 	std::vector<std::shared_ptr<BasicBlock> > defBlocks;
-	std::vector<std::shared_ptr<VirtualReg> > ssaNames;
+	std::vector<std::shared_ptr<RegForSSA> > ssaNames;
+protected:
+	std::shared_ptr<RegForSSA> reachingDef;
+};
+
+class RegForSSA :public VirtualReg{
+public:
+	RegForSSA(int no, VirtualReg *_prototype, std::shared_ptr<BasicBlock> _def)
+		:ssaNo(no), prototype(_prototype), def(std::move(_def)){}
+
+	std::shared_ptr<BasicBlock> getDefiningBlock() { return def; }
+private:
 	int ssaNo;
 	VirtualReg *prototype;
+	std::shared_ptr<BasicBlock> def;
+	
 };
 
 class StaticString : public Operand {

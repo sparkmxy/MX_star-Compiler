@@ -4,11 +4,12 @@
 #include "IRinstruction.h"
 #include "basicblock.h"
 
+class DominanceTree;
 /*
 Class: Function
 The main component of a function module is its control flow graph. 
 */
-class Function {
+class Function : public std::enable_shared_from_this<Function>{
 public:
 	Function(const std::string &_name) : name(_name) {}
 
@@ -29,8 +30,9 @@ public:
 
 	std::vector<std::shared_ptr<BasicBlock> > &getBlockList() { return blocks; }
 	//for SSA
-	void buildDominanceTree();
 
+	std::shared_ptr<DominanceTree> getDT() { return dt; }
+	void initDT() { dt = std::make_shared<DominanceTree>(shared_from_this()); }
 	void append_var(std::shared_ptr<VirtualReg> reg) { vars.emplace_back(reg); }
 	std::vector<std::shared_ptr<VirtualReg> > &getVars() { return vars; }
 private:
@@ -43,9 +45,8 @@ private:
 	std::shared_ptr<Operand> objRef;
 
 	//for SSA
+	std::shared_ptr<DominanceTree> dt;
+	//return a list of block in this function module in DFS order on dominance tree;
 	std::vector<std::shared_ptr<BasicBlock> > blocks;
 	std::vector<std::shared_ptr<VirtualReg> > vars;
-	void DFS(std::shared_ptr<BasicBlock> blk,int dep = 0);
-	std::unordered_set<std::shared_ptr<BasicBlock> > visited;
-	int dfs_clock;
 };

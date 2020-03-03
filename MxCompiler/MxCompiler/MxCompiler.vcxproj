@@ -120,6 +120,7 @@
     <ClInclude Include="ClassDeclVisitor.h" />
     <ClInclude Include="configuration.h" />
     <ClInclude Include="cfg_pass.h" />
+    <ClInclude Include="dominance.h" />
     <ClInclude Include="environment.h" />
     <ClInclude Include="error.h" />
     <ClInclude Include="exprHelper.h" />
@@ -127,6 +128,7 @@
     <ClInclude Include="IR.h" />
     <ClInclude Include="IRinstruction.h" />
     <ClInclude Include="IR_Generator.h" />
+    <ClInclude Include="ir_printer.h" />
     <ClInclude Include="lexer.h" />
     <ClInclude Include="MxComplier.h" />
     <ClInclude Include="Optimizer.h" />
@@ -149,6 +151,7 @@
     <ClCompile Include="basicblock.cpp" />
     <ClCompile Include="cfg_pass.cpp" />
     <ClCompile Include="ClassDeclVisitor.cpp" />
+    <ClCompile Include="dominance.cpp" />
     <ClCompile Include="environment.cpp" />
     <ClCompile Include="Function.cpp" />
     <ClCompile Include="GlobalFuncDeclVistor.cpp" />

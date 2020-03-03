@@ -81,8 +81,25 @@ void Return::updateUseRegs()
 
 void Malloc::renameUseRegs(std::unordered_map<std::shared_ptr<Register>, std::shared_ptr<Register>>& table)
 {
+	if (Operand::isRegister(size->category()))
+		size = table[std::static_pointer_cast<Register>(size)];
+	updateUseRegs();
 }
 
 void Malloc::updateUseRegs()
 {
+	useRegs.clear();
+	if (Operand::isRegister(size->category()))
+		useRegs.push_back(std::static_pointer_cast<Register>(size));
+}
+
+
+std::shared_ptr<Register> PhiFunction::getDefReg()
+{
+	return dst;
+}
+
+void PhiFunction::setDefReg(std::shared_ptr<Register> _defReg)
+{
+	dst = _defReg;
 }

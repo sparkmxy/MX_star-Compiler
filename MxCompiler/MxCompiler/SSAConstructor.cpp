@@ -2,10 +2,16 @@
 
 void SSAConstructor::constructSSA()
 {
-	buildDominanceTree();
+	initDT();
 	collectVariales();
 	insertPhiFunction();
 	renameVariables();
+}
+
+void SSAConstructor::initDT()
+{
+	auto &functions = ir->getFunctions();
+	for (auto &function : functions) function->initDT();
 }
 
 void SSAConstructor::insertPhiFunction()
@@ -33,13 +39,34 @@ void SSAConstructor::renameVariables(std::shared_ptr<Function> func)
 {
 	auto &blocks = func->getBlockList();
 	for (auto &block : blocks){
-		for (auto instr = block->getFront(); instr != nullptr; instr = instr->getNextInstr())
-			if (instr->getTag() == IRInstruction::PHI) {
-
+		for (auto instr = block->getFront(); instr != nullptr; instr = instr->getNextInstr()) {
+			auto def_var = std::static_pointer_cast<VirtualReg>(instr->getDefReg());
+			if (def_var != nullptr) {
+				updateReachingDef(def_var, instr, func);
+				auto new_var = def_var->newName(block);
+				instr->setDefReg(new_var);
+				new_var->setReachingDef(def_var->getReachingDef());
+				def_var->setReachingDef(new_var);
 			}
-			else {
-					
+			if (instr->getTag() != IRInstruction::PHI) {
+				auto use_regs = instr->getUseRegs();
+				std::unordered_map < std::shared_ptr<Register>,std::shared_ptr<Register> > table;
+				for (auto &var : use_regs) {
+					updateReachingDef(def_var, instr, func);
+					table[var] = std::static_pointer_cast<VirtualReg>(var)->getReachingDef();
+				}
+				instr->renameUseRegs(table);
 			}
+		}
+		auto successors = block->getBlocksTo();
+		for (auto &block_to : successors) {
+			for (auto instr = block_to->getFront(); instr != nullptr; instr = instr->getNextInstr()) 
+				if (instr->getTag() == IRInstruction::PHI) {
+					auto var = std::static_pointer_cast<PhiFunction>(instr)->getDst();
+					std::static_pointer_cast<PhiFunction>(instr)->appendRelatedReg(var->getReachingDef());
+				}
+				else break;
+		}
 	}
 }
 
@@ -66,6 +93,15 @@ void SSAConstructor::collectVariales()
 			}
 		}
 	}
+}
+
+void SSAConstructor::updateReachingDef
+(std::shared_ptr<VirtualReg> v, std::shared_ptr<IRInstruction> i, std::shared_ptr<Function> f)
+{
+	auto r = v->getReachingDef();
+	while (r != nullptr && f->getDT()->isDominating(r->getDefiningBlock(), i->getBlock()))
+		r = r->getReachingDef();
+	v->setReachingDef(r);
 }
 
 std::unordered_set<std::shared_ptr<BasicBlock>> 

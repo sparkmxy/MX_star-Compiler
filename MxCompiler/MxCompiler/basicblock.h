@@ -9,8 +9,10 @@ This struct hold the informations related to the dominance tree.
 */
 struct DT_Info {
 	std::vector<std::shared_ptr<BasicBlock> > DEdges, JEdges;
+	int dfn; // the dfn in the first place
 	int depth; // the depth in dominance tree
-	int dfn;
+	int dt_dfn, dt_dfn_r; // the subtree on DT is [dt_dfn, dt_dfn_r]
+	std::shared_ptr<BasicBlock> idom, sdom;    // immediate dominator and semi-dominator
 };
 
 /*

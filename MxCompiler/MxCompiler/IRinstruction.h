@@ -219,12 +219,16 @@ private:
 */
 class PhiFunction : public IRInstruction {
 public:
-	PhiFunction(std::shared_ptr<BasicBlock> _residingBlock, std::shared_ptr<Register> _reg)
-		:IRInstruction(PHI, _residingBlock), reg(_reg) {}
+	PhiFunction(std::shared_ptr<BasicBlock> _residingBlock, std::shared_ptr<Register> _dst)
+		:IRInstruction(PHI, _residingBlock), dst(_dst) {}
 
-	std::shared_ptr<Register> getReg() { return reg; } 
-	// need a setter? 
-	// override functions
+	
+	void appendRelatedReg(std::shared_ptr<Register> reg) { relatedReg.insert(reg); }
+	std::shared_ptr<Register> getDst() { return dst; }
+	//override functions
+	virtual std::shared_ptr<Register> getDefReg() override;
+	virtual void setDefReg(std::shared_ptr<Register> _defReg) override;
 private:
-	std::shared_ptr<Register> reg;
+	std::shared_ptr<Register> dst;
+	std::unordered_set<Register> relatedReg;
 };
