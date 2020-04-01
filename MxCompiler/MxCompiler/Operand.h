@@ -2,6 +2,9 @@
 
 #include "pch.h"
 
+
+class BasicBlock;
+
 /*
 Class Operand: an interface class
 */
@@ -44,6 +47,7 @@ private:
 	int value;
 };
 
+class RegForSSA;
 
 class VirtualReg: public Register {
 public:

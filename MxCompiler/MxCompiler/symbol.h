@@ -7,6 +7,8 @@ class Declaration;
 
 class Register;
 
+class Function;
+
 /*Symbol type*/
 class SymbolType {  //interface class
 public:
@@ -32,6 +34,8 @@ public:
 	int getElementSize() {
 		return baseType->isArrayType() ? Configuration::SIZE_OF_PTR : baseType->getSize();
 	}
+
+	int getSize() override { return Configuration::SIZE_OF_PTR; }
 private:
 	std::shared_ptr<SymbolType> baseType;
 };
@@ -179,9 +183,12 @@ private:
 };
 
 class NullTypeSymbol : public SymbolType {
+public:
 	bool compatible(std::shared_ptr<SymbolType> type) override { return false; }
 	bool isNull() override { return true; }
 	std::string getTypeName() const override { return "null"; }
+
+	int getSize() override { return 0; }
 };
 
 class Type;

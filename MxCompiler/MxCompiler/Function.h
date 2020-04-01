@@ -2,14 +2,14 @@
 
 #include "pch.h"
 #include "IRinstruction.h"
-#include "basicblock.h"
 
 class DominanceTree;
+class BasicBlock;
 /*
 Class: Function
 The main component of a function module is its control flow graph. 
 */
-class Function : public std::enable_shared_from_this<Function>{
+class Function {
 public:
 	Function(const std::string &_name) : name(_name) {}
 
@@ -32,7 +32,7 @@ public:
 	//for SSA
 
 	std::shared_ptr<DominanceTree> getDT() { return dt; }
-	void initDT() { dt = std::make_shared<DominanceTree>(shared_from_this()); }
+	void initDT(std::shared_ptr<DominanceTree> _dt) { dt = _dt; }
 	void append_var(std::shared_ptr<VirtualReg> reg) { vars.emplace_back(reg); }
 	std::vector<std::shared_ptr<VirtualReg> > &getVars() { return vars; }
 private:

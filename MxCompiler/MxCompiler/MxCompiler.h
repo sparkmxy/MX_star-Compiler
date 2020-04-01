@@ -8,11 +8,12 @@
 #include "IR.h"
 #include "IR_Generator.h"
 
-class MxComplier {
+class MxCompiler {
 public:
-	MxComplier(std::string _fileName):fileName(_fileName){}
+	MxCompiler(std::string _fileName):fileName(_fileName){}
 	
 	void complie();
+	void semantic();
 	void getCode();
 	void parse();
 	void buildAST();

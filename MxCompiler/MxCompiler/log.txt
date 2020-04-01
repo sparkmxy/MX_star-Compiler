@@ -1,0 +1,1076 @@
+--------------------Open: test/codegen/t1.mx-------------------
+define variable a in scopce check
+define variable N in scopce check
+define variable N in scopce main_LOCAL
+define variable head in scopce main_LOCAL
+define variable startx in scopce main_LOCAL
+define variable starty in scopce main_LOCAL
+define variable targetx in scopce main_LOCAL
+define variable targety in scopce main_LOCAL
+define variable tail in scopce main_LOCAL
+define variable ok in scopce main_LOCAL
+define variable now in scopce main_LOCAL
+define variable x in scopce main_LOCAL
+define variable y in scopce main_LOCAL
+define variable xlist in scopce main_LOCAL
+define variable ylist in scopce main_LOCAL
+define variable step in scopce main_LOCAL
+define variable i in scopce main_LOCAL
+define variable j in scopce main_LOCAL
+FINISHED
+--------------------Open: test/codegen/t2.mx-------------------
+define variable c in scopce search
+define variable N in scopce NMSL
+define variable row in scopce NMSL
+define variable col in scopce NMSL
+define variable d in scopce NMSL
+define variable i in scopce printBoard_LOCAL
+define variable j in scopce printBoard_LOCAL
+define variable r in scopce search_LOCAL_LOCAL_LOCAL
+define variable i in scopce main_LOCAL
+FINISHED
+--------------------Open: test/codegen/t3.mx-------------------
+define variable N in scopce origin
+define variable a in scopce check
+define variable x in scopce addList
+define variable y in scopce addList
+define variable N in scopce NMSL
+define variable head in scopce NMSL
+define variable startx in scopce NMSL
+define variable starty in scopce NMSL
+define variable targetx in scopce NMSL
+define variable targety in scopce NMSL
+define variable x in scopce NMSL
+define variable y in scopce NMSL
+define variable xlist in scopce NMSL
+define variable ylist in scopce NMSL
+define variable tail in scopce NMSL
+define variable ok in scopce NMSL
+define variable now in scopce NMSL
+define variable dx in scopce NMSL
+define variable dy in scopce NMSL
+define variable step in scopce NMSL
+define variable i in scopce NMSL
+define variable j in scopce NMSL
+FINISHED
+--------------------Open: test/codegen/t4.mx-------------------
+define variable x in scopce exchange
+define variable y in scopce exchange
+define variable n in scopce adjustHeap
+define variable n in scopce NMSL
+define variable a in scopce NMSL
+define variable t in scopce exchange_LOCAL
+define variable i in scopce makeHeap_LOCAL
+define variable t in scopce makeHeap_LOCAL
+define variable j in scopce makeHeap_LOCAL
+define variable i in scopce adjustHeap_LOCAL
+define variable j in scopce adjustHeap_LOCAL
+define variable t in scopce adjustHeap_LOCAL
+define variable t in scopce adjustHeap_LOCAL_LOCAL_LOCAL
+define variable t in scopce heapSort_LOCAL
+define variable k in scopce heapSort_LOCAL
+define variable i in scopce main_LOCAL
+FINISHED
+--------------------Open: test/codegen/t5.mx-------------------
+define variable a in scopce main_LOCAL
+define variable b in scopce main_LOCAL
+define variable c in scopce main_LOCAL
+FINISHED
+--------------------Open: test/codegen/t6.mx-------------------
+define variable a in scopce main_LOCAL
+define variable b in scopce main_LOCAL
+define variable c in scopce main_LOCAL
+FINISHED
+--------------------Open: test/codegen/t7.mx-------------------
+define variable a in scopce NMSL
+define variable b in scopce main_LOCAL
+define variable i in scopce main_LOCAL
+FINISHED
+--------------------Open: test/codegen/t8.mx-------------------
+define variable a in scopce NMSL
+define variable b in scopce main_LOCAL
+define variable i in scopce main_LOCAL
+FINISHED
+--------------------Open: test/codegen/t9.mx-------------------
+define variable a in scopce qpow
+define variable p in scopce qpow
+define variable mod in scopce qpow
+define variable t in scopce qpow_LOCAL
+define variable y in scopce qpow_LOCAL
+FINISHED
+--------------------Open: test/codegen/t10.mx-------------------
+define variable x in scopce gcd
+define variable y in scopce gcd
+define variable x in scopce gcd1
+define variable y in scopce gcd1
+define variable x in scopce gcd2
+define variable y in scopce gcd2
+define variable x in scopce gcd3
+define variable y in scopce gcd3
+define variable x in scopce gcd4
+define variable y in scopce gcd4
+define variable x in scopce gcd5
+define variable y in scopce gcd5
+FINISHED
+--------------------Open: test/codegen/t11.mx-------------------
+define variable n in scopce main_LOCAL
+define variable f0 in scopce main_LOCAL
+define variable f1 in scopce main_LOCAL
+define variable f2 in scopce main_LOCAL
+define variable i in scopce main_LOCAL
+FINISHED
+--------------------Open: test/codegen/t12.mx-------------------
+define variable a in scopce NMSL
+define variable str in scopce NMSL
+define variable i in scopce main_LOCAL
+define variable j in scopce main_LOCAL
+define variable sum in scopce main_LOCAL_LOCAL
+FINISHED
+--------------------Open: test/codegen/t13.mx-------------------
+define variable a in scopce NMSL
+define variable b in scopce main_LOCAL
+FINISHED
+--------------------Open: test/codegen/t14.mx-------------------
+define variable state in scopce TA
+define variable anger in scopce TA
+define variable st in scopce work
+define variable ta in scopce work
+define variable init_anger in scopce NMSL
+define variable work_anger in scopce NMSL
+define variable mr in scopce main_LOCAL
+define variable mars in scopce main_LOCAL
+FINISHED
+--------------------Open: test/codegen/t15.mx-------------------
+define variable a in scopce main_LOCAL
+define variable i in scopce main_LOCAL
+define variable j in scopce main_LOCAL
+define variable sum in scopce main_LOCAL
+define variable quotient in scopce main_LOCAL
+define variable remainder in scopce main_LOCAL
+FINISHED
+--------------------Open: test/codegen/t16.mx-------------------
+define variable d in scopce foo
+define variable x in scopce foo
+define variable y in scopce foo
+define variable t in scopce foo_LOCAL
+FINISHED
+--------------------Open: test/codegen/t17.mx-------------------
+define variable a in scopce main_LOCAL
+define variable b in scopce main_LOCAL
+define variable c in scopce main_LOCAL
+define variable d in scopce main_LOCAL
+define variable e in scopce main_LOCAL
+define variable f in scopce main_LOCAL
+define variable g in scopce main_LOCAL
+FINISHED
+--------------------Open: test/codegen/t18.mx-------------------
+define variable key in scopce node
+define variable data in scopce node
+define variable next in scopce node
+define variable n in scopce getHash
+define variable key in scopce put
+define variable data in scopce put
+define variable key in scopce get
+define variable hashsize in scopce NMSL
+define variable table in scopce NMSL
+define variable p in scopce put_LOCAL
+define variable ptr in scopce put_LOCAL
+define variable ptr in scopce get_LOCAL
+define variable i in scopce main_LOCAL
+FINISHED
+--------------------Open: test/codegen/t19.mx-------------------
+define variable x in scopce merge
+define variable y in scopce merge
+define variable N in scopce NMSL
+define variable M in scopce NMSL
+define variable ch in scopce NMSL
+define variable l in scopce NMSL
+define variable r in scopce NMSL
+define variable w in scopce NMSL
+define variable e in scopce merge_LOCAL_LOCAL
+define variable e in scopce merge_LOCAL
+define variable i in scopce main_LOCAL
+define variable rt0 in scopce main_LOCAL
+define variable rt1 in scopce main_LOCAL
+FINISHED
+--------------------Open: test/codegen/t20.mx-------------------
+define variable N in scopce NMSL
+define variable h in scopce NMSL
+define variable i in scopce NMSL
+define variable j in scopce NMSL
+define variable k in scopce NMSL
+define variable total in scopce NMSL
+define variable a in scopce main_LOCAL
+define variable b in scopce main_LOCAL
+define variable c in scopce main_LOCAL
+define variable d in scopce main_LOCAL
+define variable e in scopce main_LOCAL
+define variable f in scopce main_LOCAL
+FINISHED
+--------------------Open: test/codegen/t21.mx-------------------
+define variable l in scopce qsrt
+define variable r in scopce qsrt
+define variable a in scopce NMSL
+define variable n in scopce NMSL
+define variable i in scopce qsrt_LOCAL
+define variable j in scopce qsrt_LOCAL
+define variable x in scopce qsrt_LOCAL
+define variable temp in scopce qsrt_LOCAL_LOCAL_LOCAL
+define variable i in scopce main_LOCAL
+FINISHED
+--------------------Open: test/codegen/t22.mx-------------------
+define variable num in scopce rec
+define variable c in scopce rec
+define variable num in scopce printNum
+define variable a in scopce NMSL
+define variable i in scopce NMSL
+define variable j in scopce NMSL
+define variable b in scopce NMSL
+FINISHED
+--------------------Open: test/codegen/t23.mx-------------------
+define variable d in scopce cd
+define variable a in scopce cd
+define variable b in scopce cd
+define variable c in scopce cd
+define variable sum in scopce cd
+define variable a in scopce main_LOCAL
+define variable b in scopce main_LOCAL
+define variable c in scopce main_LOCAL
+define variable d in scopce main_LOCAL
+define variable sum in scopce main_LOCAL
+FINISHED
+--------------------Open: test/codegen/t24.mx-------------------
+define variable N in scopce origin
+define variable x in scopce search
+define variable y in scopce search
+define variable z in scopce search
+define variable make in scopce NMSL
+define variable color in scopce NMSL
+define variable count in scopce NMSL
+define variable i in scopce NMSL
+define variable j in scopce NMSL
+define variable s in scopce search_LOCAL
+define variable i in scopce search_LOCAL
+define variable j in scopce search_LOCAL
+FINISHED
+--------------------Open: test/codegen/t25.mx-------------------
+define variable N in scopce NMSL
+define variable b in scopce NMSL
+define variable resultCount in scopce NMSL
+define variable i in scopce main_LOCAL
+define variable count in scopce main_LOCAL_LOCAL
+FINISHED
+--------------------Open: test/codegen/t26.mx-------------------
+define variable N in scopce origin
+define variable start in scopce build
+define variable ending in scopce build
+define variable ending in scopce find
+define variable start in scopce find
+define variable flag in scopce find
+define variable ending in scopce improve
+define variable c in scopce NMSL
+define variable ans in scopce NMSL
+define variable visit in scopce NMSL
+define variable pre in scopce NMSL
+define variable f in scopce NMSL
+define variable i in scopce NMSL
+define variable j in scopce NMSL
+define variable open in scopce NMSL
+define variable closed in scopce NMSL
+define variable k in scopce main_LOCAL
+define variable start in scopce main_LOCAL
+define variable ending in scopce main_LOCAL
+define variable flag in scopce main_LOCAL
+define variable i1 in scopce main_LOCAL
+FINISHED
+--------------------Open: test/codegen/t27.mx-------------------
+define variable val in scopce initialize
+define variable x in scopce swap
+define variable y in scopce swap
+define variable x in scopce pd
+define variable n in scopce NMSL
+define variable h in scopce NMSL
+define variable now in scopce NMSL
+define variable a in scopce NMSL
+define variable A in scopce NMSL
+define variable M in scopce NMSL
+define variable Q in scopce NMSL
+define variable R in scopce NMSL
+define variable seed in scopce NMSL
+define variable tempseed in scopce random_LOCAL
+define variable temp in scopce swap_LOCAL
+define variable i in scopce show_LOCAL
+define variable i in scopce win_LOCAL
+define variable j in scopce win_LOCAL
+define variable b in scopce win_LOCAL
+define variable temp in scopce win_LOCAL
+define variable i in scopce merge_LOCAL
+define variable j in scopce merge_LOCAL_LOCAL
+define variable i in scopce move_LOCAL
+define variable i in scopce main_LOCAL
+define variable temp in scopce main_LOCAL
+define variable count in scopce main_LOCAL
+FINISHED
+--------------------Open: test/codegen/t28.mx-------------------
+define variable x in scopce gcd
+define variable y in scopce gcd
+FINISHED
+--------------------Open: test/codegen/t29.mx-------------------
+define variable x in scopce gcd
+define variable y in scopce gcd
+FINISHED
+--------------------Open: test/codegen/t30.mx-------------------
+define variable x in scopce tak
+define variable y in scopce tak
+define variable z in scopce tak
+define variable a in scopce main_LOCAL
+define variable b in scopce main_LOCAL
+define variable c in scopce main_LOCAL
+FINISHED
+--------------------Open: test/codegen/t31.mx-------------------
+define variable N in scopce origin
+define variable N in scopce getPrime
+define variable N in scopce getResult
+define variable k1 in scopce getResult
+define variable k2 in scopce getResult
+define variable k1 in scopce printF
+define variable k2 in scopce printF
+define variable k3 in scopce printF
+define variable N in scopce NMSL
+define variable M in scopce NMSL
+define variable i in scopce NMSL
+define variable j in scopce NMSL
+define variable primeCount in scopce NMSL
+define variable resultCount in scopce NMSL
+define variable b in scopce NMSL
+define variable prime in scopce NMSL
+define variable gps in scopce NMSL
+define variable tmp in scopce NMSL
+define variable result in scopce NMSL
+define variable count in scopce getPrime_LOCAL
+define variable i in scopce getPrime_LOCAL
+FINISHED
+--------------------Open: test/codegen/t32.mx-------------------
+define variable A in scopce NMSL
+define variable B in scopce NMSL
+define variable C in scopce NMSL
+FINISHED
+--------------------Open: test/codegen/t33.mx-------------------
+define variable a in scopce main_LOCAL
+define variable b in scopce main_LOCAL
+define variable c in scopce main_LOCAL
+FINISHED
+--------------------Open: test/codegen/t34.mx-------------------
+define variable s1 in scopce main_LOCAL
+define variable s2 in scopce main_LOCAL
+define variable s3 in scopce main_LOCAL
+FINISHED
+--------------------Open: test/codegen/t35.mx-------------------
+define variable x in scopce main_LOCAL
+define variable y in scopce main_LOCAL
+define variable x in scopce main_LOCAL_LOCAL
+FINISHED
+--------------------Open: test/codegen/t36.mx-------------------
+define variable x in scopce C2
+define variable y in scopce C2
+define variable z in scopce C2
+define variable obj in scopce main_LOCAL
+FINISHED
+--------------------Open: test/codegen/t37.mx-------------------
+define variable a in scopce main_LOCAL
+define variable b in scopce main_LOCAL
+define variable c in scopce main_LOCAL
+FINISHED
+--------------------Open: test/codegen/t38.mx-------------------
+define variable n in scopce main_LOCAL
+define variable sum in scopce main_LOCAL
+define variable i in scopce main_LOCAL
+FINISHED
+--------------------Open: test/codegen/t39.mx-------------------
+define variable a in scopce min
+define variable b in scopce min
+define variable x in scopce main_LOCAL
+define variable y in scopce main_LOCAL
+FINISHED
+--------------------Open: test/codegen/t40.mx-------------------
+define variable a in scopce main_LOCAL
+FINISHED
+--------------------Open: test/codegen/t41.mx-------------------
+define variable x in scopce C2
+define variable y in scopce C2
+define variable b in scopce C2
+define variable z in scopce C2
+define variable obj in scopce main_LOCAL
+FINISHED
+--------------------Open: test/codegen/t42.mx-------------------
+define variable x in scopce C1
+define variable c1 in scopce main_LOCAL
+FINISHED
+--------------------Open: test/codegen/t43.mx-------------------
+define variable x in scopce main_LOCAL
+FINISHED
+--------------------Open: test/codegen/t44.mx-------------------
+define variable x in scopce tak
+define variable y in scopce tak
+define variable z in scopce tak
+FINISHED
+--------------------Open: test/codegen/t45.mx-------------------
+define variable a in scopce main_LOCAL
+FINISHED
+--------------------Open: test/codegen/t46.mx-------------------
+define variable n in scopce main_LOCAL
+define variable sum in scopce main_LOCAL
+define variable i in scopce main_LOCAL
+define variable j in scopce main_LOCAL
+FINISHED
+--------------------Open: test/codegen/t47.mx-------------------
+define variable a in scopce main_LOCAL
+define variable b in scopce main_LOCAL
+define variable c in scopce main_LOCAL
+FINISHED
+--------------------Open: test/codegen/t48.mx-------------------
+define variable x in scopce NMSL
+FINISHED
+--------------------Open: test/codegen/t49.mx-------------------
+define variable s in scopce main_LOCAL
+FINISHED
+--------------------Open: test/codegen/t50.mx-------------------
+define variable n in scopce main_LOCAL
+define variable sum in scopce main_LOCAL
+define variable i in scopce main_LOCAL
+define variable j in scopce main_LOCAL
+FINISHED
+--------------------Open: test/codegen/t51.mx-------------------
+define variable n in scopce main_LOCAL
+define variable sum in scopce main_LOCAL
+define variable i in scopce main_LOCAL
+define variable j in scopce main_LOCAL
+FINISHED
+--------------------Open: test/codegen/t52.mx-------------------
+define variable la in scopce main_LOCAL
+define variable a in scopce main_LOCAL
+define variable cnt in scopce main_LOCAL
+define variable i in scopce main_LOCAL
+define variable sum in scopce main_LOCAL
+FINISHED
+--------------------Open: test/codegen/t53.mx-------------------
+define variable la in scopce main_LOCAL
+define variable lb in scopce main_LOCAL
+define variable a in scopce main_LOCAL
+define variable b in scopce main_LOCAL
+define variable c in scopce main_LOCAL
+define variable cnt in scopce main_LOCAL
+define variable i in scopce main_LOCAL
+define variable j in scopce main_LOCAL
+define variable sum in scopce main_LOCAL
+FINISHED
+--------------------Open: test/codegen/t54.mx-------------------
+define variable a in scopce main_LOCAL
+define variable b in scopce main_LOCAL
+define variable c in scopce main_LOCAL
+define variable d in scopce main_LOCAL
+define variable e in scopce main_LOCAL
+FINISHED
+--------------------Open: test/codegen/t55.mx-------------------
+define variable count in scopce getcount
+define variable count in scopce NMSL
+define variable v0 in scopce main_LOCAL
+define variable v1 in scopce main_LOCAL
+define variable v2 in scopce main_LOCAL
+define variable v3 in scopce main_LOCAL
+define variable v4 in scopce main_LOCAL
+define variable v5 in scopce main_LOCAL
+define variable v6 in scopce main_LOCAL
+define variable v7 in scopce main_LOCAL
+define variable v8 in scopce main_LOCAL
+define variable v9 in scopce main_LOCAL
+define variable v10 in scopce main_LOCAL
+define variable v11 in scopce main_LOCAL
+define variable v12 in scopce main_LOCAL
+define variable v13 in scopce main_LOCAL
+define variable v14 in scopce main_LOCAL
+define variable v15 in scopce main_LOCAL
+define variable v16 in scopce main_LOCAL
+define variable v17 in scopce main_LOCAL
+define variable v18 in scopce main_LOCAL
+define variable v19 in scopce main_LOCAL
+define variable v20 in scopce main_LOCAL
+define variable v21 in scopce main_LOCAL
+define variable v22 in scopce main_LOCAL
+define variable v23 in scopce main_LOCAL
+define variable v24 in scopce main_LOCAL
+define variable v25 in scopce main_LOCAL
+define variable v26 in scopce main_LOCAL
+define variable v27 in scopce main_LOCAL
+define variable v28 in scopce main_LOCAL
+define variable v29 in scopce main_LOCAL
+define variable v30 in scopce main_LOCAL
+define variable v31 in scopce main_LOCAL
+define variable v32 in scopce main_LOCAL
+define variable v33 in scopce main_LOCAL
+define variable v34 in scopce main_LOCAL
+define variable v35 in scopce main_LOCAL
+define variable v36 in scopce main_LOCAL
+define variable v37 in scopce main_LOCAL
+define variable v38 in scopce main_LOCAL
+define variable v39 in scopce main_LOCAL
+define variable v40 in scopce main_LOCAL
+define variable v41 in scopce main_LOCAL
+define variable v42 in scopce main_LOCAL
+define variable v43 in scopce main_LOCAL
+define variable v44 in scopce main_LOCAL
+define variable v45 in scopce main_LOCAL
+define variable v46 in scopce main_LOCAL
+define variable v47 in scopce main_LOCAL
+define variable v48 in scopce main_LOCAL
+define variable v49 in scopce main_LOCAL
+define variable v50 in scopce main_LOCAL
+define variable v51 in scopce main_LOCAL
+define variable v52 in scopce main_LOCAL
+define variable v53 in scopce main_LOCAL
+define variable v54 in scopce main_LOCAL
+define variable v55 in scopce main_LOCAL
+define variable v56 in scopce main_LOCAL
+define variable v57 in scopce main_LOCAL
+define variable v58 in scopce main_LOCAL
+define variable v59 in scopce main_LOCAL
+define variable v60 in scopce main_LOCAL
+define variable v61 in scopce main_LOCAL
+define variable v62 in scopce main_LOCAL
+define variable v63 in scopce main_LOCAL
+define variable v64 in scopce main_LOCAL
+define variable v65 in scopce main_LOCAL
+define variable v66 in scopce main_LOCAL
+define variable v67 in scopce main_LOCAL
+define variable v68 in scopce main_LOCAL
+define variable v69 in scopce main_LOCAL
+define variable v70 in scopce main_LOCAL
+define variable v71 in scopce main_LOCAL
+define variable v72 in scopce main_LOCAL
+define variable v73 in scopce main_LOCAL
+define variable v74 in scopce main_LOCAL
+define variable v75 in scopce main_LOCAL
+define variable v76 in scopce main_LOCAL
+define variable v77 in scopce main_LOCAL
+define variable v78 in scopce main_LOCAL
+define variable v79 in scopce main_LOCAL
+define variable v80 in scopce main_LOCAL
+define variable v81 in scopce main_LOCAL
+define variable v82 in scopce main_LOCAL
+define variable v83 in scopce main_LOCAL
+define variable v84 in scopce main_LOCAL
+define variable v85 in scopce main_LOCAL
+define variable v86 in scopce main_LOCAL
+define variable v87 in scopce main_LOCAL
+define variable v88 in scopce main_LOCAL
+define variable v89 in scopce main_LOCAL
+define variable v90 in scopce main_LOCAL
+define variable v91 in scopce main_LOCAL
+define variable v92 in scopce main_LOCAL
+define variable v93 in scopce main_LOCAL
+define variable v94 in scopce main_LOCAL
+define variable v95 in scopce main_LOCAL
+define variable v96 in scopce main_LOCAL
+define variable v97 in scopce main_LOCAL
+define variable v98 in scopce main_LOCAL
+define variable v99 in scopce main_LOCAL
+define variable v100 in scopce main_LOCAL
+define variable v101 in scopce main_LOCAL
+define variable v102 in scopce main_LOCAL
+define variable v103 in scopce main_LOCAL
+define variable v104 in scopce main_LOCAL
+define variable v105 in scopce main_LOCAL
+define variable v106 in scopce main_LOCAL
+define variable v107 in scopce main_LOCAL
+define variable v108 in scopce main_LOCAL
+define variable v109 in scopce main_LOCAL
+define variable v110 in scopce main_LOCAL
+define variable v111 in scopce main_LOCAL
+define variable v112 in scopce main_LOCAL
+define variable v113 in scopce main_LOCAL
+define variable v114 in scopce main_LOCAL
+define variable v115 in scopce main_LOCAL
+define variable v116 in scopce main_LOCAL
+define variable v117 in scopce main_LOCAL
+define variable v118 in scopce main_LOCAL
+define variable v119 in scopce main_LOCAL
+define variable v120 in scopce main_LOCAL
+define variable v121 in scopce main_LOCAL
+define variable v122 in scopce main_LOCAL
+define variable v123 in scopce main_LOCAL
+define variable v124 in scopce main_LOCAL
+define variable v125 in scopce main_LOCAL
+define variable v126 in scopce main_LOCAL
+define variable v127 in scopce main_LOCAL
+define variable v128 in scopce main_LOCAL
+define variable v129 in scopce main_LOCAL
+define variable v130 in scopce main_LOCAL
+define variable v131 in scopce main_LOCAL
+define variable v132 in scopce main_LOCAL
+define variable v133 in scopce main_LOCAL
+define variable v134 in scopce main_LOCAL
+define variable v135 in scopce main_LOCAL
+define variable v136 in scopce main_LOCAL
+define variable v137 in scopce main_LOCAL
+define variable v138 in scopce main_LOCAL
+define variable v139 in scopce main_LOCAL
+define variable v140 in scopce main_LOCAL
+define variable v141 in scopce main_LOCAL
+define variable v142 in scopce main_LOCAL
+define variable v143 in scopce main_LOCAL
+define variable v144 in scopce main_LOCAL
+define variable v145 in scopce main_LOCAL
+define variable v146 in scopce main_LOCAL
+define variable v147 in scopce main_LOCAL
+define variable v148 in scopce main_LOCAL
+define variable v149 in scopce main_LOCAL
+define variable v150 in scopce main_LOCAL
+define variable v151 in scopce main_LOCAL
+define variable v152 in scopce main_LOCAL
+define variable v153 in scopce main_LOCAL
+define variable v154 in scopce main_LOCAL
+define variable v155 in scopce main_LOCAL
+define variable v156 in scopce main_LOCAL
+define variable v157 in scopce main_LOCAL
+define variable v158 in scopce main_LOCAL
+define variable v159 in scopce main_LOCAL
+define variable v160 in scopce main_LOCAL
+define variable v161 in scopce main_LOCAL
+define variable v162 in scopce main_LOCAL
+define variable v163 in scopce main_LOCAL
+define variable v164 in scopce main_LOCAL
+define variable v165 in scopce main_LOCAL
+define variable v166 in scopce main_LOCAL
+define variable v167 in scopce main_LOCAL
+define variable v168 in scopce main_LOCAL
+define variable v169 in scopce main_LOCAL
+define variable v170 in scopce main_LOCAL
+define variable v171 in scopce main_LOCAL
+define variable v172 in scopce main_LOCAL
+define variable v173 in scopce main_LOCAL
+define variable v174 in scopce main_LOCAL
+define variable v175 in scopce main_LOCAL
+define variable v176 in scopce main_LOCAL
+define variable v177 in scopce main_LOCAL
+define variable v178 in scopce main_LOCAL
+define variable v179 in scopce main_LOCAL
+define variable v180 in scopce main_LOCAL
+define variable v181 in scopce main_LOCAL
+define variable v182 in scopce main_LOCAL
+define variable v183 in scopce main_LOCAL
+define variable v184 in scopce main_LOCAL
+define variable v185 in scopce main_LOCAL
+define variable v186 in scopce main_LOCAL
+define variable v187 in scopce main_LOCAL
+define variable v188 in scopce main_LOCAL
+define variable v189 in scopce main_LOCAL
+define variable v190 in scopce main_LOCAL
+define variable v191 in scopce main_LOCAL
+define variable v192 in scopce main_LOCAL
+define variable v193 in scopce main_LOCAL
+define variable v194 in scopce main_LOCAL
+define variable v195 in scopce main_LOCAL
+define variable v196 in scopce main_LOCAL
+define variable v197 in scopce main_LOCAL
+define variable v198 in scopce main_LOCAL
+define variable v199 in scopce main_LOCAL
+define variable v200 in scopce main_LOCAL
+define variable v201 in scopce main_LOCAL
+define variable v202 in scopce main_LOCAL
+define variable v203 in scopce main_LOCAL
+define variable v204 in scopce main_LOCAL
+define variable v205 in scopce main_LOCAL
+define variable v206 in scopce main_LOCAL
+define variable v207 in scopce main_LOCAL
+define variable v208 in scopce main_LOCAL
+define variable v209 in scopce main_LOCAL
+define variable v210 in scopce main_LOCAL
+define variable v211 in scopce main_LOCAL
+define variable v212 in scopce main_LOCAL
+define variable v213 in scopce main_LOCAL
+define variable v214 in scopce main_LOCAL
+define variable v215 in scopce main_LOCAL
+define variable v216 in scopce main_LOCAL
+define variable v217 in scopce main_LOCAL
+define variable v218 in scopce main_LOCAL
+define variable v219 in scopce main_LOCAL
+define variable v220 in scopce main_LOCAL
+define variable v221 in scopce main_LOCAL
+define variable v222 in scopce main_LOCAL
+define variable v223 in scopce main_LOCAL
+define variable v224 in scopce main_LOCAL
+define variable v225 in scopce main_LOCAL
+define variable v226 in scopce main_LOCAL
+define variable v227 in scopce main_LOCAL
+define variable v228 in scopce main_LOCAL
+define variable v229 in scopce main_LOCAL
+define variable v230 in scopce main_LOCAL
+define variable v231 in scopce main_LOCAL
+define variable v232 in scopce main_LOCAL
+define variable v233 in scopce main_LOCAL
+define variable v234 in scopce main_LOCAL
+define variable v235 in scopce main_LOCAL
+define variable v236 in scopce main_LOCAL
+define variable v237 in scopce main_LOCAL
+define variable v238 in scopce main_LOCAL
+define variable v239 in scopce main_LOCAL
+define variable v240 in scopce main_LOCAL
+define variable v241 in scopce main_LOCAL
+define variable v242 in scopce main_LOCAL
+define variable v243 in scopce main_LOCAL
+define variable v244 in scopce main_LOCAL
+define variable v245 in scopce main_LOCAL
+define variable v246 in scopce main_LOCAL
+define variable v247 in scopce main_LOCAL
+define variable v248 in scopce main_LOCAL
+define variable v249 in scopce main_LOCAL
+define variable v250 in scopce main_LOCAL
+define variable v251 in scopce main_LOCAL
+define variable v252 in scopce main_LOCAL
+define variable v253 in scopce main_LOCAL
+define variable v254 in scopce main_LOCAL
+define variable v255 in scopce main_LOCAL
+FINISHED
+--------------------Open: test/codegen/t56.mx-------------------
+define variable x in scopce gcd
+define variable y in scopce gcd
+define variable j0 in scopce gcd
+define variable j1 in scopce gcd
+define variable j2 in scopce gcd
+define variable j3 in scopce gcd
+define variable j4 in scopce gcd
+define variable j5 in scopce gcd
+define variable j6 in scopce gcd
+define variable j7 in scopce gcd
+define variable j8 in scopce gcd
+define variable j9 in scopce gcd
+define variable j10 in scopce gcd
+define variable j11 in scopce gcd
+define variable j12 in scopce gcd
+define variable j13 in scopce gcd
+define variable j14 in scopce gcd
+define variable j15 in scopce gcd
+define variable j16 in scopce gcd
+define variable j17 in scopce gcd
+define variable j18 in scopce gcd
+define variable j19 in scopce gcd
+define variable j20 in scopce gcd
+define variable j21 in scopce gcd
+define variable j22 in scopce gcd
+define variable j23 in scopce gcd
+define variable j24 in scopce gcd
+define variable j25 in scopce gcd
+define variable j26 in scopce gcd
+define variable j27 in scopce gcd
+define variable j28 in scopce gcd
+define variable j29 in scopce gcd
+define variable x in scopce gcd1
+define variable y in scopce gcd1
+define variable j0 in scopce gcd1
+define variable j1 in scopce gcd1
+define variable j2 in scopce gcd1
+define variable j3 in scopce gcd1
+define variable j4 in scopce gcd1
+define variable j5 in scopce gcd1
+define variable j6 in scopce gcd1
+define variable j7 in scopce gcd1
+define variable j8 in scopce gcd1
+define variable j9 in scopce gcd1
+define variable j10 in scopce gcd1
+define variable j11 in scopce gcd1
+define variable j12 in scopce gcd1
+define variable j13 in scopce gcd1
+define variable j14 in scopce gcd1
+define variable j15 in scopce gcd1
+define variable j16 in scopce gcd1
+define variable j17 in scopce gcd1
+define variable j18 in scopce gcd1
+define variable j19 in scopce gcd1
+define variable j20 in scopce gcd1
+define variable j21 in scopce gcd1
+define variable j22 in scopce gcd1
+define variable j23 in scopce gcd1
+define variable j24 in scopce gcd1
+define variable j25 in scopce gcd1
+define variable j26 in scopce gcd1
+define variable j27 in scopce gcd1
+define variable j28 in scopce gcd1
+define variable j29 in scopce gcd1
+define variable x in scopce gcd2
+define variable y in scopce gcd2
+define variable j0 in scopce gcd2
+define variable j1 in scopce gcd2
+define variable j2 in scopce gcd2
+define variable j3 in scopce gcd2
+define variable j4 in scopce gcd2
+define variable j5 in scopce gcd2
+define variable j6 in scopce gcd2
+define variable j7 in scopce gcd2
+define variable j8 in scopce gcd2
+define variable j9 in scopce gcd2
+define variable j10 in scopce gcd2
+define variable j11 in scopce gcd2
+define variable j12 in scopce gcd2
+define variable j13 in scopce gcd2
+define variable j14 in scopce gcd2
+define variable j15 in scopce gcd2
+define variable j16 in scopce gcd2
+define variable j17 in scopce gcd2
+define variable j18 in scopce gcd2
+define variable j19 in scopce gcd2
+define variable j20 in scopce gcd2
+define variable j21 in scopce gcd2
+define variable j22 in scopce gcd2
+define variable j23 in scopce gcd2
+define variable j24 in scopce gcd2
+define variable j25 in scopce gcd2
+define variable j26 in scopce gcd2
+define variable j27 in scopce gcd2
+define variable j28 in scopce gcd2
+define variable j29 in scopce gcd2
+define variable i in scopce gcd_LOCAL
+define variable j in scopce gcd_LOCAL
+define variable j in scopce gcd1_LOCAL
+define variable j in scopce gcd2_LOCAL
+FINISHED
+--------------------Open: test/codegen/t57.mx-------------------
+define variable x in scopce is_prime
+define variable x in scopce find
+define variable pre in scopce find
+define variable n in scopce NMSL
+define variable i in scopce is_prime_LOCAL
+define variable i in scopce find_LOCAL
+define variable i in scopce find_LOCAL_LOCAL
+FINISHED
+--------------------Open: test/codegen/t58.mx-------------------
+define variable MAXN in scopce NMSL
+define variable MAXM in scopce NMSL
+define variable M in scopce main_LOCAL
+define variable N in scopce main_LOCAL
+define variable w in scopce main_LOCAL
+define variable t in scopce main_LOCAL
+define variable DP in scopce main_LOCAL
+define variable i in scopce main_LOCAL
+define variable j in scopce main_LOCAL
+FINISHED
+--------------------Open: test/codegen/t59.mx-------------------
+define variable MAXN in scopce NMSL
+define variable MAXM in scopce NMSL
+define variable M in scopce main_LOCAL
+define variable N in scopce main_LOCAL
+define variable w in scopce main_LOCAL
+define variable t in scopce main_LOCAL
+define variable DP in scopce main_LOCAL
+define variable i in scopce main_LOCAL
+define variable j in scopce main_LOCAL
+FINISHED
+--------------------Open: test/codegen/t60.mx-------------------
+define variable age in scopce older
+define variable i in scopce solveAge_LOCAL
+define variable j in scopce solveAge_LOCAL
+define variable k in scopce solveAge_LOCAL
+define variable mrJiang in scopce main_LOCAL
+FINISHED
+--------------------Open: test/codegen/t61.mx-------------------
+define variable data in scopce vector
+define variable vec in scopce init
+define variable rhs in scopce dot
+define variable c in scopce scalarInPlaceMultiply
+define variable rhs in scopce add
+define variable idx in scopce set
+define variable value in scopce set
+define variable rhs in scopce copy
+define variable i in scopce init_LOCAL
+define variable i in scopce dot_LOCAL
+define variable result in scopce dot_LOCAL
+define variable i in scopce scalarInPlaceMultiply_LOCAL
+define variable temp in scopce add_LOCAL
+define variable i in scopce add_LOCAL
+define variable temp in scopce tostring_LOCAL
+define variable i in scopce tostring_LOCAL
+define variable i in scopce copy_LOCAL_LOCAL_LOCAL
+define variable x in scopce main_LOCAL
+define variable a in scopce main_LOCAL
+define variable i in scopce main_LOCAL
+define variable y in scopce main_LOCAL
+FINISHED
+--------------------Open: test/codegen/t62.mx-------------------
+define variable x in scopce NMSL
+define variable y in scopce NMSL
+define variable c in scopce main_LOCAL
+FINISHED
+--------------------Open: test/codegen/t63.mx-------------------
+define variable x in scopce point
+define variable y in scopce point
+define variable z in scopce point
+define variable a_x in scopce set
+define variable a_y in scopce set
+define variable a_z in scopce set
+define variable other in scopce sqrDis
+define variable other in scopce dot
+define variable other in scopce cross
+define variable other in scopce add
+define variable other in scopce sub
+define variable retval in scopce cross_LOCAL
+define variable a in scopce main_LOCAL
+define variable b in scopce main_LOCAL
+define variable c in scopce main_LOCAL
+define variable d in scopce main_LOCAL
+FINISHED
+--------------------Open: test/codegen/t64.mx-------------------
+define variable x in scopce digt
+define variable ss in scopce s2
+define variable cc in scopce c2
+define variable s in scopce NMSL
+define variable c in scopce NMSL
+define variable co in scopce NMSL
+define variable a2q in scopce NMSL
+define variable a2b in scopce NMSL
+define variable i in scopce main_LOCAL
+FINISHED
+--------------------Open: test/codegen/t65.mx-------------------
+define variable x in scopce hex2int
+define variable x in scopce int2chr
+define variable x in scopce toStringHex
+define variable x in scopce rotate_left
+define variable shift in scopce rotate_left
+define variable x in scopce add
+define variable y in scopce add
+define variable lo in scopce lohi
+define variable hi in scopce lohi
+define variable input in scopce sha1
+define variable length in scopce sha1
+define variable input in scopce computeSHA1
+define variable now in scopce nextLetter
+define variable now in scopce nextText
+define variable length in scopce nextText
+define variable a in scopce array_equal
+define variable b in scopce array_equal
+define variable input in scopce crackSHA1
+define variable i in scopce hex2int_LOCAL
+define variable result in scopce hex2int_LOCAL
+define variable digit in scopce hex2int_LOCAL_LOCAL
+define variable asciiTable in scopce NMSL
+define variable ret in scopce toStringHex_LOCAL
+define variable i in scopce toStringHex_LOCAL
+define variable digit in scopce toStringHex_LOCAL_LOCAL
+define variable low in scopce add_LOCAL
+define variable high in scopce add_LOCAL
+define variable MAXCHUNK in scopce NMSL
+define variable MAXLENGTH in scopce NMSL
+define variable chunks in scopce NMSL
+define variable inputBuffer in scopce NMSL
+define variable outputBuffer in scopce NMSL
+define variable nChunk in scopce sha1_LOCAL
+define variable i in scopce sha1_LOCAL
+define variable j in scopce sha1_LOCAL
+define variable h0 in scopce sha1_LOCAL
+define variable h1 in scopce sha1_LOCAL
+define variable h2 in scopce sha1_LOCAL
+define variable h3 in scopce sha1_LOCAL
+define variable h4 in scopce sha1_LOCAL
+define variable a in scopce sha1_LOCAL_LOCAL
+define variable b in scopce sha1_LOCAL_LOCAL
+define variable c in scopce sha1_LOCAL_LOCAL
+define variable d in scopce sha1_LOCAL_LOCAL
+define variable e in scopce sha1_LOCAL_LOCAL
+define variable f in scopce sha1_LOCAL_LOCAL_LOCAL
+define variable k in scopce sha1_LOCAL_LOCAL_LOCAL
+define variable temp in scopce sha1_LOCAL_LOCAL_LOCAL
+define variable i in scopce computeSHA1_LOCAL
+define variable result in scopce computeSHA1_LOCAL
+define variable i in scopce nextText_LOCAL
+define variable i in scopce array_equal_LOCAL
+define variable target in scopce crackSHA1_LOCAL
+define variable i in scopce crackSHA1_LOCAL
+define variable MAXDIGIT in scopce crackSHA1_LOCAL
+define variable digit in scopce crackSHA1_LOCAL
+define variable out in scopce crackSHA1_LOCAL_LOCAL_LOCAL
+define variable op in scopce main_LOCAL
+define variable input in scopce main_LOCAL
+FINISHED
+--------------------Open: test/codegen/t66.mx-------------------
+define variable x in scopce lol
+define variable c in scopce NMSL
+define variable x in scopce NMSL
+FINISHED
+--------------------Open: test/codegen/t67.mx-------------------
+define variable a in scopce main_LOCAL
+define variable b in scopce main_LOCAL
+define variable c in scopce main_LOCAL
+FINISHED
+--------------------Open: test/codegen/t68.mx-------------------
+define variable N in scopce NMSL
+define variable M in scopce NMSL
+define variable check in scopce NMSL
+define variable i in scopce main_LOCAL
+define variable phi in scopce main_LOCAL
+define variable P in scopce main_LOCAL
+define variable k in scopce main_LOCAL_LOCAL
+define variable i in scopce main_LOCAL_LOCAL
+define variable tmp in scopce main_LOCAL_LOCAL_LOCAL
+FINISHED
+--------------------Open: test/codegen/e1.mx-------------------
+define variable n in scopce NMSL
+define variable p in scopce NMSL
+define variable k in scopce NMSL
+define variable i in scopce main_LOCAL
+FINISHED
+--------------------Open: test/codegen/e2.mx-------------------
+define variable x in scopce jud
+define variable n in scopce NMSL
+define variable a in scopce NMSL
+define variable i in scopce jud_LOCAL
+define variable j in scopce jud_LOCAL
+define variable flag in scopce jud_LOCAL_LOCAL
+define variable i in scopce NMSL
+FINISHED
+--------------------Open: test/codegen/e3.mx-------------------
+define variable w in scopce NMSL
+FINISHED
+--------------------Open: test/codegen/e4.mx-------------------
+define variable n in scopce NMSL
+define variable m in scopce NMSL
+define variable a in scopce NMSL
+FINISHED
+--------------------Open: test/codegen/e5.mx-------------------
+define variable t in scopce NMSL
+define variable l in scopce NMSL
+define variable i in scopce NMSL
+define variable s in scopce NMSL
+FINISHED
+--------------------Open: test/codegen/e6.mx-------------------
+define variable a in scopce NMSL
+define variable m in scopce NMSL
+define variable k in scopce NMSL
+define variable i in scopce NMSL
+FINISHED
+--------------------Open: test/codegen/e7.mx-------------------
+define variable n in scopce NMSL
+define variable x in scopce NMSL
+define variable y in scopce NMSL
+define variable z in scopce NMSL
+define variable c in scopce NMSL
+define variable k in scopce NMSL
+FINISHED
+--------------------Open: test/codegen/e8.mx-------------------
+define variable c in scopce abs
+define variable n in scopce NMSL
+define variable r in scopce NMSL
+define variable c in scopce NMSL
+define variable i in scopce NMSL
+define variable j in scopce NMSL
+FINISHED
+--------------------Open: test/codegen/e9.mx-------------------
+define variable p in scopce NMSL
+define variable q in scopce NMSL
+define variable r in scopce NMSL
+define variable x in scopce NMSL
+define variable y in scopce NMSL
+define variable z in scopce NMSL
+define variable n in scopce NMSL
+define variable i in scopce NMSL
+FINISHED
+--------------------Open: test/codegen/e10.mx-------------------
+define variable n in scopce NMSL
+FINISHED

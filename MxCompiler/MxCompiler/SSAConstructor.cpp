@@ -11,7 +11,8 @@ void SSAConstructor::constructSSA()
 void SSAConstructor::initDT()
 {
 	auto &functions = ir->getFunctions();
-	for (auto &function : functions) function->initDT();
+	for (auto function : functions) 
+		function->initDT(std::make_shared<DominanceTree>(function));
 }
 
 void SSAConstructor::insertPhiFunction()
@@ -62,7 +63,7 @@ void SSAConstructor::renameVariables(std::shared_ptr<Function> func)
 		for (auto &block_to : successors) {
 			for (auto instr = block_to->getFront(); instr != nullptr; instr = instr->getNextInstr()) 
 				if (instr->getTag() == IRInstruction::PHI) {
-					auto var = std::static_pointer_cast<PhiFunction>(instr)->getDst();
+					auto var = std::static_pointer_cast<VirtualReg>(std::static_pointer_cast<PhiFunction>(instr)->getDst());
 					std::static_pointer_cast<PhiFunction>(instr)->appendRelatedReg(var->getReachingDef());
 				}
 				else break;
@@ -128,7 +129,7 @@ void SSAConstructor::visit(std::shared_ptr<BasicBlock> y,const  std::shared_ptr<
 
 	for (auto z : JEdges) 
 		if (z->getDTInfo().depth < current_x->getDTInfo().depth) {
-			if (DFplus.find(z) == DFplus.end) {
+			if (DFplus.find(z) == DFplus.end()) {
 				DFplus.insert(z);
 				if (onceInQueue.find(z) == onceInQueue.end()) insertNode(z);
 			}

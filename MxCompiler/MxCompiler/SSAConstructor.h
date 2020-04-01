@@ -14,6 +14,14 @@ The SSA construction uses a advanced algorithm
 which does not require the precomutation of DF.
 This algorithm is elaborated in Chapter 4 of Static Single Assignment Book.
 */
+class CompareByDepth {
+public:
+	bool operator() (const std::shared_ptr<BasicBlock>& lhs, const  std::shared_ptr<BasicBlock>&rhs) const
+	{
+		return lhs->getDTInfo().depth < rhs->getDTInfo().depth;
+	}
+};
+
 class SSAConstructor :public CFG_Pass{
 public:
 	SSAConstructor(std::shared_ptr<IR> _ir) :CFG_Pass(_ir){}
@@ -41,11 +49,3 @@ private:
 		std::vector<std::shared_ptr<BasicBlock> >, CompareByDepth> workQueue;
 };
 
-class CompareByDepth {
-	bool reverse;
-public:
-	bool operator() (const std::shared_ptr<BasicBlock>& lhs, const  std::shared_ptr<BasicBlock>&rhs) const
-	{
-		return lhs->getDTInfo().depth < rhs->getDTInfo().depth;
-	}
-};

@@ -33,5 +33,5 @@ void IR::addFunction(std::shared_ptr<Function> func)
 
 std::shared_ptr<Function> IR::newBuiltInFunc(const std::string & name)
 {
-	return std::make_shared<Function>(name,nullptr);
+	return std::make_shared<Function>(name);
 }

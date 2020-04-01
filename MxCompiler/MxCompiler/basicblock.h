@@ -2,8 +2,8 @@
 
 #include "pch.h"
 #include "IRinstruction.h"
+#include "Function.h"
 
-class Function;
 /*
 This struct hold the informations related to the dominance tree.
 */

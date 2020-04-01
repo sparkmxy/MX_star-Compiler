@@ -117,6 +117,7 @@
   <ItemGroup>
     <ClInclude Include="astnode.h" />
     <ClInclude Include="basicblock.h" />
+    <ClInclude Include="cfg_visitor.h" />
     <ClInclude Include="ClassDeclVisitor.h" />
     <ClInclude Include="configuration.h" />
     <ClInclude Include="cfg_pass.h" />
@@ -130,7 +131,7 @@
     <ClInclude Include="IR_Generator.h" />
     <ClInclude Include="ir_printer.h" />
     <ClInclude Include="lexer.h" />
-    <ClInclude Include="MxComplier.h" />
+    <ClInclude Include="MxCompiler.h" />
     <ClInclude Include="Optimizer.h" />
     <ClInclude Include="parser.h" />
     <ClInclude Include="pch.h" />
@@ -160,7 +161,7 @@
     <ClCompile Include="IR_Generator.cpp" />
     <ClCompile Include="lexer.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="MxComplier.cpp" />
+    <ClCompile Include="MxCompiler.cpp" />
     <ClCompile Include="Optimizer.cpp" />
     <ClCompile Include="parser.cpp" />
     <ClCompile Include="scope.cpp" />

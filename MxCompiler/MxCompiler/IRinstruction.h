@@ -208,7 +208,6 @@ public:
 
 	std::shared_ptr<BasicBlock> getTarget() { return target; }
 	void setTarget(const std::shared_ptr<BasicBlock> &_target) { target = _target; }
-	std::shared_ptr<BasicBlock> getTarget() { return target; }
 	// virtual functions by default
 private:
 	std::shared_ptr<BasicBlock> target;
@@ -230,5 +229,5 @@ public:
 	virtual void setDefReg(std::shared_ptr<Register> _defReg) override;
 private:
 	std::shared_ptr<Register> dst;
-	std::unordered_set<Register> relatedReg;
+	std::unordered_set<std::shared_ptr<Register> > relatedReg;
 };

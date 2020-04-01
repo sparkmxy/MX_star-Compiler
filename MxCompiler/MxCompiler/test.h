@@ -1,7 +1,7 @@
 #pragma once
 
 #include "pch.h"
-#include "MxComplier.h"
+#include "MxCompiler.h"
 
 class Test {
 public:

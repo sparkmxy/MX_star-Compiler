@@ -20,7 +20,7 @@ void IR_Generator::visit(MultiVarDecl * node)
 void IR_Generator::visit(VarDeclStmt * node)
 {
 	auto varSymbol = node->getVarSymbol();
-	auto reg = std::make_shared<VirtualReg>(node->getIdentifier()->name);
+	auto reg = std::make_shared<VirtualReg>(Operand::REG_REF,node->getIdentifier()->name);
 	varSymbol->setReg(reg);
 	if (scanGlobalVar)  // global variable
 		ir->addGlobalVar(reg);
@@ -522,6 +522,9 @@ void IR_Generator::newArray(NewExpr * node, std::shared_ptr<Operand> addrReg, in
 	sizeExpr->accept(*this);
 	auto N_reg = getValueReg(sizeExpr->getResultOprand());
 	auto size = std::make_shared<VirtualReg>();
+	auto size_of_int = std::make_shared<Immediate>(Configuration::SIZE_OF_INT);
+	auto size_of_ptr = std::make_shared<Immediate>(Configuration::SIZE_OF_PTR);
+
 	if (dimension == node->getDimensions().size() - 1) {	// the last dimension
 		//1. calaulate <size>.
 		auto elemSize = std::make_shared<Immediate>(
@@ -530,16 +533,16 @@ void IR_Generator::newArray(NewExpr * node, std::shared_ptr<Operand> addrReg, in
 		currentBlock->append_back(std::make_shared<Quadruple>(
 			currentBlock, Quadruple::TIMES, size, elemSize, N_reg));
 		currentBlock->append_back(std::make_shared<Quadruple>(
-			currentBlock, Quadruple::ADD, size, size, Configuration::SIZE_OF_INT));
+			currentBlock, Quadruple::ADD, size, size, size_of_int));
 		// 2. Allocate memory.
 		allocateMemory(addrReg,size);
 	}
 	else {  // elemSize = size_of_ptr
 		//1. Allocate memory for pointers.
 		currentBlock->append_back(std::make_shared<Quadruple>(
-			currentBlock, Quadruple::TIMES, size, Configuration::SIZE_OF_PTR, N_reg));
+			currentBlock, Quadruple::TIMES, size, size_of_ptr, N_reg));
 		currentBlock->append_back(std::make_shared<Quadruple>(
-			currentBlock, Quadruple::ADD, size, size, Configuration::SIZE_OF_INT));
+			currentBlock, Quadruple::ADD, size, size,size_of_int));
 		auto arrayAddr = allocateMemory(addrReg, size);
 		//2.Use a for loop to allocate memory for each pointers in the array.
 		auto bodyBlk = std::make_shared<BasicBlock>(currentFunction, BasicBlock::FOR_BODY);
@@ -550,7 +553,7 @@ void IR_Generator::newArray(NewExpr * node, std::shared_ptr<Operand> addrReg, in
 		auto curAddr = std::make_shared<VirtualReg>();
 		auto upperBound = std::make_shared<VirtualReg>();
 		currentBlock->append_back(std::make_shared<Quadruple>(
-			currentBlock, Quadruple::ADD, curAddr, arrayAddr, Configuration::SIZE_OF_INT));
+			currentBlock, Quadruple::ADD, curAddr, arrayAddr,size_of_int));
 		currentBlock->append_back(std::make_shared<Quadruple>(
 			currentBlock, Quadruple::ADD, upperBound, curAddr, size));
 		currentBlock->endWith(std::make_shared<Jump>(currentBlock, condBlk));
@@ -564,7 +567,6 @@ void IR_Generator::newArray(NewExpr * node, std::shared_ptr<Operand> addrReg, in
 		newArray(node, curAddr, dimension + 1);
 		currentBlock->endWith(std::make_shared<Jump>(currentBlock, iterBlk));
 		// 6. Iteration : curAddr += size_of_ptr
-		auto size_of_ptr = std::make_shared<Immediate>(Configuration::SIZE_OF_PTR);
 		iterBlk->append_back(std::make_shared<Quadruple>(
 			iterBlk, Quadruple::ADD, curAddr, size_of_ptr, curAddr));
 		iterBlk->endWith(std::make_shared<Jump>(iterBlk, condBlk));
@@ -615,8 +617,8 @@ void IR_Generator::arrayAccess(BinaryExpr * node)
 	auto elemSize = std::make_shared<Immediate>(typeSymbol->getElementSize());
 	node->setResultOprand(result);
 
-	auto offset = std::make_shared<VirtualReg>;
-	auto temp = std::make_shared<VirtualReg>;
+	auto offset = std::make_shared<VirtualReg>();
+	auto temp = std::make_shared<VirtualReg>();
 	auto reg_size = std::make_shared<Immediate>(Configuration::SIZE_OF_INT);
 	currentBlock->append_back(std::make_shared<Quadruple>
 		(currentBlock, Quadruple::TIMES, temp, index,elemSize));
@@ -694,9 +696,9 @@ else
 */
 void IR_Generator::assignBool(std::shared_ptr<Operand> lhs, Expression *rhs)
 {
-	auto trueBlk = std::make_shared<BasicBlock>(currentBlock, BasicBlock::TRUE);
-	auto falseBlk = std::make_shared<BasicBlock>(currentBlock, BasicBlock::FALSE);
-	auto finalBlk = std::make_shared<BasicBlock>(currentBlock, BasicBlock::FINAL);
+	auto trueBlk = std::make_shared<BasicBlock>(currentFunction, BasicBlock::TRUE);
+	auto falseBlk = std::make_shared<BasicBlock>(currentFunction, BasicBlock::FALSE);
+	auto finalBlk = std::make_shared<BasicBlock>(currentFunction, BasicBlock::FINAL);
 	rhs->setTrueBlock(trueBlk);
 	rhs->setFalseBlock(falseBlk);
 	rhs->accept(*this);

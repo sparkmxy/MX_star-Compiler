@@ -36,7 +36,7 @@ bool Test::runTestCase(std::string src)
 }
 
 bool Test::complie(std::string src) {
-	MxComplier complier(src);
+	MxCompiler complier(src);
 	try
 	{
 		complier.getCode();

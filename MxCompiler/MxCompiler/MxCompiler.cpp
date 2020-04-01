@@ -1,8 +1,8 @@
-#include "MxComplier.h"
+#include "MxCompiler.h"
 
-#define SHOW_TOKENS
+// #define SHOW_TOKENS
 
-void MxComplier::complie()
+void MxCompiler::complie()
 {
 	getCode();
 	parse();
@@ -11,7 +11,15 @@ void MxComplier::complie()
 	generateIR();
 }
 
-void MxComplier::getCode()
+void MxCompiler::semantic()
+{
+	getCode();
+	parse();
+	buildAST();
+	semanticCheck();
+}
+
+void MxCompiler::getCode()
 {
 	src.open(fileName);
 	if (!src) 
@@ -20,7 +28,7 @@ void MxComplier::getCode()
 	std::clog << "--------------------Open: " << fileName << "-------------------\n";
 }
 
-void MxComplier::parse()
+void MxCompiler::parse()
 {
 	lexer = std::make_shared<Lexer>(src);
 	tokens = lexer->getTokens();
@@ -37,7 +45,7 @@ void MxComplier::parse()
 	std::cout << "Parse done!" << std::endl;
 }
 
-void MxComplier::buildAST()
+void MxCompiler::buildAST()
 {
 	parser = std::make_shared<Parser>(tokens);
 	ast = parser->getAST();
@@ -46,7 +54,7 @@ void MxComplier::buildAST()
 	std::cout << "Build AST successfully!" << std::endl;
 }
 
-void MxComplier::semanticCheck()
+void MxCompiler::semanticCheck()
 {
 	environment = std::make_shared<Environment>(ast);
 	
@@ -54,7 +62,7 @@ void MxComplier::semanticCheck()
 	std::cout << "Passed semantic check!" << std::endl;
 }
 
-void MxComplier::generateIR()
+void MxCompiler::generateIR()
 {
 	irGenerator = std::make_shared<IR_Generator>(environment->globalScope());
 	irGenerator->visit(ast.get());

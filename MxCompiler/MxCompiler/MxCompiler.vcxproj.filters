@@ -105,9 +105,6 @@
     <ClInclude Include="ClassDeclVisitor.h">
       <Filter>头文件\frontend\semantic</Filter>
     </ClInclude>
-    <ClInclude Include="IRinstruction.h">
-      <Filter>头文件\IR</Filter>
-    </ClInclude>
     <ClInclude Include="basicblock.h">
       <Filter>头文件\IR</Filter>
     </ClInclude>
@@ -122,9 +119,6 @@
     </ClInclude>
     <ClInclude Include="Operand.h">
       <Filter>头文件\IR</Filter>
-    </ClInclude>
-    <ClInclude Include="MxComplier.h">
-      <Filter>头文件\toplevel</Filter>
     </ClInclude>
     <ClInclude Include="configuration.h">
       <Filter>头文件\toplevel</Filter>
@@ -153,6 +147,15 @@
     <ClInclude Include="ir_printer.h">
       <Filter>头文件\IR\IRprinter</Filter>
     </ClInclude>
+    <ClInclude Include="cfg_visitor.h">
+      <Filter>头文件\IR</Filter>
+    </ClInclude>
+    <ClInclude Include="IRinstruction.h">
+      <Filter>头文件\IR</Filter>
+    </ClInclude>
+    <ClInclude Include="MxCompiler.h">
+      <Filter>头文件\toplevel</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="lexer.cpp">
@@ -178,9 +181,6 @@
     </ClCompile>
     <ClCompile Include="environment.cpp">
       <Filter>源文件\frontend\semantic</Filter>
-    </ClCompile>
-    <ClCompile Include="MxComplier.cpp">
-      <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="GlobalFuncDeclVistor.cpp">
       <Filter>源文件\frontend\semantic</Filter>
@@ -220,6 +220,9 @@
     </ClCompile>
     <ClCompile Include="dominance.cpp">
       <Filter>源文件\backend\optimize</Filter>
+    </ClCompile>
+    <ClCompile Include="MxCompiler.cpp">
+      <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

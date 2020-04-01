@@ -2,7 +2,7 @@
 
 #include "cfg_pass.h"
 
-class SSADestructor :public CFG_Pass{
+class SSADestructor{
 public:
 	SSADestructor();
 	~SSADestructor();
