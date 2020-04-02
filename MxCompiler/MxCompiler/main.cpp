@@ -8,7 +8,7 @@ int main() {
 	Test test;
 	//test.test1();
 	//test.test2();
-	test.runTestCase("sema/class-package/class-13.mx");
+	test.runTestCase("sema/scope-package/scope-2.mx");
 	system("pause");
 	return 0;
 }

@@ -107,8 +107,11 @@ void SemanticChecker::visit(ForStmt * node)
 void SemanticChecker::visit(ReturnStmt * node)
 {
 	// Constructors should not contain return statement.
-	if (reinterpret_cast<FunctionDecl *>(node->getFuncSymbol()->getDecl())->isConstructor())
-		SemanticError("Constructors should not contain return statement", node->Where());
+	if (reinterpret_cast<FunctionDecl *>(node->getFuncSymbol()->getDecl())->isConstructor()) {
+		if(node->getValue() != nullptr)
+			throw SemanticError("Constructors should return void", node->Where());
+		else return;
+	}
 
 	auto retType = node->getFuncSymbol()->getType();
 	if (node->getValue() == nullptr) { // a void value is returned.
