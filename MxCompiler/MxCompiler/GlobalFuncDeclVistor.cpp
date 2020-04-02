@@ -19,7 +19,8 @@ void GlobalFuncAndClsVisitor::visit(FunctionDecl * node)
 	
 	// it can be a constructor
 	bool isConstructor = false;
-	if (currentClassSymbol != nullptr && node->getIdentifier()->name == "::ctor") {
+	if (currentClassSymbol != nullptr 
+		&& node->getIdentifier()->name == currentClassSymbol->getSymbolName() + "::ctor") {
 		if (currentClassSymbol->getConstructor() != nullptr)
 			throw SemanticError("Duplicated constructor.", node->Where());
 		isConstructor = true;
@@ -58,7 +59,7 @@ void GlobalFuncAndClsVisitor::visit(ClassDecl * node)
 
 void GlobalFuncAndClsVisitor::visit(VarDeclStmt * node)
 {
-	if (node->getInitExpr() != nullptr)
+	if (currentClassSymbol != nullptr && node->getInitExpr() != nullptr)
 		node->getInitExpr()->accept(*this);
 	std::shared_ptr<SymbolType> type = symbolTypeOfNode(node->getType().get(), globalScope);
 	if (type == nullptr)
@@ -75,4 +76,14 @@ void GlobalFuncAndClsVisitor::visit(MultiVarDecl * node)
 {
 	auto vars = node->getDecls();
 	for (auto &var : vars) var->accept(*this);
+}
+
+void GlobalFuncAndClsVisitor::visit(NewExpr * node)
+{
+	auto type = symbolTypeOfNode(node->getType().get(), globalScope);
+	if (type == nullptr)
+		throw SemanticError("undefined type", node->Where());
+	node->setSymbolType(type);
+	auto dims = node->getDimensions();
+	for (auto &dim : dims) dim->accept(*this);
 }

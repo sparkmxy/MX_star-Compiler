@@ -10,7 +10,7 @@ public:
 	bool runTestCase(std::string src);
 private:
 
-	bool complie(std::string src);
+	bool compile(std::string src);
 
 	void drawRule(std::string str = "");
 

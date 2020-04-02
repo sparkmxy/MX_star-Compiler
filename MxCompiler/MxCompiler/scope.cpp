@@ -4,9 +4,12 @@
 
 void BaseScope::define(std::shared_ptr<Symbol> symbol)
 {
-	if (symbols.find(symbol->getSymbolName()) != symbols.end())
+	auto id = symbol->getSymbolName();
+	if (!isLeagalName(id))
+		throw SemanticError("illegal identifier: " + id, symbol->getDecl()->Where());
+	if (symbols.find(id) != symbols.end())
 		throw SemanticError("duplicated identifier", symbol->getDecl()->Where());
-	symbols[symbol->getSymbolName()] = symbol;
+	symbols[id] = symbol;
 	symbol->setScope(shared_from_this());
 }
 

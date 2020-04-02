@@ -112,7 +112,8 @@ public:
 	bool isValue() { return category == LVALUE || category == RVALUE || category == THIS; }
 	bool isNull() { return symbolType->isNull(); }
 	bool nullable() {
-		if (symbolType->isNull() | category != LVALUE) return false;
+		if (isNull()) return true;
+		if (category != LVALUE) return false;
 		return symbolType->isArrayType() || symbolType->isUserDefinedType();
 	}
 	bool isObject() { return isValue() && symbolType->isUserDefinedType(); }
@@ -192,30 +193,6 @@ private:
 class NullValue : public ConstValue{
 public:
 	ACCEPT_VISITOR
-};
-
-/*
-Usage: type array[][]...[] = new type[dim_1][dim_2]...[dim_n][]..[]
-*/
-class NewExpr : public Expression {
-public:
-	NewExpr(std::shared_ptr<Type>_type, std::vector<std::shared_ptr<Expression> > v, int _dim)
-		:type(std::move(_type)), dimensions(std::move(v)), dimension(_dim) {}
-	
-	std::shared_ptr<Type> getType() { return type; }
-	std::vector<std::shared_ptr<Expression> > &getDimensions() { return dimensions; }
-	
-	std::shared_ptr<FunctionSymbol> getConstructor() { return constructor;}
-	void setConstructor(std::shared_ptr<FunctionSymbol> ctor) { constructor = ctor; }
-
-	int getNumberOfDim() { return dimension; }
-	ACCEPT_VISITOR
-private:
-	std::shared_ptr<Type> type;
-	std::vector<std::shared_ptr<Expression> > dimensions;
-	int dimension;
-	//semantic
-	std::shared_ptr<FunctionSymbol> constructor;
 };
 
 class UnaryExpr : public Expression{
@@ -311,6 +288,40 @@ private:
 	std::shared_ptr<IdentifierExpr> identifier;
 
 	std::shared_ptr<VarSymbol> symbol;
+};
+
+/*
+Usage: type array[][]...[] = new type[dim_1][dim_2]...[dim_n][]..[]
+*/
+class NewExpr : public Expression {
+public:
+	NewExpr(std::shared_ptr<Type> _type, std::vector<std::shared_ptr<Expression> > ctor_args)
+		:type(std::move(_type)){
+		auto fName = std::make_shared<Identifier>(type->getIdentifier() + "::ctor");
+		ctorCall = std::make_shared<FuncCallExpr>(
+			std::make_shared<IdentifierExpr>(fName),ctor_args);
+	}
+
+	NewExpr(std::shared_ptr<Type>_type, std::vector<std::shared_ptr<Expression> > v, int _dim)
+		:type(std::move(_type)), dimensions(std::move(v)), dimension(_dim) {}
+
+	std::shared_ptr<FuncCallExpr> getCtorCall() { return ctorCall; }
+	
+	std::shared_ptr<Type> getType() { return type; }
+	std::vector<std::shared_ptr<Expression> > &getDimensions() { return dimensions; }
+
+	std::shared_ptr<FunctionSymbol> getConstructor() { return constructor; }
+	void setConstructor(std::shared_ptr<FunctionSymbol> ctor) { constructor = ctor; }
+
+	int getNumberOfDim() { return dimension; }
+	ACCEPT_VISITOR
+private:
+	std::shared_ptr<Type> type;
+	std::vector<std::shared_ptr<Expression> > dimensions;
+	std::shared_ptr<FuncCallExpr> ctorCall;
+	int dimension;
+	//semantic
+	std::shared_ptr<FunctionSymbol> constructor;
 };
 
 class ThisExpr :public Expression,public Identifier{

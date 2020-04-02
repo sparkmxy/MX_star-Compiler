@@ -10,7 +10,7 @@ void SymbolTable::checkMainFunc()
 		throw SemanticError("'main' must be a function", Position());
 	auto main = std::static_pointer_cast<FunctionSymbol>(symbol);
 	auto retType = main->getType();
-	if (retType->isBulitInType() && retType->getTypeName() == "int") {
+	if (retType->isBuiltInType() && retType->getTypeName() == "int") {
 		auto args = reinterpret_cast<FunctionDecl *>(main->getDecl())->getArgs();
 		if (!args.empty())
 			throw SemanticError("'main' shall not have arguments", Position());
@@ -51,7 +51,9 @@ void SymbolTable::visit(ExprStmt * node)
 
 void SymbolTable::visit(FuncCallExpr * node)
 {
-	node->getIdentifierExpr()->accept(*this);
+	auto id = node->getIdentifierExpr();
+	if(!isConstructor(id->getIdentifier()->name))
+		id->accept(*this);
 	auto args = node->getArgs();
 	for (auto &arg : args) arg->accept(*this);
 }
@@ -94,6 +96,17 @@ void SymbolTable::visit(NewExpr * node)
 	node->setSymbolType(type);
 	auto dims = node->getDimensions();
 	for (auto &dim : dims) dim->accept(*this);
+
+	if (type->isUserDefinedType()) { // might have constructor
+		auto ctor = std::static_pointer_cast<ClassSymbol>(type)->getConstructor();
+		if (ctor != nullptr) {
+			node->setConstructor(ctor);
+		}
+		if (node->getCtorCall() != nullptr) {
+			node->getCtorCall()->getIdentifierExpr()->setSymbol(ctor);
+			node->getCtorCall()->accept(*this);
+		}
+	}
 }
 
 void SymbolTable::visit(UnaryExpr * node)
@@ -131,6 +144,10 @@ void SymbolTable::visit(FunctionDecl *node) {
 	currentScope = funcSymbol;
 	currentFunctionSymbol = funcSymbol;
 	node->getBody()->accept(*this);
+
+	if (currentClassSymbol != nullptr &&
+		node->getIdentifier()->name == currentClassSymbol->getSymbolName())
+		throw SemanticError("duplicated identifier.", node->Where());
 }
 
 void SymbolTable::visit(ClassDecl *node)
@@ -139,13 +156,12 @@ void SymbolTable::visit(ClassDecl *node)
 	auto clsSymbol = node->getClsSymbol();
 	currentScope = clsSymbol;
 	currentClassSymbol = clsSymbol;
-
 	//deal with members
 	auto members = node->getMembers();
 	for (auto &decl : members) 
 		if(!decl->isVarDecl()){   // variable members has been defined in <GlobalFuncAndClsVisitor>
 			decl->accept(*this);
-			currentScope = currentClassSymbol;
+			currentScope = clsSymbol;
 		}
 }
 
@@ -199,10 +215,15 @@ void SymbolTable::visit(ReturnStmt * node)
 void SymbolTable::visit(BreakStmt * node)
 {
 	if (loops.empty())
-		throw new SemanticError("'break' must be in a loop.", node->Where());
+		throw SemanticError("'break' must be in a loop.", node->Where());
 	node->setLoop(loops.top());
 }
 
 
-
+void SymbolTable::visit(ContinueStmt * node)
+{
+	if(loops.empty())
+		throw SemanticError("'continue' must be in a loop.", node->Where());
+	node->setLoop(loops.top());
+}
 

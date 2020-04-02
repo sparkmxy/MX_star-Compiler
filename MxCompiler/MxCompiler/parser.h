@@ -142,7 +142,9 @@ private:
 	// FormalArgment = Type Identifier
 	std::shared_ptr<VarDeclStmt> formalArgument();
 
-	std::shared_ptr<Statement> singleStmtOrBlock();
+	std::shared_ptr<StmtBlock> singleStmtOrBlock();
+
+	std::shared_ptr<NewExpr> newWithConstructor();
 
 	std::shared_ptr<FunctionDecl> constructor(const std::string &className);
 

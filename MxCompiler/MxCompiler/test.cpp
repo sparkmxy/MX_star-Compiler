@@ -3,8 +3,8 @@
 
 void Test::test1()
 {
-	for (int i = 1; i <= 68; i++) {
-		auto src = "codegen/t" + std::to_string(i) + ".mx";
+	for (int i = 1; i <= 9; i++) {
+		auto src = "sema/breakcontinue-package/breakcontinue-" + std::to_string(i) + ".mx";
 		if (!runTestCase(src)) return;
 	}
 	congratulations();
@@ -12,8 +12,8 @@ void Test::test1()
 
 void Test::test2()
 {
-	for (int i = 1; i <= 10; i++) {
-		auto src = "codegen/e" + std::to_string(i) + ".mx";
+	for (int i = 1; i <= 71; i++) {
+		auto src = "sema/basic-package/basic-" + std::to_string(i) + ".mx";
 		if (!runTestCase(src)) return;
 	}
 	congratulations();
@@ -23,7 +23,7 @@ bool Test::runTestCase(std::string src)
 {
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7);
 	drawRule(src);
-	bool ok = complie("test/" + src);
+	bool ok = compile("test/" + src);
 	if (!ok) {
 		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED);
 		std::cout << "FAIL" << std::endl;
@@ -35,14 +35,14 @@ bool Test::runTestCase(std::string src)
 	return ok;
 }
 
-bool Test::complie(std::string src) {
-	MxCompiler complier(src);
+bool Test::compile(std::string src) {
+	MxCompiler compiler(src);
 	try
 	{
-		complier.getCode();
-		complier.parse();
-		complier.buildAST();
-		complier.semanticCheck();
+		compiler.getCode();
+		compiler.parse();
+		compiler.buildAST();
+		compiler.semanticCheck();
 	}
 	catch (Error & err)
 	{

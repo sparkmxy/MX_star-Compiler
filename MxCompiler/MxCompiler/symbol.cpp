@@ -12,6 +12,11 @@ symbolTypeOfNode(Type *node, std::shared_ptr<GlobalScope> globalScope) {
 	return globalScope->resolveType(node->getIdentifier());
 }
 
+bool isLeagalName(const std::string & id)
+{
+	return id[0] != '_';
+}
+
 
 std::shared_ptr<Symbol> ClassSymbol::resolveMember(const std::string & id)
 {
@@ -34,6 +39,12 @@ bool ClassSymbol::compatible(std::shared_ptr<SymbolType> type)
 void ClassSymbol::define(std::shared_ptr<Symbol> symbol)
 {
 	std::string id = symbol->getSymbolName();
+	if (!isLeagalName(id))
+		throw SemanticError("illegal identifier: " + id, symbol->getDecl()->Where());
+
+	if (!isLeagalName(id))
+		throw SemanticError("illegal identifier: " + id,symbol->getDecl()->Where());
+
 	if (memberVars.find(id) != memberVars.end() ||
 		memberFuncs.find(id) != memberFuncs.end())
 		throw SemanticError("Duplicated identifier", symbol->getDecl()->Where());
@@ -54,15 +65,24 @@ std::shared_ptr<Symbol> ClassSymbol::resolve(const std::string & id)
 	return member == nullptr ? getEnclosingScope()->resolve(id) : member;
 }
 
+void ClassSymbol::setConstructor(std::shared_ptr<FunctionSymbol> _constructor)
+{
+	constructor = _constructor;
+}
+
 void FunctionSymbol::define(std::shared_ptr<Symbol> symbol)
 {
+	auto id = symbol->getSymbolName();
+	if (!isLeagalName(id))
+		throw SemanticError("illegal identifier: " + id, symbol->getDecl()->Where());
+
 	if (symbol->category() != VAR)
 		throw SemanticError("argument can only be variable",symbol->getDecl()->Where());
 	if (args.find(symbol->getSymbolName()) != args.end())
 		throw SemanticError("Duplicated identifier for argument(s).", symbol->getDecl()->Where());
 
 	symbol->setScope(shared_from_this());
-	args[symbol->getSymbolName()] = std::static_pointer_cast<VarSymbol>(symbol);
+	args[id] = std::static_pointer_cast<VarSymbol>(symbol);
 	formalArgs.push_back(std::static_pointer_cast<VarSymbol>(symbol));
 }
 

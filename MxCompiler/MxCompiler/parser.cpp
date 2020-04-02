@@ -77,7 +77,17 @@ std::shared_ptr<NewExpr> Parser::newExpr() {
 	cur++;
 	
 	std::shared_ptr<Type> baseType = basicType();
-	if (baseType == nullptr) return nullptr;
+
+	if ((*cur)->tag() == LeftBracket) {  // Call Constructor
+		std::vector<std::shared_ptr<Expression> >args;
+		cur++;  // skip '('
+		args = arguments();
+		if ((*cur)->tag() != RightBracket)
+			throw SyntaxError("missing ')'", (*cur)->pos().first);
+		cur++;  // skip ')'
+		return newNode<NewExpr>(st, (*cur)->pos().second, baseType, args);
+	}
+
 	std::vector<std::shared_ptr<Expression>> dimensions;
 
 	bool noDim = false;
@@ -353,9 +363,9 @@ std::shared_ptr<ForStmt> Parser::forStmt() {
 		throw SyntaxError("Parser error: missing '('", (*cur)->pos().first);
 	cur++;
 
-	std::shared_ptr<Statement> init = exprStmt();
-	if (init == nullptr) init = multiVarDecl();
-	if (init == nullptr) init = emptyStmt();
+	std::shared_ptr<Statement> init = statement();
+	//if (init == nullptr) init = multiVarDecl();
+	//if (init == nullptr) init = emptyStmt();
 	if(init == nullptr) 
 		throw SyntaxError("Parser error: missing initial statement after 'for'", (*cur)->pos().first);
 	auto condition = expression();
@@ -557,7 +567,7 @@ std::shared_ptr<FunctionDecl> Parser::functionDecl() {
 		throw SyntaxError("Parser error: missing ')'.", (*cur)->pos().first);
 	cur++; // skip ')'
 
-	auto body = stmtBlock();
+	auto body = singleStmtOrBlock();
 	if(body == nullptr)
 		throw SyntaxError("Parser error: missing function body.", (*cur)->pos().first);
 
@@ -667,12 +677,19 @@ std::shared_ptr<VarDeclStmt> Parser::formalArgument() {
 this is for <ForStmt>, <IfStmt> and <WhileStmt>, 
 their body could be a single statment or a block.
 */
-std::shared_ptr<Statement> Parser::singleStmtOrBlock()
+std::shared_ptr<StmtBlock> Parser::singleStmtOrBlock()
 {
 	if ((*cur)->tag() == LeftBrace)  // a block
 		return stmtBlock();
-	return statement();
+
+	auto st = (*cur)->pos().first;
+	std::vector<std::shared_ptr<Statement> > stmts;
+	auto stmt = statement();
+	if (stmt == nullptr) return nullptr;
+	stmts.emplace_back(stmt);
+	return newNode<StmtBlock>(st, (*(cur))->pos().second, stmts);
 }
+
 
 std::shared_ptr<FunctionDecl> Parser::constructor(const std::string & className)
 {

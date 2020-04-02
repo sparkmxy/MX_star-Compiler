@@ -15,7 +15,7 @@ public:
 	virtual std::string getTypeName() const = 0;
 	virtual bool compatible(std::shared_ptr<SymbolType> type) = 0;
 
-	virtual bool isBulitInType() { return false; }
+	virtual bool isBuiltInType() { return false; }
 	virtual bool isArrayType() { return false; }
 	virtual bool isUserDefinedType() { return false; }
 	virtual bool isNull() { return false; }
@@ -96,7 +96,7 @@ public:
 	std::string getTypeName() const override { return getSymbolName(); }
 	bool compatible(std::shared_ptr<SymbolType> type);
 
-	bool isBulitInType() override{ return true; }
+	bool isBuiltInType() override{ return true; }
 
 	SymbolCategory category() const override { return BUILTIN; }
 
@@ -147,9 +147,11 @@ public:
 	std::shared_ptr<Symbol> resolve(const std::string &id) override;
 
 	std::shared_ptr<FunctionSymbol> getConstructor() { return constructor; }
-	void setConstructor(std::shared_ptr<FunctionSymbol> _constructor) { constructor = _constructor; }
+	void setConstructor(std::shared_ptr<FunctionSymbol> _constructor);
 
 	int getSize() override { return size; }
+
+	bool isBuiltInType() override { return getSymbolName() == "string"; }
 private:
 	std::unordered_map<std::string, std::shared_ptr<VarSymbol> >  memberVars;
 	std::unordered_map<std::string, std::shared_ptr<FunctionSymbol> >  memberFuncs;
@@ -174,6 +176,7 @@ public:
 	//IR
 	std::shared_ptr<Function> getModule() { return _module; }
 	void setModule(const std::shared_ptr<Function> &f) { _module = f; }
+
 private:
 	std::unordered_map<std::string, std::shared_ptr<VarSymbol> >  args;
 	std::vector<std::shared_ptr<VarSymbol> > formalArgs;
@@ -194,3 +197,5 @@ public:
 class Type;
 std::shared_ptr<SymbolType>
 symbolTypeOfNode(Type *node, std::shared_ptr<GlobalScope> globalScope);
+
+bool isLeagalName(const std::string &id);

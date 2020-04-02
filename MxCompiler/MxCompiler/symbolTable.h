@@ -35,6 +35,7 @@ private:
 	void visit(BreakStmt *node) override;
 	void visit(VarDeclStmt *node) override;
 	void visit(ExprStmt *node) override;
+	void visit(ContinueStmt *node) override;
 
 	void visit(FuncCallExpr *node) override;
 	void visit(ClassMemberExpr *node) override;
@@ -47,4 +48,8 @@ private:
 
 private:
 	void checkMainFunc();
+	bool isConstructor(const std::string &str) {
+		auto l = str.length();
+		return l >= 6 && str.substr(l - 6, 6) == "::ctor";
+	}
 };

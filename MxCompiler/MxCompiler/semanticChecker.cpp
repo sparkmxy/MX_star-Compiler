@@ -40,7 +40,7 @@ void SemanticChecker::visit(VarDeclStmt * node)
 	else {
 		// set the initial value as default(int : 0 , string : "", bool : false).
 		auto type = node->getSymbolType();
-		if (type->isBulitInType()) {
+		if (type->isBuiltInType()) {
 			if (type->getTypeName() == "int")
 				node->setInitExpr(std::make_shared<NumValue>(0));
 			else
@@ -55,6 +55,9 @@ void SemanticChecker::visit(VarDeclStmt * node)
 		}
 		node->getInitExpr()->accept(*this);
 	}
+
+	if (node->getIdentifier()->name == node->getSymbolType()->getTypeName())
+		throw SemanticError("duplicated identifier.", node->Where());
 }
 
 void SemanticChecker::visit(StmtBlock * node)
@@ -155,7 +158,7 @@ void SemanticChecker::visit(BinaryExpr * node)
 				throw SemanticError("incorrect usage of null", node->Where());
 		}
 		else {  // both are not null
-			if (lhs->getSymbolType()->isBulitInType() && rhs->getSymbolType()->isBulitInType()) {
+			if (lhs->getSymbolType()->isBuiltInType() && rhs->getSymbolType()->isBuiltInType()) {
 				if (lhsType != rhsType)
 					throw SemanticError("only same type can be compared", node->Where());
 			}
@@ -183,15 +186,18 @@ void SemanticChecker::visit(BinaryExpr * node)
 		node->setExprCategory(Expression::LVALUE);
 		node->setSymbolType(std::static_pointer_cast<ArraySymbol>(lhs->getSymbolType())->getBaseType());
 	}
+	else if (isComparisonOperator(op)) { // string op string or int op int
+		node->setExprCategory(Expression::RVALUE);
+		node->setSymbolType(boolSymbol);
+		if (!((lhsType == "int" && rhsType == "int") || (lhsType == "string" && rhsType == "string"))) 
+			throw SemanticError("oprand type does not fit the operator.", node->Where());
+	}
 	else {  // interger-only operators :
 		// both operands must be int
 		if (lhsType != "int" || rhsType != "int")
 			throw SemanticError("both operands must be int", node->Where());
 		node->setExprCategory(Expression::RVALUE);
-		if (isComparisonOperator(op))
-			node->setSymbolType(boolSymbol);
-		else 
-			node->setSymbolType(intSymbol);
+		node->setSymbolType(intSymbol);
 	}
 }
 
@@ -264,6 +270,7 @@ void SemanticChecker::visit(FuncCallExpr * node)
 	auto args = node->getArgs();
 	auto func = std::static_pointer_cast<FunctionSymbol>(
 		node->getIdentifierExpr()->getSymbol());
+	node->setFuncSymbol(func);
 	for (auto &arg : args) arg->accept(*this);
 	auto formalArgs = func->getFormalArgs();
 	if (args.size() > formalArgs.size())
@@ -286,6 +293,8 @@ void SemanticChecker::visit(IdentifierExpr * node)
 	if (node->getIdentifier()->name == "this") return;
 	auto symbol = node->getSymbol();
 	node->setSymbolType(symbol->getType());
+	if (symbol->getSymbolName() == symbol->getType()->getTypeName())
+		throw SemanticError("identifier is a typename.",node->Where());
 	if (symbol->category() == Symbol::VAR)
 		node->setExprCategory(Expression::LVALUE);
 	else if (symbol->category() == Symbol::CLASS)
@@ -306,10 +315,8 @@ void SemanticChecker::visit(NewExpr * node)
 
 	auto type = node->getSymbolType();
 
-	if (type->isUserDefinedType()) { // might have constructor
-		auto ctor = std::static_pointer_cast<ClassSymbol>(type)->getConstructor();
-		if (ctor != nullptr) node->setConstructor(ctor);
-	}
+	if (node->getConstructor() != nullptr && node->getCtorCall() != nullptr)
+		node->getCtorCall()->accept(*this);
 }
 
 void SemanticChecker::visit(UnaryExpr * node)

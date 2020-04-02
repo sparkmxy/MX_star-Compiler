@@ -1,6 +1,6 @@
 #include "MxCompiler.h"
 
-// #define SHOW_TOKENS
+//#define SHOW_TOKENS
 
 void MxCompiler::complie()
 {
