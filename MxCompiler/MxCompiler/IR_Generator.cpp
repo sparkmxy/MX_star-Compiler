@@ -11,6 +11,52 @@ void IR_Generator::visit(ProgramAST * node)
 		if (!decl->isVarDecl()) decl->accept(*this);
 }
 
+
+void IR_Generator::generate()
+{
+	builtInFunctionInit();
+	visit(ast.get());
+}
+
+void IR_Generator::builtInFunctionInit()
+{
+	std::shared_ptr<FunctionSymbol> symbol;
+	// member functions of class <string>
+	symbol = std::static_pointer_cast<FunctionSymbol>(global->getStringSymbol()->resolve("length"));
+	symbol->setModule(ir->stringLength);
+
+	symbol = std::static_pointer_cast<FunctionSymbol>(global->getStringSymbol()->resolve("parseInt"));
+	symbol->setModule(ir->parseInt);
+
+	symbol = std::static_pointer_cast<FunctionSymbol>(global->getStringSymbol()->resolve("substring"));
+	symbol->setModule(ir->substring);
+
+	symbol = std::static_pointer_cast<FunctionSymbol>(global->getStringSymbol()->resolve("ord"));
+	symbol->setModule(ir->ord);
+
+	symbol = std::static_pointer_cast<FunctionSymbol>(global->resolve("getString"));
+	symbol->setModule(ir->getString);
+
+	symbol = std::static_pointer_cast<FunctionSymbol>(global->resolve("print"));
+	symbol->setModule(ir->print);
+
+	symbol = std::static_pointer_cast<FunctionSymbol>(global->resolve("println"));
+	symbol->setModule(ir->println);
+
+	//functions about <int>
+	symbol = std::static_pointer_cast<FunctionSymbol>(global->resolve("getInt"));
+	symbol->setModule(ir->getInt);
+
+	symbol = std::static_pointer_cast<FunctionSymbol>(global->resolve("toString"));
+	symbol->setModule(ir->toString);
+
+	symbol = std::static_pointer_cast<FunctionSymbol>(global->resolve("printInt"));
+	symbol->setModule(ir->printInt);
+
+	symbol = std::static_pointer_cast<FunctionSymbol>(global->resolve("printlnInt"));
+	symbol->setModule(ir->printlnInt);
+}
+
 void IR_Generator::visit(MultiVarDecl * node)
 {
 	auto vars = node->getDecls();
@@ -20,16 +66,16 @@ void IR_Generator::visit(MultiVarDecl * node)
 void IR_Generator::visit(VarDeclStmt * node)
 {
 	auto varSymbol = node->getVarSymbol();
-	auto reg = std::make_shared<VirtualReg>(Operand::REG_REF,node->getIdentifier()->name);
+	auto reg = std::make_shared<VirtualReg>(Operand::REG_VAL,node->getIdentifier()->name);
 	varSymbol->setReg(reg);
-	if (scanGlobalVar)  // global variable
+	if (scanGlobalVar)  // record global variable so that we can print it later 
 		ir->addGlobalVar(reg);
 	else {
 		if (currentFunction != nullptr && node->isArgument())
 			currentFunction->appendArg(reg);
 		auto initExpr = node->getInitExpr();
 		if (initExpr != nullptr) {
-			initExpr->accept(*this);
+			//initExpr->accept(*this);
 			assign(reg, initExpr.get());
 		}
 	}
@@ -38,18 +84,21 @@ void IR_Generator::visit(VarDeclStmt * node)
 void IR_Generator::visit(FunctionDecl * node)   // Function is linked to function symbol here
 {
 	auto symbol = node->getFuncSymbol();
-	auto funcModule = std::make_shared<Function>(symbol->getSymbolName());    
+	auto funcModule = newFunction(symbol->getSymbolName(), node->getRetType());    
 	if (currentClsSymbol != nullptr)
 		funcModule->setObjRef(std::make_shared<VirtualReg>(Operand::REG_VAL, "this"));
 	symbol->setModule(funcModule);
 	currentFunction = funcModule;
-	ir->addFunction(funcModule);
 	currentBlock = currentFunction->getEntry();
-	
 	auto args = node->getArgs();
 	for (auto &arg : args) arg->accept(*this);
 	node->getBody()->accept(*this);
+	currentFunction = nullptr;
 
+	ir->addFunction(funcModule);
+
+	//build dominance tree
+	funcModule->initDT(std::make_shared<DominatorTree>(funcModule));
 }
 
 /*
@@ -65,9 +114,10 @@ void IR_Generator::visit(ClassDecl * node)
 	for (auto &member : members) 
 		if(!member->isVarDecl()){
 			auto symbol = std::static_pointer_cast<FunctionDecl>(member)->getFuncSymbol();
+			auto retType = std::static_pointer_cast<FunctionDecl>(member)->getRetType();
 			auto funcName = node->getClsSymbol()->getSymbolName() 
 				+ "::" + symbol->getScopeName();
-			symbol->setModule(std::make_shared<Function>(funcName));
+			symbol->setModule(newFunction(funcName, retType));
 		}
 	currentClsSymbol = nullptr;
 }
@@ -592,6 +642,7 @@ IR_Generator::allocateMemory(std::shared_ptr<Operand> addrReg, std::shared_ptr<O
 		return addrReg;
 	}
 }
+
 
 void IR_Generator::arraySize(MemberFuncCallExpr * node)
 {

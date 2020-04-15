@@ -7,6 +7,7 @@
 #include "environment.h"
 #include "IR.h"
 #include "IR_Generator.h"
+#include "ir_printer.h"
 
 class MxCompiler {
 public:
@@ -14,13 +15,16 @@ public:
 	
 	void complie();
 	void semantic();
+	void printIR(std::ostream &os = std::cerr);
+
+private:
+	void semanticCheck();
 	void getCode();
 	void parse();
 	void buildAST();
-	void semanticCheck();
 	void generateIR();
-private:
 
+	/*Input file*/
 	std::ifstream src;
 	std::string fileName;
 

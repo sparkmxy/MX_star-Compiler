@@ -2,16 +2,21 @@
 
 #include "pch.h"
 #include "IRinstruction.h"
+#include "cfg_visitor.h"
 
-class DominanceTree;
 class BasicBlock;
+class DominatorTree;
 /*
 Class: Function
 The main component of a function module is its control flow graph. 
+Warning: Do not call the Constructor directly, use newFunction()(c.f. ir.h) instead.
 */
-class Function {
+class Function : public std::enable_shared_from_this<Function>{
 public:
-	Function(const std::string &_name) : name(_name) {}
+	Function(const std::string &_name, std::shared_ptr<Type> retType) 
+		: name(_name){
+		_isVoid = (retType == nullptr);
+	}
 
 	void appendReturnInstr(std::shared_ptr<Return> ret);
 	void appendArg(std::shared_ptr<Register> arg);
@@ -28,14 +33,21 @@ public:
 	std::shared_ptr<Operand> getObjRef() { return objRef; }
 	void setObjRef(const std::shared_ptr<Operand> &ref) { objRef = ref; }
 
-	std::vector<std::shared_ptr<BasicBlock> > &getBlockList() { return blocks; }
+	void appendBlocktoList(std::shared_ptr<BasicBlock> b) { blocks.push_back(b); }
+	std::vector<std::shared_ptr<BasicBlock> > &getBlockList() { return blocks;}
 	//for SSA
 
-	std::shared_ptr<DominanceTree> getDT() { return dt; }
-	void initDT(std::shared_ptr<DominanceTree> _dt) { dt = _dt; }
+	std::shared_ptr<DominatorTree> getDT() { return dt; }
+	void initDT(std::shared_ptr<DominatorTree> _dt) { dt = _dt; }
 	void append_var(std::shared_ptr<VirtualReg> reg) { vars.emplace_back(reg); }
 	std::vector<std::shared_ptr<VirtualReg> > &getVars() { return vars; }
+
+	bool isVoid() { return _isVoid; }
+
+	ACCEPT_CFG_VISITOR
 private:
+
+	bool _isVoid;
 	std::shared_ptr<BasicBlock> entry, exit;
 	std::string name;
 
@@ -45,7 +57,7 @@ private:
 	std::shared_ptr<Operand> objRef;
 
 	//for SSA
-	std::shared_ptr<DominanceTree> dt;
+	std::shared_ptr<DominatorTree> dt;
 	//return a list of block in this function module in DFS order on dominance tree;
 	std::vector<std::shared_ptr<BasicBlock> > blocks;
 	std::vector<std::shared_ptr<VirtualReg> > vars;

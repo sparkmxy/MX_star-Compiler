@@ -1,11 +1,24 @@
 #pragma once
 
 #include "pch.h"	
-#include "IR.h"
-#include "Function.h"
-#include "basicblock.h"
 
-class CFG_Vistor {
+#define ACCEPT_CFG_VISITOR void accept (CFG_Visitor &vis) {vis.visit(this);} 
+
+class IR;
+class Function;
+class BasicBlock;
+class Quadruple;
+class Branch;
+class Call;
+class Malloc;
+class Return;
+class Jump;
+class PhiFunction;
+class Register;
+class StaticString;
+class Immediate;
+
+class CFG_Visitor {
 public:
 	virtual void visit(IR *ir) {}
 
@@ -27,4 +40,9 @@ public:
 	virtual void visit(Jump *j){}
 
 	virtual void visit(PhiFunction *p){}
+
+	/*For Operands*/
+	virtual void visit(Register *r) {}
+	virtual void visit(StaticString *s){}
+	virtual void visit(Immediate *i){}
 };

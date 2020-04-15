@@ -40,6 +40,7 @@ void SymbolTable::visit(VarDeclStmt *node) {
 	auto var = std::make_shared<VarSymbol>(node->getIdentifier()->name, type, node);
 	node->setVarSymbol(var);
 	currentScope->define(var); //need to check whether currentScope == globalScope ?
+
 	std::clog << "define variable " << var->getSymbolName()
 		<< " in scopce " << currentScope->getScopeName() << '\n';
 }

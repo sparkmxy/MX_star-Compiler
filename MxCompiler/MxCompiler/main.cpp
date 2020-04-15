@@ -6,9 +6,7 @@
 int main() {
 	freopen("log.txt", "w", stderr);
 	Test test;
-	//test.test1();
-	//test.test2();
-	test.runTestCase("sema/scope-package/scope-2.mx");
+	test.runAndPrintIRCode("sema/basic-package/basic-3.mx");
 	system("pause");
 	return 0;
 }

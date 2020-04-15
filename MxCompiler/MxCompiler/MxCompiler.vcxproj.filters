@@ -13,9 +13,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="头文件\AST">
-      <UniqueIdentifier>{e198161b-6ea6-4e92-aee6-94f951b23837}</UniqueIdentifier>
-    </Filter>
     <Filter Include="头文件\IR">
       <UniqueIdentifier>{00b50e20-ac42-43d8-b395-c8babb46bdad}</UniqueIdentifier>
     </Filter>
@@ -58,6 +55,18 @@
     <Filter Include="头文件\IR\IRprinter">
       <UniqueIdentifier>{36eddb88-c5da-4ac2-becc-af3248e7283b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="头文件\IR\AST">
+      <UniqueIdentifier>{e198161b-6ea6-4e92-aee6-94f951b23837}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\backend\codegen">
+      <UniqueIdentifier>{2bdce1c3-decb-4af6-bc62-345199b76188}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\backend\codegen">
+      <UniqueIdentifier>{09cc912b-5426-4079-acb3-a17d521e5aa9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\IR\IRprinter">
+      <UniqueIdentifier>{870efc3d-65c7-4ec5-a988-c1feebbc70fe}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -91,10 +100,10 @@
       <Filter>头文件\frontend\semantic</Filter>
     </ClInclude>
     <ClInclude Include="astnode.h">
-      <Filter>头文件\AST</Filter>
+      <Filter>头文件\IR\AST</Filter>
     </ClInclude>
     <ClInclude Include="visitor.h">
-      <Filter>头文件\AST</Filter>
+      <Filter>头文件\IR\AST</Filter>
     </ClInclude>
     <ClInclude Include="environment.h">
       <Filter>头文件\frontend\semantic</Filter>
@@ -223,6 +232,9 @@
     </ClCompile>
     <ClCompile Include="MxCompiler.cpp">
       <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="ir_printer.cpp">
+      <Filter>源文件\IR\IRprinter</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

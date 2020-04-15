@@ -35,14 +35,28 @@ bool Test::runTestCase(std::string src)
 	return ok;
 }
 
+void Test::runAndPrintIRCode(std::string src)
+{
+	MxCompiler compiler("test/" + src);
+	try
+	{
+		compiler.complie();
+	}
+	catch (Error & err)
+	{
+		std::cout << err.what() << std::endl;
+		std::clog << err.what() << std::endl;
+		return;
+	}
+	compiler.printIR();
+	std::clog << "FINISHED\n";
+}
+
 bool Test::compile(std::string src) {
 	MxCompiler compiler(src);
 	try
 	{
-		compiler.getCode();
-		compiler.parse();
-		compiler.buildAST();
-		compiler.semanticCheck();
+		compiler.complie();
 	}
 	catch (Error & err)
 	{

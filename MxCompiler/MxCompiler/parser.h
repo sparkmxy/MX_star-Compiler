@@ -144,8 +144,6 @@ private:
 
 	std::shared_ptr<StmtBlock> singleStmtOrBlock();
 
-	std::shared_ptr<NewExpr> newWithConstructor();
-
 	std::shared_ptr<FunctionDecl> constructor(const std::string &className);
 
 	template<class T, class...Args>

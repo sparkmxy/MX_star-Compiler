@@ -2,7 +2,6 @@
 
 void SSAConstructor::constructSSA()
 {
-	initDT();
 	collectVariales();
 	insertPhiFunction();
 	renameVariables();
@@ -12,7 +11,7 @@ void SSAConstructor::initDT()
 {
 	auto &functions = ir->getFunctions();
 	for (auto function : functions) 
-		function->initDT(std::make_shared<DominanceTree>(function));
+		function->initDT(std::make_shared<DominatorTree>(function));
 }
 
 void SSAConstructor::insertPhiFunction()

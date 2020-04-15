@@ -62,9 +62,15 @@ void MxCompiler::semanticCheck()
 	std::cout << "Passed semantic check!" << std::endl;
 }
 
+void MxCompiler::printIR(std::ostream &os)
+{
+	auto printer = std::make_shared<IR_Printer>(ir, os);
+	printer->print();
+}
+
 void MxCompiler::generateIR()
 {
-	irGenerator = std::make_shared<IR_Generator>(environment->globalScope());
-	irGenerator->visit(ast.get());
+	irGenerator = std::make_shared<IR_Generator>(environment->globalScope(),ast);
+	irGenerator->generate();
 	ir = irGenerator->getIR();
 }

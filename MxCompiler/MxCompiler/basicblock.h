@@ -2,6 +2,7 @@
 
 #include "pch.h"
 #include "IRinstruction.h"
+#include "cfg_visitor.h"
 #include "Function.h"
 
 /*
@@ -18,10 +19,21 @@ struct DT_Info {
 /*
 Class: BasicBlock
 */
+
+static const std::string namesForBasicBlocks[] = {
+	"entry", "exit",
+	"for_body", "for_cond", "for_iter", "for_final",
+	"while _body", "while_cond", "while_final",
+	"if_true", "if_false", "if_final",
+	"true", "false", "final",
+	"lhs_true", "lhs_false"
+};
+
 class BasicBlock : public std::enable_shared_from_this<BasicBlock>{
 public:
 	enum Tag  // for debugging
 	{
+		ENTRY, EXIT,
 		FOR_BODY, FOR_COND, FOR_ITER, FOR_FINAL,
 		WHILE_BODY, WHILE_COND, WHILE_FINAL,
 		IF_TRUE, IF_FALSE, IF_FINAL,
@@ -38,6 +50,9 @@ public:
 	void append_front(std::shared_ptr<IRInstruction> instr);
 	void append_back(std::shared_ptr<IRInstruction> instr);
 	void remove_back();
+
+	std::shared_ptr<IRInstruction> getFront() { return front; }
+	std::shared_ptr<IRInstruction> getBack() { return back; }
 	
 	void append_from(std::shared_ptr<BasicBlock> block);
 	void append_to(std::shared_ptr<BasicBlock> block);
@@ -53,7 +68,9 @@ public:
 	std::unordered_set<std::shared_ptr<BasicBlock> > &getBlocksTo() { return to; }
 	std::unordered_set<std::shared_ptr<BasicBlock> > &getBlocksFrom() { return from; }
 
-	std::shared_ptr<IRInstruction> getFront() { return front; }
+	std::string toString() { return namesForBasicBlocks[tag]; }
+
+	ACCEPT_CFG_VISITOR
 
 private:
 	Tag tag;

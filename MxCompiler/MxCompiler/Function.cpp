@@ -1,5 +1,6 @@
 #include "Function.h"
 
+
 void Function::appendReturnInstr(std::shared_ptr<Return> ret)
 {
 	retInstrs.emplace_back(ret);

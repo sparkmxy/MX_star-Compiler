@@ -8,6 +8,7 @@ public:
 	void test1();
 	void test2();
 	bool runTestCase(std::string src);
+	void runAndPrintIRCode(std::string src);
 private:
 
 	bool compile(std::string src);

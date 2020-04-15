@@ -1,7 +1,7 @@
 #pragma once
 
 #include "pch.h"
-
+#include "cfg_visitor.h"
 
 class BasicBlock;
 
@@ -16,6 +16,7 @@ public:
 	};
 	virtual Category category() = 0;
 	static bool isRegister(Category tag) { return tag == REG_REF || tag == REG_VAL; }
+	virtual void accept(CFG_Visitor &vis) = 0;
 };
 
 /*
@@ -32,6 +33,9 @@ public:
 	std::string getName() { return name; }
 
 	Category category() override { return tag; }
+
+	ACCEPT_CFG_VISITOR
+
 private:
 	std::string name;
 	Category tag;
@@ -41,8 +45,9 @@ class Immediate : public Operand {
 public:
 	Immediate(int _val) : value(_val) {}
 	int getValue() { return value; }
-
 	Category category() override { return IMM; }
+
+	ACCEPT_CFG_VISITOR
 private:
 	int value;
 };
@@ -95,6 +100,7 @@ public:
 	std::shared_ptr<VirtualReg> getReg() { return reg; }
 	void setReg(std::shared_ptr<VirtualReg> _reg) { reg = _reg; }
 
+	ACCEPT_CFG_VISITOR
 private:
 	std::string text;
 	std::shared_ptr<VirtualReg> reg;

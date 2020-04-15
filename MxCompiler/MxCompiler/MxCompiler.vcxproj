@@ -159,6 +159,7 @@
     <ClCompile Include="IR.cpp" />
     <ClCompile Include="IRinstruction.cpp" />
     <ClCompile Include="IR_Generator.cpp" />
+    <ClCompile Include="ir_printer.cpp" />
     <ClCompile Include="lexer.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MxCompiler.cpp" />

@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "Operand.h"
 #include "astnode.h"
+#include "cfg_visitor.h"
 
 class BasicBlock;
 class Function;
@@ -44,6 +45,7 @@ public:
 	virtual std::shared_ptr<Register> getDefReg() { return nullptr; }
 	virtual void setDefReg(std::shared_ptr<Register> _defReg) {}
 
+	virtual void accept(CFG_Visitor &vis) = 0;
 	
 protected:
 	std::shared_ptr<BasicBlock> residingBlock;
@@ -96,6 +98,8 @@ public:
 	std::shared_ptr<Register> getDefReg() override
 	{ return std::static_pointer_cast<Register>(dst); } // is this safe ?
 	void setDefReg(std::shared_ptr<Register> _defReg) override { dst = _defReg; }
+
+	ACCEPT_CFG_VISITOR
 private:
 	std::shared_ptr<Operand> dst, src1, src2;
 	Operator op;
@@ -121,6 +125,8 @@ public:
 	void renameUseRegs(std::unordered_map<std::shared_ptr<Register>,
 		std::shared_ptr<Register> > &table)override;
 	void updateUseRegs()override;
+
+	ACCEPT_CFG_VISITOR
 private:
 	std::shared_ptr<Operand> condition;
 	std::shared_ptr<BasicBlock> trueBlock, falseBlock;
@@ -153,6 +159,8 @@ public:
 
 	virtual std::shared_ptr<Register> getDefReg() override;
 	virtual void setDefReg(std::shared_ptr<Register> _defReg) override;
+
+	ACCEPT_CFG_VISITOR
 private:
 	std::shared_ptr<Function> func;
 	std::shared_ptr<Operand> result;
@@ -182,6 +190,8 @@ public:
 		return std::static_pointer_cast<Register>(ptr);
 	} // is this safe ?
 	void setDefReg(std::shared_ptr<Register> _defReg) override { ptr = _defReg; }
+
+	ACCEPT_CFG_VISITOR
 private:
 	std::shared_ptr<Operand> size, ptr;
 };
@@ -197,6 +207,8 @@ public:
 	virtual void renameUseRegs(std::unordered_map<std::shared_ptr<Register>,
 		std::shared_ptr<Register> > &table)override;
 	virtual void updateUseRegs()override;
+
+	ACCEPT_CFG_VISITOR
 private:
 	std::shared_ptr<Operand> value;
 };
@@ -209,6 +221,8 @@ public:
 	std::shared_ptr<BasicBlock> getTarget() { return target; }
 	void setTarget(const std::shared_ptr<BasicBlock> &_target) { target = _target; }
 	// virtual functions by default
+
+	ACCEPT_CFG_VISITOR
 private:
 	std::shared_ptr<BasicBlock> target;
 };
@@ -227,6 +241,8 @@ public:
 	//override functions
 	virtual std::shared_ptr<Register> getDefReg() override;
 	virtual void setDefReg(std::shared_ptr<Register> _defReg) override;
+
+	ACCEPT_CFG_VISITOR
 private:
 	std::shared_ptr<Register> dst;
 	std::unordered_set<std::shared_ptr<Register> > relatedReg;

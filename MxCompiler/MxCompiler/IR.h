@@ -3,6 +3,8 @@
 #include "pch.h"
 #include "Operand.h"
 #include "Function.h"
+#include "cfg_visitor.h"
+#include "basicblock.h"
 
 class IR {
 public:
@@ -17,9 +19,15 @@ public:
 
 	std::vector<std::shared_ptr<Function> > & getFunctions() { return functions; }
 	std::vector<std::shared_ptr<Register> > & getGlbVars() { return glbVars; }
+
+	ACCEPT_CFG_VISITOR
 private:
 	std::vector<std::shared_ptr<Register> > glbVars;
 	std::vector<std::shared_ptr<Function> > functions;
 	
-	std::shared_ptr<Function> newBuiltInFunc(const std::string &name);
+	std::shared_ptr<Function> 
+		newBuiltInFunc(const std::string &name, std::shared_ptr<Type> retType = nullptr);
 };
+
+// return 
+std::shared_ptr<Function> newFunction(const std::string &_name, std::shared_ptr<Type> retType);

@@ -131,7 +131,7 @@ public:
 	std::shared_ptr<Operand> getResultOprand() { return result; }
 	void setResultOprand(const std::shared_ptr<Operand> &op) { result = op; }
 	
-	bool isControl() { return trueBlock == nullptr; }
+	bool isControl() { return trueBlock != nullptr; }
 	ACCEPT_VISITOR_VIRTUAL
 private:
 	//semantic

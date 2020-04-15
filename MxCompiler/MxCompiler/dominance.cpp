@@ -1,26 +1,28 @@
 #include "dominance.h"
 
-bool DominanceTree::isDominating(std::shared_ptr<BasicBlock> x, std::shared_ptr<BasicBlock> y)
+bool DominatorTree::isDominating(std::shared_ptr<BasicBlock> x, std::shared_ptr<BasicBlock> y)
 {
 	auto &x_info = x->getDTInfo();
 	int y_dfn = y->getDTInfo().dt_dfn;
 	return x_info.dt_dfn <= y_dfn && y_dfn <= x_info.dt_dfn_r;
 }
 
-void DominanceTree::DFS(std::shared_ptr<BasicBlock> x, std::shared_ptr<BasicBlock> father, int dep)
+void DominatorTree::DFS(std::shared_ptr<BasicBlock> x, std::shared_ptr<BasicBlock> father, int dep)
 {
 	visited.insert(x);
 	x->getDTInfo().dfn = dfs_clock++;
 	x->getDTInfo().depth = dep;
 	fa.push_back(father);
 	idfn.push_back(x);
+	x->getDTInfo().sdom = x;  // initialize sdom
+	x->getDTInfo().idom = f->getEntry();
 	auto &edges = x->getBlocksTo();
 	for (auto &y : edges) 
 		if(visited.find(y) == visited.end())
 			DFS(y, x, dep + 1);
 }
 
-void DominanceTree::workOutIdoms()
+void DominatorTree::workOutIdoms()
 {
 	for (int i = idfn.size() - 1; i > 1; i--) {
 		auto x = idfn[i];
@@ -29,16 +31,16 @@ void DominanceTree::workOutIdoms()
 			int j = y->getDTInfo().dfn;
 			find(j);
 			auto z = idfn[val[j]]->getDTInfo().sdom;
-			if (z->getDTInfo().dt_dfn < x->getDTInfo().sdom->getDTInfo().dfn)
+			if (z->getDTInfo().dfn < x->getDTInfo().sdom->getDTInfo().dfn)  
 				x->getDTInfo().sdom = z;
 		}
-		S[x->getDTInfo().dfn] = fa[i]->getDTInfo().dfn;
+		S[x->getDTInfo().dfn] = fa[i]->getDTInfo().dfn;   // link this node to its parent
 		sdomEqcls[x->getDTInfo().sdom].push_back(x);
 		for (auto &v : sdomEqcls[fa[i]]) {
 			int v_dfn = v->getDTInfo().dfn;
 			find(v_dfn);
-			if (v->getDTInfo().sdom == idfn[val[v_dfn]]->getDTInfo().sdom)
-				v->getDTInfo().idom = idfn[val[v_dfn]]->getDTInfo().sdom;
+			if (fa[i] == idfn[val[v_dfn]]->getDTInfo().sdom)
+				v->getDTInfo().idom = fa[i];
 			else v->getDTInfo().idom = idfn[val[v_dfn]];
 		}
 		sdomEqcls[fa[i]].clear();
@@ -50,9 +52,10 @@ void DominanceTree::workOutIdoms()
 	}
 }
 
-void DominanceTree::buildDominaceTree(std::shared_ptr<BasicBlock> x)
+void DominatorTree::buildDominaceTree(std::shared_ptr<BasicBlock> x)
 {
 	x->getDTInfo().dt_dfn = dfs_clock++;
+	f->appendBlocktoList(x);
 	auto &edges = x->getBlocksTo();
 	for(auto &y : edges)
 		if (y->getDTInfo().idom != x) {  // this is a J-edge
@@ -65,15 +68,16 @@ void DominanceTree::buildDominaceTree(std::shared_ptr<BasicBlock> x)
 	x->getDTInfo().dt_dfn_r = dfs_clock;
 }
 
-void DominanceTree::union_find_init(int n)
+
+void DominatorTree::union_find_init(int n)
 {
 	val.resize(n);
 	S.resize(n);
-	for (int i = 0; i < n; i++) S[i] = i;
+	for (int i = 0; i < n; i++) S[i] = val[i] = i;
 }
 
-
-int DominanceTree::find(int x)
+// The index of S and val is dfn and val stores dfn
+int DominatorTree::find(int x)
 {
 	if (S[x] == x) return x;
 	int r = find(S[x]);

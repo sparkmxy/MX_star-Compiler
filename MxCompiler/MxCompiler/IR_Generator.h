@@ -8,6 +8,8 @@
 #include "Function.h"
 #include "IR.h"
 #include "basicblock.h"
+#include "dominance.h"
+#include "symbol.h"
 
 /*
 Usage : generator = new IR_Generator(globalScope);
@@ -15,21 +17,32 @@ Usage : generator = new IR_Generator(globalScope);
 class IR_Generator : public Visitor {
 public:
 
-	IR_Generator(std::shared_ptr<GlobalScope> _global) : global(_global) {}
+	IR_Generator(std::shared_ptr<GlobalScope> _global, std::shared_ptr<ProgramAST> _ast) 
+		: ast(_ast), global(_global) {
+		ir = std::shared_ptr<IR>(new IR());
+	}
 
+	void generate();
 	std::shared_ptr<IR> getIR() { return ir; }
-
-	void visit(ProgramAST *node) override;
 
 private:
 	std::shared_ptr<IR> ir;
+	std::shared_ptr<ProgramAST> ast;
 	std::shared_ptr<GlobalScope> global;
 
 	bool scanGlobalVar;
 	std::shared_ptr<Function> currentFunction;
 	std::shared_ptr<ClassSymbol> currentClsSymbol;
 	std::shared_ptr<BasicBlock> currentBlock;
+
+	/*
+		Associate built-in function modules with their symbols.
+		Their symbols are defined in environment.cpp.
+	*/
+	void builtInFunctionInit();
+
 	// override visitor functions 
+	void visit(ProgramAST *node) override;
 
 	void visit(MultiVarDecl *node) override;
 	void visit(VarDeclStmt *node) override;
