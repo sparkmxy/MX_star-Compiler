@@ -11,9 +11,15 @@ void IR_Printer::print()
 void IR_Printer::visit(IR * ir)
 {
 	auto glbVars = ir->getGlbVars();
+	// Global variables
 	for (auto &var : glbVars)
-		os << "@" << var->getName() << '\n';
-	// Shall we deal with static strings ? 
+		os << "@" << getName(var.get()) << '\n';
+	// StringConstants
+
+	auto strings = ir->getStringConstants();
+	for (auto &str : strings)
+		os << "@" << getName(str->getReg().get()) << " = \"" << str->getText() << "\"\n";
+
 	auto functions = ir->getFunctions();
 	for (auto &f : functions) f->accept(*this);
 }
@@ -21,7 +27,14 @@ void IR_Printer::visit(IR * ir)
 void IR_Printer::visit(Function * f)
 {
 	auto retType = f->isVoid() ?  "void" : "i32";
-	os << "def " << retType << " @" << f->getName() << "{ \n";
+	os << "def " << retType << " @" << f->getName() << ' '; 
+
+	auto args = f->getArgs();
+	for (auto &arg : args) {
+		arg->accept(*this);
+		os << ' ';
+	}
+	os << " { \n";
 	auto blocks = f->getBlockList();
 	for (auto &block : blocks) block->accept(*this);
 	os << "}\n";
@@ -29,7 +42,7 @@ void IR_Printer::visit(Function * f)
 
 void IR_Printer::visit(BasicBlock * b)
 {
-	os << getLabel(b) << ":\n";
+	os << '$' << getLabel(b) << ":\n";
 	for (auto instr = b->getFront(); instr != nullptr; instr = instr->getNextInstr()) {
 		os << "    ";
 		instr->accept(*this);
@@ -88,7 +101,6 @@ void IR_Printer::visit(Quadruple * q)
 	default:
 		break;
 	}   
-
 	os << op << " ";
 	q->getDst()->accept(*this);
 	os << " ";
@@ -153,12 +165,13 @@ void IR_Printer::visit(PhiFunction * p)
 void IR_Printer::visit(Register * r)
 {
 	// should we make global vars different?
-	os << "%" << getName(r);
+	if (r->isGlobal()) os << "@" << getName(r);
+	else os << "%" << getName(r);
 }
 
 void IR_Printer::visit(StaticString * s)
 {
-	os << "%" << getName(s->getReg().get());
+	os << "@" << getName(s->getReg().get());
 }
 
 void IR_Printer::visit(Immediate * i)
@@ -175,7 +188,7 @@ std::string IR_Printer::getName(Register * reg)
 std::string IR_Printer::newRegName(Register *reg)
 {
 	std::string newNameBase = reg->getName() == "" ? "t" : reg->getName();   
-	// it could be a temperory register with no name, we name it "$t"
+	// it could be a temperory register with no name, we name it "t"
 	auto newName = newNameBase + std::to_string(nameCounter[newNameBase]);
 	nameCounter[newNameBase]++;
 	nameForReg[reg] = newName;
@@ -194,6 +207,7 @@ std::string IR_Printer::newLabel(BasicBlock * block)
 	std::string labelBase = block->toString();
 	auto new_label = labelBase + std::to_string(nameCounter[labelBase]);
 	nameCounter[labelBase]++;
+	label[block] = new_label;
 	return new_label;
 }
 

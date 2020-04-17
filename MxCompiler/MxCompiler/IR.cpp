@@ -16,7 +16,11 @@ IR::IR()
 	stringAdd = newBuiltInFunc("string.add", stringType);
 	stringNEQ = newBuiltInFunc("string.neq", boolType);
 	stringEQ = newBuiltInFunc("string.eq", boolType);
-
+	stringLESS = newBuiltInFunc("string.less", boolType);
+	stringLEQ = newBuiltInFunc("string.leq", boolType);
+	stringGREATER = newBuiltInFunc("string.greater", boolType);
+	stringGEQ = newBuiltInFunc("string.geq", boolType);
+	
 	getInt = newBuiltInFunc("getInt", intType);
 	getString = newBuiltInFunc("getString", stringType);
 
@@ -33,6 +37,11 @@ void IR::addGlobalVar(std::shared_ptr<Register> var)
 void IR::addFunction(std::shared_ptr<Function> func)
 {
 	functions.push_back(func);
+}
+
+void IR::addStringConst(std::shared_ptr<StaticString> str)
+{
+	stringConstants.push_back(str);
 }
 
 std::shared_ptr<Function> IR::newBuiltInFunc(const std::string & name, std::shared_ptr<Type> retType)

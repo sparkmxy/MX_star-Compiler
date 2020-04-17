@@ -137,7 +137,7 @@ void Environment::bootstrapFuncInit()
 	// define bootstrap and put it into AST
 	auto bootstrap = std::make_shared<FunctionDecl>(
 			std::make_shared<BuiltinType>(BuiltinType::INT), // bootstrap() simple return the value returned by main()
-			std::make_shared<Identifier>("bootstrap"),
+			std::make_shared<Identifier>("__bootstrap"),
 			std::vector< std::shared_ptr<VarDeclStmt> >(), //	bootstrap() has no args
 			std::make_shared<StmtBlock>(stmts)
 		);

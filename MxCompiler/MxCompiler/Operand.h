@@ -28,15 +28,18 @@ it is just a temperory value in the register.
 */
 class Register : public Operand {
 public:
-	Register() {}
-	Register(Category _tag, std::string _name) : name(_name),tag(_tag){}
+	Register(): global(false){}
+	Register(Category _tag, std::string _name) : name(_name),tag(_tag),global(false){}
 	std::string getName() { return name; }
 
 	Category category() override { return tag; }
 
-	ACCEPT_CFG_VISITOR
+	bool isGlobal() { return global; }
+	void markAsGlobal() { global = true; }
 
+	ACCEPT_CFG_VISITOR
 private:
+	bool global;
 	std::string name;
 	Category tag;
 };

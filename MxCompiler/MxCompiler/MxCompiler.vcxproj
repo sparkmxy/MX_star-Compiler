@@ -126,6 +126,7 @@
     <ClInclude Include="error.h" />
     <ClInclude Include="exprHelper.h" />
     <ClInclude Include="GlobalFuncAndClsDecl.h" />
+    <ClInclude Include="interpreter.h" />
     <ClInclude Include="IR.h" />
     <ClInclude Include="IRinstruction.h" />
     <ClInclude Include="IR_Generator.h" />
@@ -147,6 +148,7 @@
     <ClInclude Include="token.h" />
     <ClInclude Include="visitor.h" />
     <ClInclude Include="Function.h" />
+    <ClInclude Include="vm.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="basicblock.cpp" />
@@ -156,6 +158,7 @@
     <ClCompile Include="environment.cpp" />
     <ClCompile Include="Function.cpp" />
     <ClCompile Include="GlobalFuncDeclVistor.cpp" />
+    <ClCompile Include="interpreter.cpp" />
     <ClCompile Include="IR.cpp" />
     <ClCompile Include="IRinstruction.cpp" />
     <ClCompile Include="IR_Generator.cpp" />
@@ -172,6 +175,7 @@
     <ClCompile Include="symbol.cpp" />
     <ClCompile Include="symbolTable.cpp" />
     <ClCompile Include="test.cpp" />
+    <ClCompile Include="vm.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="log.txt" />

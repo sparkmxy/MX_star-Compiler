@@ -68,11 +68,14 @@ void IR_Generator::visit(VarDeclStmt * node)
 	auto varSymbol = node->getVarSymbol();
 	auto reg = std::make_shared<VirtualReg>(Operand::REG_VAL,node->getIdentifier()->name);
 	varSymbol->setReg(reg);
-	if (scanGlobalVar)  // record global variable so that we can print it later 
+	if (scanGlobalVar) {  // record global variable so that we can print it later 
 		ir->addGlobalVar(reg);
+		reg->markAsGlobal();
+	}
 	else {
-		if (currentFunction != nullptr && node->isArgument())
+		if (currentFunction != nullptr && node->isArgument()) {  // add argument to function module 
 			currentFunction->appendArg(reg);
+		}
 		auto initExpr = node->getInitExpr();
 		if (initExpr != nullptr) {
 			//initExpr->accept(*this);
@@ -283,7 +286,7 @@ void IR_Generator::visit(IdentifierExpr * node)
 void IR_Generator::visit(BinaryExpr * node)
 {
 	auto op = node->getOperator();
-	if (op == BinaryExpr::INDEX) arrayAccess(node);
+	if (op == BinaryExpr::INDEX) return arrayAccess(node);
 	else if (op == BinaryExpr::ASSIGN) {
 		node->getLHS()->accept(*this);
 		return assign(node->getLHS()->getResultOprand(), node->getRHS().get());
@@ -305,6 +308,10 @@ void IR_Generator::visit(BinaryExpr * node)
 		if (op == BinaryExpr::ADD) func = ir->stringAdd;
 		else if (op == BinaryExpr::EQ) func = ir->stringEQ;
 		else if (op == BinaryExpr::NEQ) func = ir->stringNEQ;
+		else if (op == BinaryExpr::LESS) func = ir->stringLESS;
+		else if (op == BinaryExpr::LEQ) func = ir->stringLEQ;
+		else if (op == BinaryExpr::GREATER) func = ir->stringGREATER;
+		else if (op == BinaryExpr::GEQ) func = ir->stringGEQ;
 		auto call = std::make_shared<Call>(currentBlock, func, result);
 		call->addArg(lhsReg); 
 		call->addArg(rhsReg);
@@ -550,10 +557,11 @@ void IR_Generator::visit(BoolValue * node)
 
 void IR_Generator::visit(StringValue * node)
 {
-	auto reg = std::make_shared<VirtualReg>(Operand::REG_VAL, "__static_str__");
+	auto reg = std::make_shared<VirtualReg>(Operand::REG_VAL, "__str");
 	auto str = std::make_shared<StaticString>(reg, node->getText());
 	node->setResultOprand(reg);
-	// Need to put it into IR?
+	reg->markAsGlobal();
+	ir->addStringConst(str);
 }
 
 void IR_Generator::visit(NullValue * node)

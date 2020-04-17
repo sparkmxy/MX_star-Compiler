@@ -52,9 +52,6 @@
     <Filter Include="源文件\backend\optimize">
       <UniqueIdentifier>{705da797-45e1-40f7-8f33-7a25d7bee28f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="头文件\IR\IRprinter">
-      <UniqueIdentifier>{36eddb88-c5da-4ac2-becc-af3248e7283b}</UniqueIdentifier>
-    </Filter>
     <Filter Include="头文件\IR\AST">
       <UniqueIdentifier>{e198161b-6ea6-4e92-aee6-94f951b23837}</UniqueIdentifier>
     </Filter>
@@ -64,8 +61,11 @@
     <Filter Include="源文件\backend\codegen">
       <UniqueIdentifier>{09cc912b-5426-4079-acb3-a17d521e5aa9}</UniqueIdentifier>
     </Filter>
-    <Filter Include="源文件\IR\IRprinter">
-      <UniqueIdentifier>{870efc3d-65c7-4ec5-a988-c1feebbc70fe}</UniqueIdentifier>
+    <Filter Include="头文件\IRTools">
+      <UniqueIdentifier>{08dd882d-484a-43a2-80f1-5ff62776ccf7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\IRTools">
+      <UniqueIdentifier>{50d14c4b-40b4-45bb-9146-6a8a3aa3ae8f}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -153,9 +153,6 @@
     <ClInclude Include="dominance.h">
       <Filter>头文件\backend\optimize</Filter>
     </ClInclude>
-    <ClInclude Include="ir_printer.h">
-      <Filter>头文件\IR\IRprinter</Filter>
-    </ClInclude>
     <ClInclude Include="cfg_visitor.h">
       <Filter>头文件\IR</Filter>
     </ClInclude>
@@ -164,6 +161,15 @@
     </ClInclude>
     <ClInclude Include="MxCompiler.h">
       <Filter>头文件\toplevel</Filter>
+    </ClInclude>
+    <ClInclude Include="interpreter.h">
+      <Filter>头文件\IRTools</Filter>
+    </ClInclude>
+    <ClInclude Include="ir_printer.h">
+      <Filter>头文件\IRTools</Filter>
+    </ClInclude>
+    <ClInclude Include="vm.h">
+      <Filter>头文件\IRTools</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -234,7 +240,13 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="ir_printer.cpp">
-      <Filter>源文件\IR\IRprinter</Filter>
+      <Filter>源文件\IRTools</Filter>
+    </ClCompile>
+    <ClCompile Include="vm.cpp">
+      <Filter>源文件\IRTools</Filter>
+    </ClCompile>
+    <ClCompile Include="interpreter.cpp">
+      <Filter>源文件\IRTools</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

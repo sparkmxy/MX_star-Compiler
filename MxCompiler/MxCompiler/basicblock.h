@@ -23,7 +23,7 @@ Class: BasicBlock
 static const std::string namesForBasicBlocks[] = {
 	"entry", "exit",
 	"for_body", "for_cond", "for_iter", "for_final",
-	"while _body", "while_cond", "while_final",
+	"while_body", "while_cond", "while_final",
 	"if_true", "if_false", "if_final",
 	"true", "false", "final",
 	"lhs_true", "lhs_false"
@@ -31,7 +31,7 @@ static const std::string namesForBasicBlocks[] = {
 
 class BasicBlock : public std::enable_shared_from_this<BasicBlock>{
 public:
-	enum Tag  // for debugging
+	enum Tag  
 	{
 		ENTRY, EXIT,
 		FOR_BODY, FOR_COND, FOR_ITER, FOR_FINAL,

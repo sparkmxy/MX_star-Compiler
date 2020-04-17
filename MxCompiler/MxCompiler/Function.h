@@ -19,8 +19,9 @@ public:
 	}
 
 	void appendReturnInstr(std::shared_ptr<Return> ret);
-	void appendArg(std::shared_ptr<Register> arg);
 
+	void appendArg(std::shared_ptr<Register> arg);
+	std::vector<std::shared_ptr<Register> > &getArgs() { return args; }
 	// getters/setters
 	std::string getName() { return name; }
 

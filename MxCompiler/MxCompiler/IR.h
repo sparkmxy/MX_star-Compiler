@@ -11,19 +11,23 @@ public:
 	IR();
 	void addGlobalVar(std::shared_ptr<Register> var);
 	void addFunction(std::shared_ptr<Function> func);
+	void addStringConst(std::shared_ptr<StaticString> str);
 	
 	std::shared_ptr<Function> stringLength, substring, parseInt, ord, print, println;
-	std::shared_ptr<Function> stringAdd, stringNEQ, stringEQ;
+	std::shared_ptr<Function> stringAdd, stringNEQ, stringEQ, stringLESS, stringLEQ, stringGREATER, stringGEQ;
 	std::shared_ptr<Function> getInt, getString;
 	std::shared_ptr<Function> toString, printInt, printlnInt;
 
 	std::vector<std::shared_ptr<Function> > & getFunctions() { return functions; }
 	std::vector<std::shared_ptr<Register> > & getGlbVars() { return glbVars; }
+	std::vector<std::shared_ptr<StaticString> > & getStringConstants() { return stringConstants; }
 
 	ACCEPT_CFG_VISITOR
+
 private:
 	std::vector<std::shared_ptr<Register> > glbVars;
 	std::vector<std::shared_ptr<Function> > functions;
+	std::vector<std::shared_ptr<StaticString> > stringConstants;
 	
 	std::shared_ptr<Function> 
 		newBuiltInFunc(const std::string &name, std::shared_ptr<Type> retType = nullptr);

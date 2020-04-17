@@ -11,96 +11,82 @@ entry0:
     add %t2 %t1 #4
     add %t3 %t2 %t0
     jmp for_cond0
-for_cond1:
+for_cond0:
     slt %t4 %t2 %t3
     br %t4 for_body0 for_final0
-for_body1:
+for_body0:
     mul %t5 #4 #3
     add %t5 %t5 #4
     %t2 = malloc %t5
     store %t2 %t5
     jmp for_iter0
-for_iter1:
+for_iter0:
     add %t2 #4 %t2
-    jmp for_cond2
-for_final1:
+    jmp for_cond0
+for_final0:
     mov %array0 %t1
     mul %t6 #0 #4
     add %t7 %t6 #4
     add %t8 %t7 #0
-     %t9 %array0 #0
-    mov %t9 #0
-    mul %t10 #0 #4
-    add %t11 %t10 #4
-    add %t12 %t11 #0
-     %t13 %array0 #0
-    load %t14 %t13
-    %t15 = call toString %t14 
-    call println %t15 
-    mul %t16 #0 #4
-    add %t17 %t16 #4
-    add %t18 %t17 #0
-     %t19 %array0 #0
-    mul %t20 #4 #10
-    add %t20 %t20 #4
-    %t21 = malloc %t20
-    store %t21 %t20
-    mov %t19 %t21
+    store %t8 #0
+    mul %t9 #0 #4
+    add %t10 %t9 #4
+    add %t11 %t10 #0
+    load %t12 %t11
+    %t13 = call toString %t12 
+    call println %t13 
+    mul %t14 #0 #4
+    add %t15 %t14 #4
+    add %t16 %t15 #0
+    mul %t17 #4 #10
+    add %t17 %t17 #4
+    %t18 = malloc %t17
+    store %t18 %t17
+    store %t16 %t18
     mov %i0 #0
     mov %i0 #0
-    jmp for_cond3
-for_cond4:
-    slt %t22 %i0 #10
-    br %t22 for_body2 for_final2
-for_body3:
-    mul %t23 #0 #4
+    jmp for_cond1
+for_cond1:
+    slt %t19 %i0 #10
+    br %t19 for_body1 for_final1
+for_body1:
+    mul %t20 #0 #4
+    add %t21 %t20 #4
+    add %t22 %t21 #0
+    mul %t23 %i0 #4
     add %t24 %t23 #4
-    add %t25 %t24 #0
-     %t26 %array0 #0
-    mul %t27 %i0 #4
-    add %t28 %t27 #4
-    add %t29 %t28 %i0
-    mul %t30 #0 #4
-    add %t31 %t30 #4
-    add %t32 %t31 #0
-     %t33 %array0 #0
-     %t34 %t33 %i0
-    mul %t35 %i0 %i0
-    mov %t34 %t35
-    jmp for_iter2
-for_iter3:
+    add %t25 %t24 %i0
+    mul %t26 %i0 %i0
+    store %t25 %t26
+    jmp for_iter1
+for_iter1:
     add %i0 %i0 #1
-    jmp for_cond5
-for_final3:
-    mul %t36 #0 #4
-    add %t37 %t36 #4
-    add %t38 %t37 #0
-     %t39 %array0 #0
-    mul %t40 #9 #4
-    add %t41 %t40 #4
-    add %t42 %t41 #9
-    mul %t43 #0 #4
-    add %t44 %t43 #4
-    add %t45 %t44 #0
-     %t46 %array0 #0
-     %t47 %t46 #9
-    %t48 = call toString %t47 
-    call println %t48 
+    jmp for_cond1
+for_final1:
+    mul %t27 #0 #4
+    add %t28 %t27 #4
+    add %t29 %t28 #0
+    mul %t30 #9 #4
+    add %t31 %t30 #4
+    add %t32 %t31 #9
+    load %t32 %t33
+    %t34 = call toString %t33 
+    call println %t34 
     jmp while_cond0
-while_cond1:
-    jmp while _body0
-while _body1:
+while_cond0:
+    jmp while_body0
+while_body0:
     jmp while_final0
-    jmp while_cond2
-while_final1:
-    mov %t49 #0
-    ret %t49
+    jmp while_cond0
+while_final0:
+    mov %t35 #0
+    ret %t35
 }
 def i32 @bootstrap{ 
 entry1:
-    %t50 = call main 
-    mov %t51 %t50
-    ret %t51
+    %t36 = call main 
+    mov %t37 %t36
+    ret %t37
 }
 ------------------------------------------------------------
 FINISHED
