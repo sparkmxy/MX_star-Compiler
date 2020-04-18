@@ -23,7 +23,7 @@ void MxCompiler::getCode()
 {
 	src.open(fileName);
 	if (!src) 
-		throw Error("file not found",Position());
+		throw Error("file not found");
 	std::cout << "File found." << std::endl;
 	std::clog << "--------------------Open: " << fileName << "-------------------\n";
 }
@@ -32,7 +32,7 @@ void MxCompiler::parse()
 {
 	lexer = std::make_shared<Lexer>(src);
 	tokens = lexer->getTokens();
-
+	src.close();
 	
 #ifdef  SHOW_TOKENS			//print tokens to log.txt
 	std::clog << "------------------------Tokens---------------------\n";
@@ -50,7 +50,7 @@ void MxCompiler::buildAST()
 	parser = std::make_shared<Parser>(tokens);
 	ast = parser->getAST();
 	if (!parser->finished()) 
-		throw Error("redundant tokens.", Position());
+		throw Error("redundant tokens.");
 	std::cout << "Build AST successfully!" << std::endl;
 }
 

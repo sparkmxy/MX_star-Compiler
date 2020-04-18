@@ -2,13 +2,17 @@
 
 #include "pch.h"
 #include "MxCompiler.h"
+#include "interpreter.h"
+
+#include<fstream>
 
 class Test {
 public:
 	void test1();
-	void test2();
 	bool runTestCase(std::string src);
 	void runAndPrintIRCode(std::string src);
+	void runWithInterpreter(std::string src);
+
 private:
 
 	bool compile(std::string src);

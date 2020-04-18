@@ -3,9 +3,9 @@
 
 void IR_Printer::print()
 {
-	os << "IR code: \n";
+	//os << "IR code: \n";
 	visit(ir.get());
-	os << "------------------------------------------------------------\n";
+	//os << "------------------------------------------------------------\n";
 }
 
 void IR_Printer::visit(IR * ir)
@@ -121,11 +121,12 @@ void IR_Printer::visit(Branch * b)
 
 void IR_Printer::visit(Call * c)
 {
+	os << "call ";
 	if (c->getResult() != nullptr) {   // call with a return value
 		c->getResult()->accept(*this);
-		os << " = call ";
+		os << " ";
 	}
-	else os << "call ";
+	else os << "null ";
 
 	os << c->getFunction()->getName() << " ";
 	if (c->getObjRef() != nullptr) {

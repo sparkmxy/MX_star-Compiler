@@ -1,35 +1,42 @@
 #include "vm.h"
 
-int MemoryManager::getRegValue(const std::string & reg)
+int MemoryManager::getRegValue(const std::string & name)
 {
-	return 0;
+	return regs[name];
 }
 
-void MemoryManager::setRegValue(const std::string & reg, int v)
+void MemoryManager::setRegValue(const std::string & name, int v)
 {
+	regs[name] = v;
 }
 
-int MemoryManager::load(int addr, const std::string &reg)
+int MemoryManager::load(int addr)
 {
-
-	return 0;
+	return *reinterpret_cast<int *>(addr);
 }
 
-void MemoryManager::store(int addr, const std::string &reg)
+void MemoryManager::store(int addr, int v)
 {
+	*reinterpret_cast<int *>(addr) = v;
 }
 
-int MemoryManager::allocate_memory(int size)
+Byte MemoryManager::loadByte(int addr)
 {
-	return 0;
+	return *reinterpret_cast<Byte *>(addr);
 }
 
-void MemoryManager::doubleSpace()
+Byte *MemoryManager::allocate_memory(int size)
 {
-	char *newMem = new char[poolSize << 1];
-	for (int i = 0; i < used; i++)
-		newMem[i] = mem[i];
-	delete[] mem;
-	mem = newMem;
-	poolSize <<= 1;
+	if (used + size > poolSize) {
+		poolSize <<= 1;
+		while (poolSize < size) poolSize <<= 1;
+		mem = new Byte[poolSize];
+		memPools.push_back(mem);
+		used = 0;
+	}
+	Byte *ret = mem + used;
+	used += size;
+	return ret;
 }
+
+

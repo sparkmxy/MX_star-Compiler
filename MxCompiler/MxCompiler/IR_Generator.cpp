@@ -557,7 +557,7 @@ void IR_Generator::visit(BoolValue * node)
 
 void IR_Generator::visit(StringValue * node)
 {
-	auto reg = std::make_shared<VirtualReg>(Operand::REG_VAL, "__str");
+	auto reg = std::make_shared<VirtualReg>(Operand::REG_VAL, "__str");  // 
 	auto str = std::make_shared<StaticString>(reg, node->getText());
 	node->setResultOprand(reg);
 	reg->markAsGlobal();

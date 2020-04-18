@@ -10,15 +10,6 @@ void Test::test1()
 	congratulations();
 }
 
-void Test::test2()
-{
-	for (int i = 1; i <= 71; i++) {
-		auto src = "sema/basic-package/basic-" + std::to_string(i) + ".mx";
-		if (!runTestCase(src)) return;
-	}
-	congratulations();
-}
-
 bool Test::runTestCase(std::string src)
 {
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7);
@@ -50,6 +41,28 @@ void Test::runAndPrintIRCode(std::string src)
 	}
 	compiler.printIR();
 	std::clog << "FINISHED\n";
+}
+
+void Test::runWithInterpreter(std::string src)
+{
+	MxCompiler compiler("test/" + src);
+	try
+	{
+		compiler.complie();
+	}
+	catch (Error & err)
+	{
+		std::cout << err.what() << std::endl;
+		std::clog << err.what() << std::endl;
+		return;
+	}
+	std::cout << "COMPILE FINISHED\n";
+	std::ofstream fout("ir.mxx");
+	compiler.printIR(fout);
+	fout.close();
+	std::ifstream fin("ir.mxx");
+	IR_Interpreter I(fin);
+	I.run();
 }
 
 bool Test::compile(std::string src) {
