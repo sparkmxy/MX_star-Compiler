@@ -66,7 +66,10 @@ void IR_Generator::visit(MultiVarDecl * node)
 void IR_Generator::visit(VarDeclStmt * node)
 {
 	auto varSymbol = node->getVarSymbol();
-	auto reg = std::make_shared<VirtualReg>(Operand::REG_VAL,node->getIdentifier()->name);
+	std::shared_ptr<VirtualReg> reg;
+	if(varSymbol->getType()->isArrayType())
+		reg = std::make_shared<VirtualReg>(Operand::REG_VAL,node->getIdentifier()->name);
+	else reg = std::make_shared<VirtualReg>();
 	varSymbol->setReg(reg);
 	if (scanGlobalVar) {  // record global variable so that we can print it later 
 		ir->addGlobalVar(reg);
@@ -84,7 +87,7 @@ void IR_Generator::visit(VarDeclStmt * node)
 	}
 }
 
-void IR_Generator::visit(FunctionDecl * node)   // Function is linked to function symbol here
+void IR_Generator::visit(FunctionDecl * node)   // Function module is linked to function symbol here
 {
 	auto symbol = node->getFuncSymbol();
 	auto funcModule = newFunction(symbol->getSymbolName(), node->getRetType());    
@@ -96,8 +99,14 @@ void IR_Generator::visit(FunctionDecl * node)   // Function is linked to functio
 	auto args = node->getArgs();
 	for (auto &arg : args) arg->accept(*this);
 	node->getBody()->accept(*this);
-	currentFunction = nullptr;
 
+	if (!currentBlock->ended()) {  // no return instruction
+		if (node->getRetType() == nullptr)
+			currentBlock->endWith(std::make_shared<Return>(currentBlock, nullptr));
+		else
+			currentBlock->endWith(std::make_shared<Return>(currentBlock, std::make_shared<Immediate>(0)));
+	}
+	currentFunction = nullptr;
 	ir->addFunction(funcModule);
 
 	//build dominance tree
@@ -669,7 +678,7 @@ void IR_Generator::arrayAccess(BinaryExpr * node)
 	lhs->accept(*this);
 	rhs->accept(*this);
 	auto typeSymbol = std::static_pointer_cast<ArraySymbol>(lhs->getSymbolType());
-	auto baseAddr = getValueReg(rhs->getResultOprand());
+	auto baseAddr = getValueReg(lhs->getResultOprand());
 	auto index = getValueReg(rhs->getResultOprand());
 	// the result is a reference(i.e. address in RAM)
 	auto result = std::make_shared<VirtualReg>(Operand::REG_REF);
@@ -784,7 +793,7 @@ std::shared_ptr<Operand>IR_Generator::getValueReg(std::shared_ptr<Operand> reg)
 	if (reg->category() != Operand::REG_REF) return reg;
 	auto temp = std::make_shared<VirtualReg>(Operand::REG_VAL);
 	currentBlock->append_back(std::make_shared<Quadruple>(
-		currentBlock, Quadruple::LOAD, reg, temp));
+		currentBlock, Quadruple::LOAD, temp, reg));
 	return temp;
 }
 

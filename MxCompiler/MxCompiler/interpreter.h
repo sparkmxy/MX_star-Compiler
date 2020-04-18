@@ -36,7 +36,7 @@ private:
 	void executeInstruction(std::shared_ptr<VMInstruction> inst, 
 		std::unordered_map<std::string, int> &args);
 
-	bool nextchar() {
+	char nextchar() {
 		char ch = is.get();
 		while (isspace(ch)) ch = is.get();
 		is.unget();

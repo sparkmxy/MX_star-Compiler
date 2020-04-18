@@ -56,8 +56,9 @@ void IR_Interpreter::parseFunction()
 {
 	std::string name;
 	is >> name;
-	name = name.substr(1, name.length() - 2);
+	name = name.substr(1, name.length() - 1);
 	std::vector<std::string> args;
+;
 	while (nextchar() != '{') {
 		std::string arg;
 		is >> arg;
@@ -70,6 +71,7 @@ void IR_Interpreter::parseFunction()
 		auto b = parseBlock();
 		f->appendBlock(b);
 		if (b->isEntry()) f->setEntry(b);
+		auto ch = nextchar();
 	}
 	is.get(); // skip '}'
 
@@ -86,7 +88,9 @@ std::shared_ptr<VMBasicBlock> IR_Interpreter::parseBlock()
 	while(true) {
 		char ch = nextchar();
 		if (ch == '}' || ch == '$') break;
-		b->appendInst(parseInstruction());
+		auto inst = parseInstruction();
+		std::cout << "parsing: " << inst->toString() << '\n';
+		b->appendInst(inst);
 	}
 	return b;
 }
@@ -98,9 +102,11 @@ std::shared_ptr<VMInstruction> IR_Interpreter::parseInstruction()
 	is >> op;
 	if (op == "call") {
 		std::vector<std::string> args;
-		is >> dst >> src1;  // function name and reg for return  value; note that src1 could be "null"
+		is >> src1 >> dst;  // function name and reg for return  value; note that src1 could be "null"
 
-		while (nextchar() != '{') {
+		while (true) {
+			char ch = nextchar();
+			if (ch != '%' && ch != '@' && ch != '#') break;
 			is >> src2;
 			args.push_back(src2);
 		}
@@ -110,7 +116,7 @@ std::shared_ptr<VMInstruction> IR_Interpreter::parseInstruction()
 		is >> dst;
 		return std::make_shared<VMInstruction>(op, dst);
 	}
-	else if(op == "inv" || op == "neg" || op == "mov" || op == "load" || op == "store") {
+	else if(op == "inv" || op == "neg" || op == "mov" || op == "load" || op == "store" || op == "malloc") {
 		is >> dst >> src1;
 		return std::make_shared<VMInstruction>(op, dst, src1);
 	}
@@ -140,11 +146,13 @@ int IR_Interpreter::executeFunction(std::shared_ptr<VMFunction> f, std::vector<i
 			}
 			else if (inst->op == "jmp") {
 				curBlock = f->getBlockByLabel(inst->dst);
+				break;
 			}
 			else if (inst->op == "br") {
 				curBlock = f->getBlockByLabel(
 					getRegVal(inst->dst,argMap) ? inst->src1 : inst->src2
 				);
+				break;
 			}
 			else executeInstruction(inst, argMap);
 		}
@@ -200,6 +208,9 @@ void IR_Interpreter::executeInstruction(std::shared_ptr<VMInstruction> inst, std
 		setRegVal(inst->dst, localRegs, M.load(getRegVal(inst->src1,localRegs)));
 	else if (inst->op == "store")
 		M.store(getRegVal(inst->dst, localRegs), getRegVal(inst->src1, localRegs));
+	else if (inst->op == "malloc") 
+		setRegVal(inst->dst, localRegs, 
+			(int)M.allocate_memory(getRegVal(inst->src1, localRegs)));
 	else if (inst->op == "call") {
 		std::vector<int> argv;
 		for (auto &reg : inst->args) argv.push_back(getRegVal(reg, localRegs));

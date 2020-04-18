@@ -27,7 +27,7 @@ void IR_Printer::visit(IR * ir)
 void IR_Printer::visit(Function * f)
 {
 	auto retType = f->isVoid() ?  "void" : "i32";
-	os << "def " << retType << " @" << f->getName() << ' '; 
+	os << "def @" << f->getName() << ' ';  // Do we need to care about return type?
 
 	auto args = f->getArgs();
 	for (auto &arg : args) {
@@ -142,8 +142,9 @@ void IR_Printer::visit(Call * c)
 
 void IR_Printer::visit(Malloc * m)
 {
+	os << "malloc ";
 	m->getPtr()->accept(*this);
-	os << " = malloc ";
+	os << " ";
 	m->getSize()->accept(*this);
 }
 
