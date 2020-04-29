@@ -28,7 +28,6 @@ public:
 
 	void constructSSA();
 private:
-	void initDT();
 	void insertPhiFunction();
 	void renameVariables();
 	void renameVariables(std::shared_ptr<Function> func);

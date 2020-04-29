@@ -2,6 +2,7 @@
 
 #include "SSAConstructor.h"
 #include "SSADestructor.h"
+#include "dead_code_elimination.h"
 
 /*
 Class : Optimizer

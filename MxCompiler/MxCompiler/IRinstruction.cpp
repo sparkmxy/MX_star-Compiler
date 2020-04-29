@@ -41,7 +41,7 @@ void Call::renameUseRegs(std::unordered_map<std::shared_ptr<Register>, std::shar
 	for (auto &arg : args)
 		if (Operand::isRegister(arg->category()))
 			arg = table[std::static_pointer_cast<Register>(arg)];
-	if (Operand::isRegister(object->category()))
+	if (object != nullptr && Operand::isRegister(object->category()))
 		object = table[std::static_pointer_cast<Register>(object)];
 }
 
@@ -51,7 +51,7 @@ void Call::updateUseRegs()
 	for (auto &arg : args)
 		if (Operand::isRegister(arg->category()))
 			useRegs.push_back(std::static_pointer_cast<Register>(arg));
-	if (Operand::isRegister(object->category()))
+	if (object != nullptr && Operand::isRegister(object->category()))
 		useRegs.push_back(std::static_pointer_cast<Register>(object));
 }
 

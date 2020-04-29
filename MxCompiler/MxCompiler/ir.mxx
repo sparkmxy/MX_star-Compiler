@@ -1,32 +1,117 @@
-@graph0
-def @main  { 
+@t0
+@a0
+@t1
+def @jud %t2  { 
 $entry0:
-    ret #0
-}
-def @__bootstrap  { 
-$entry1:
-    mul %t0 #4 #3
-    add %t0 %t0 #4
-    malloc %t1 %t0
-    store %t1 %t0
-    add %t2 %t1 #4
-    add %t3 %t2 %t0
+    mov %t3 #0
+    mov %t4 #0
+    mov %t3 #0
     jmp for_cond0
 $for_cond0:
-    slt %t4 %t2 %t3
-    br %t4 for_body0 for_final0
+    div %t5 @t0 %t2
+    slt %t6 %t3 %t5
+    br %t6 for_body0 for_final0
 $for_body0:
-    mul %t5 #4 #3
-    add %t5 %t5 #4
-    malloc %t2 %t5
-    store %t2 %t5
+    mov %t7 #0
+    mov %t4 #0
+    jmp for_cond1
+$for_cond1:
+    sub %t8 %t2 #1
+    slt %t9 %t4 %t8
+    br %t9 for_body1 for_final1
+$for_final1:
+    br %t7 if_final0 if_true0
+$if_final0:
     jmp for_iter0
 $for_iter0:
-    add %t2 #4 %t2
+    mov %t10 %t3
+    add %t3 %t3 #1
     jmp for_cond0
+$if_true0:
+    mov %t11 #1
+    ret %t11
+$for_body1:
+    add %t12 %t2 %t4
+    mul %t13 %t3 %t12
+    mul %t14 %t13 #4
+    add %t15 %t14 #4
+    add %t16 %t15 @a0
+    add %t17 %t2 %t4
+    add %t18 %t17 #1
+    mul %t19 %t3 %t18
+    mul %t20 %t19 #4
+    add %t21 %t20 #4
+    add %t22 %t21 @a0
+    load %t23 %t16
+    load %t24 %t22
+    sgt %t25 %t23 %t24
+    br %t25 if_true1 if_final1
+$if_true1:
+    mov %t7 #1
+    jmp if_final1
+$if_final1:
+    jmp for_iter1
+$for_iter1:
+    mov %t26 %t4
+    add %t4 %t4 #1
+    jmp for_cond1
 $for_final0:
-    mov @graph0 %t1
-    call %t6 main 
-    mov %t7 %t6
-    ret %t7
+    mov %t27 #0
+    ret %t27
+}
+def @main  { 
+$entry1:
+    call %t28 getInt 
+    mov @t0 %t28
+    mov @t1 #0
+    jmp for_cond2
+$for_cond2:
+    slt %t29 @t1 @t0
+    br %t29 for_body2 for_final2
+$for_final2:
+    mov @t1 @t0
+    jmp for_cond3
+$for_cond3:
+    sgt %t30 @t1 #0
+    br %t30 for_body3 for_final3
+$for_body3:
+    call %t31 jud @t1 
+    sgt %t32 %t31 #0
+    br %t32 if_true2 if_final2
+$if_true2:
+    call %t33 toString @t1 
+    call null print %t33 
+    mov %t34 #0
+    ret %t34
+$if_final2:
+    jmp for_iter2
+$for_iter2:
+    div %t35 @t1 #2
+    mov @t1 %t35
+    jmp for_cond3
+$for_final3:
+    mov %t36 #0
+    ret %t36
+$for_body2:
+    mul %t37 @t1 #4
+    add %t38 %t37 #4
+    add %t39 %t38 @a0
+    call %t40 getInt 
+    store %t39 %t40
+    jmp for_iter3
+$for_iter3:
+    mov %t41 @t1
+    add @t1 @t1 #1
+    jmp for_cond2
+}
+def @__bootstrap  { 
+$entry2:
+    mul %t42 #4 #20
+    add %t42 %t42 #4
+    malloc %t43 %t42
+    store %t43 %t42
+    mov @a0 %t43
+    call %t44 main 
+    mov %t45 %t44
+    ret %t45
 }

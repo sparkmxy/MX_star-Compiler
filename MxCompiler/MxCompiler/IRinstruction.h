@@ -83,7 +83,9 @@ public:
 	Quadruple(std::shared_ptr<BasicBlock> _block, Operator _op,
 		std::shared_ptr<Operand> _dst,
 		std::shared_ptr<Operand> _src1, std::shared_ptr<Operand> _src2 = nullptr)  
-		:IRInstruction(QUADR,_block), op(_op),dst(_dst),src1(_src1), src2(_src2) {}
+		:IRInstruction(QUADR,_block), op(_op),dst(_dst),src1(_src1), src2(_src2) {
+		updateUseRegs();
+	}
 
 	Operator getOp() { return op; }
 	std::shared_ptr<Operand> getSrc1() { return src1; }
@@ -115,7 +117,9 @@ public:
 		std::shared_ptr<Operand> _cond,
 		std::shared_ptr<BasicBlock> _true, std::shared_ptr<BasicBlock> _false)
 		:IRInstruction(BRANCH,_residingBlock),
-		condition(_cond), trueBlock(_true), falseBlock(_false) {}
+		condition(_cond), trueBlock(_true), falseBlock(_false) {
+		updateUseRegs();
+	}
 
 	std::shared_ptr<Operand> getCondition() { return condition; }
 	std::shared_ptr<BasicBlock> getTrueBlock() { return trueBlock; }
@@ -140,7 +144,9 @@ class Call : public IRInstruction {
 public:
 	Call(std::shared_ptr<BasicBlock> _block,
 		std::shared_ptr<Function> _func, std::shared_ptr<Operand> _result = nullptr)
-		: IRInstruction(CALL, _block), func(_func), result(_result) {}
+		: IRInstruction(CALL, _block), func(_func), result(_result) {
+		updateUseRegs();
+	}
 
 	std::shared_ptr<Function> getFunction() { return func; }
 
@@ -173,7 +179,9 @@ class Malloc : public IRInstruction {
 public:
 	Malloc(std::shared_ptr<BasicBlock> block,
 		std::shared_ptr<Operand> _size, std::shared_ptr<Operand> _ptr)
-		:IRInstruction(ALLOC, block), size(_size), ptr(_ptr) {}
+		:IRInstruction(ALLOC, block), size(_size), ptr(_ptr) {
+		updateUseRegs();
+	}
 
 	std::shared_ptr<Operand> getSize() { return size; }
 	void setSize(const std::shared_ptr<Operand> &_size) { size = _size; }
@@ -199,7 +207,9 @@ private:
 class Return : public IRInstruction {
 public: 
 	Return(std::shared_ptr<BasicBlock> block, std::shared_ptr<Operand> _value)
-		:IRInstruction(RET, block), value(_value) {}
+		:IRInstruction(RET, block), value(_value) {
+		updateUseRegs();
+	}
 
 	std::shared_ptr<Operand> getValue() { return value; }
 

@@ -18,7 +18,7 @@ void IR_Printer::visit(IR * ir)
 
 	auto strings = ir->getStringConstants();
 	for (auto &str : strings)
-		os << "@" << getName(str->getReg().get()) << " = \"" << str->getText() << "\"\n";
+		os << "@" << getName(str->getReg().get()) << " = " << str->getText() << '\n';
 
 	auto functions = ir->getFunctions();
 	for (auto &f : functions) f->accept(*this);
@@ -119,6 +119,7 @@ void IR_Printer::visit(Branch * b)
 	os << " " << getLabel(b->getTrueBlock().get()) << " " << getLabel(b->getFalseBlock().get());
 }
 
+// call return_type args
 void IR_Printer::visit(Call * c)
 {
 	os << "call ";

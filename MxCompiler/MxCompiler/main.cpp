@@ -6,7 +6,7 @@
 int main() {
 	freopen("log.txt", "w", stderr);
 	Test test;
-	test.runWithInterpreter("sema/basic-package/basic-10.mx");
+	test.runWithInterpreter("sema/codeforces-package/4A.mx");
 	system("pause");
 	return 0;
 }

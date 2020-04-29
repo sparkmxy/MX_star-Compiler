@@ -3,9 +3,9 @@
 void IR_Interpreter::run()
 {
 	parse();
-	os << "ir parse done." << std::endl;
+	os << "---------------------------------Execution--------------------------" << std::endl;
 	int exitCode = executeFunction("__bootstrap");
-	os << "exit with " << exitCode << std::endl;
+	os << "\nexit with " << exitCode << std::endl;
 }
 
 
@@ -37,15 +37,15 @@ void IR_Interpreter::parse()
 			if (nextchar() == '=') {
 				// string constants
 				is.get();  // skip '='
-				std::string str, reg = token.substr(1,token.length() - 1);
-				is >> str;
-				str = str.substr(1, str.length() - 2);
+				std::string str, reg = token;
+				std::getline(is,str);
+				str = str.substr(2, str.length() - 3); // skip space and ""
 				auto ptr = M.allocate_memory(str.length() + Configuration::SIZE_OF_INT);
 				*reinterpret_cast<int *>(ptr) = str.length();
 				std::memcpy(ptr + Configuration::SIZE_OF_INT, str.c_str(), str.length());
 				M.setRegValue(reg, reinterpret_cast<int>(ptr));
 			}
-			// do we need to do anything for global variabels?
+			// do we need to do anything for global variables?
 		}
 		else if (token == "def") parseFunction();
 		else throw Error("Invaild IR definition.");
@@ -182,7 +182,7 @@ void IR_Interpreter::executeInstruction(std::shared_ptr<VMInstruction> inst, std
 		setRegVal(inst->dst, localRegs, getRegVal(inst->src1, localRegs) >> getRegVal(inst->src2, localRegs));
 	else if (inst->op == "seq")
 		setRegVal(inst->dst, localRegs, getRegVal(inst->src1, localRegs) == getRegVal(inst->src2, localRegs));
-	else if (inst->op == "neq")
+	else if (inst->op == "sne")
 		setRegVal(inst->dst, localRegs, getRegVal(inst->src1, localRegs) != getRegVal(inst->src2, localRegs));
 	else if (inst->op == "slt")
 		setRegVal(inst->dst, localRegs, getRegVal(inst->src1, localRegs) < getRegVal(inst->src2, localRegs));

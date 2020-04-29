@@ -121,6 +121,7 @@
     <ClInclude Include="ClassDeclVisitor.h" />
     <ClInclude Include="configuration.h" />
     <ClInclude Include="cfg_pass.h" />
+    <ClInclude Include="dead_code_elimination.h" />
     <ClInclude Include="dominance.h" />
     <ClInclude Include="environment.h" />
     <ClInclude Include="error.h" />
@@ -154,6 +155,7 @@
     <ClCompile Include="basicblock.cpp" />
     <ClCompile Include="cfg_pass.cpp" />
     <ClCompile Include="ClassDeclVisitor.cpp" />
+    <ClCompile Include="dead_code_elimination.cpp" />
     <ClCompile Include="dominance.cpp" />
     <ClCompile Include="environment.cpp" />
     <ClCompile Include="Function.cpp" />

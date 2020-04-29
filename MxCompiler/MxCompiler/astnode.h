@@ -534,7 +534,11 @@ public:
 		std::vector< std::shared_ptr<VarDeclStmt> > _args,
 		std::shared_ptr<StmtBlock> _body)
 		:retType(std::move(_retType)),name(std::move(_name)), 
-		args(std::move(_args)), body(std::move(_body)) {}
+		args(std::move(_args)), body(std::move(_body)) {
+		if (name->name.length() >= 6 && name->name.substr(name->name.length() - 6, 6) == "::ctor")
+			isCtor = true;
+		else isCtor = false;
+	}
 	
 	/*getters/setters*/
 	std::shared_ptr<Type> getRetType() { return retType; }
@@ -545,7 +549,7 @@ public:
 	std::shared_ptr<FunctionSymbol> getFuncSymbol() { return funcSymbol; }
 	void setFuncSymbol(std::shared_ptr<FunctionSymbol> _funcSymbol) { funcSymbol = _funcSymbol; }
 	
-	bool isConstructor() { return retType == nullptr; }
+	bool isConstructor() { return isCtor; }
 
 	ACCEPT_VISITOR
 private:
@@ -556,6 +560,7 @@ private:
 	std::shared_ptr<StmtBlock> body;
 
 	std::shared_ptr<FunctionSymbol> funcSymbol;
+	bool isCtor;
 };
 
 class ClassDecl : public Declaration{

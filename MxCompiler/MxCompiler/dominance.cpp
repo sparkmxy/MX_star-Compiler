@@ -47,25 +47,35 @@ void DominatorTree::workOutIdoms()
 	}
 	for (int i = 1; i < idfn.size(); i++) {
 		auto x = idfn[i];
+
 		if (x->getDTInfo().sdom != x->getDTInfo().idom)
 			x->getDTInfo().idom = x->getDTInfo().idom->getDTInfo().idom;
+		x->getDTInfo().idom->getDTInfo().DEdges.push_back(x);
 	}
 }
 
-void DominatorTree::buildDominaceTree(std::shared_ptr<BasicBlock> x)
+void DominatorTree::buildDJGraph(std::shared_ptr<BasicBlock> x)
 {
 	x->getDTInfo().dt_dfn = dfs_clock++;
+	x->getDTInfo().depth = x->getDTInfo().idom->getDTInfo().depth + 1;
 	f->appendBlocktoList(x);
+	auto Dedges = x->getDTInfo().DEdges;
+	for (auto &y : Dedges) buildDJGraph(y);
+	x->getDTInfo().dt_dfn_r = dfs_clock;
+
+	// find out J-edges
 	auto &edges = x->getBlocksTo();
 	for(auto &y : edges)
-		if (y->getDTInfo().idom != x) {  // this is a J-edge
+		if (!isStrictlyDominating(x,y)) {  // this is a J-edge
 			x->getDTInfo().JEdges.push_back(y);
 		}
-		else {
-			x->getDTInfo().DEdges.push_back(y);
-			buildDominaceTree(y);
-		}
-	x->getDTInfo().dt_dfn_r = dfs_clock;
+
+
+}
+
+bool DominatorTree::isStrictlyDominating(std::shared_ptr<BasicBlock> x, std::shared_ptr<BasicBlock> y)
+{
+	return x != y && isDominating(x, y);
 }
 
 

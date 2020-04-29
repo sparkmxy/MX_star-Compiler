@@ -21,7 +21,12 @@ struct VMInstruction {
 	// for br dst = condition, src1 = target_block1, src2 = target_block2
 	std::vector<std::string> args; // for call instrction
 
-	std::string toString() { return op + " " + dst + " " + src1 + " " + src2; }
+	std::string toString() { 
+		std::string arg = "";
+		for (auto &str : args) arg += " " + str;
+		return op + " " + dst + " " + src1 + " " + src2 + arg; 
+		
+	}
 };
 
 class VMBasicBlock {

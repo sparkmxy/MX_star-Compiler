@@ -352,7 +352,7 @@ void IR_Generator::visit(BinaryExpr * node)
 			break;
 		case BinaryExpr::NEQ: instOp = Quadruple::NEQ;
 			break;
-		case BinaryExpr::EQ: instOp = Quadruple::NEQ;
+		case BinaryExpr::EQ: instOp = Quadruple::EQ;
 			break;
 		case BinaryExpr::LSHIFT: instOp = Quadruple::LSHIFT;
 			break;
@@ -568,7 +568,7 @@ void IR_Generator::visit(StringValue * node)
 {
 	auto reg = std::make_shared<VirtualReg>(Operand::REG_VAL, "__str");  // 
 	auto str = std::make_shared<StaticString>(reg, node->getText());
-	node->setResultOprand(reg);
+	node->setResultOprand(str);  // reg or str?
 	reg->markAsGlobal();
 	ir->addStringConst(str);
 }

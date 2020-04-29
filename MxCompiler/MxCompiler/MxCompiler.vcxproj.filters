@@ -171,6 +171,9 @@
     <ClInclude Include="vm.h">
       <Filter>头文件\IRTools</Filter>
     </ClInclude>
+    <ClInclude Include="dead_code_elimination.h">
+      <Filter>头文件\backend\optimize</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="lexer.cpp">
@@ -247,6 +250,9 @@
     </ClCompile>
     <ClCompile Include="interpreter.cpp">
       <Filter>源文件\IRTools</Filter>
+    </ClCompile>
+    <ClCompile Include="dead_code_elimination.cpp">
+      <Filter>源文件\backend\optimize</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

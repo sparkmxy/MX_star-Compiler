@@ -7,13 +7,6 @@ void SSAConstructor::constructSSA()
 	renameVariables();
 }
 
-void SSAConstructor::initDT()
-{
-	auto &functions = ir->getFunctions();
-	for (auto function : functions) 
-		function->initDT(std::make_shared<DominatorTree>(function));
-}
-
 void SSAConstructor::insertPhiFunction()
 {
 	auto &functions = ir->getFunctions();
@@ -52,7 +45,7 @@ void SSAConstructor::renameVariables(std::shared_ptr<Function> func)
 				auto use_regs = instr->getUseRegs();
 				std::unordered_map < std::shared_ptr<Register>,std::shared_ptr<Register> > table;
 				for (auto &var : use_regs) {
-					updateReachingDef(def_var, instr, func);
+					updateReachingDef(std::static_pointer_cast<VirtualReg>(var), instr, func);
 					table[var] = std::static_pointer_cast<VirtualReg>(var)->getReachingDef();
 				}
 				instr->renameUseRegs(table);
@@ -76,7 +69,7 @@ void SSAConstructor::collectVariales()
 	for (auto &function : functions) {
 		auto blocks = function->getBlockList();
 		for (auto &block : blocks) {
-			std::unordered_set<std::shared_ptr<Register> > local;
+			std::unordered_set<std::shared_ptr<Register> > local;  // the variables defined in the current block
 			auto instr = block->getFront();
 			while (instr != nullptr) {
 				auto useRegs = instr->getUseRegs();
@@ -85,11 +78,11 @@ void SSAConstructor::collectVariales()
 						function->append_var(std::static_pointer_cast<VirtualReg>(reg));
 				}
 				auto def = instr->getDefReg();
-				instr = instr->getNextInstr();
 				if (def != nullptr && Operand::isRegister(def->category())) {
 					local.insert(def);
 					std::static_pointer_cast<VirtualReg>(def)->append_def_block(block);
 				}
+				instr = instr->getNextInstr();
 			}
 		}
 	}
@@ -126,14 +119,14 @@ void SSAConstructor::visit(std::shared_ptr<BasicBlock> y,const  std::shared_ptr<
 	auto &JEdges = y->getDTInfo().JEdges;
 	auto &DEdges = y->getDTInfo().DEdges;
 
-	for (auto z : JEdges) 
-		if (z->getDTInfo().depth < current_x->getDTInfo().depth) {
+	for (auto &z : JEdges) 
+		if (z->getDTInfo().depth <= current_x->getDTInfo().depth) {
 			if (DFplus.find(z) == DFplus.end()) {
 				DFplus.insert(z);
 				if (onceInQueue.find(z) == onceInQueue.end()) insertNode(z);
 			}
 		}
-	for (auto z : DEdges)
+	for (auto &z : DEdges)
 		if (visited.find(z) == visited.end()) {
 			visited.insert(z);
 			visit(z,current_x,DFplus);
