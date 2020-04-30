@@ -247,6 +247,8 @@ public:
 
 	
 	void appendRelatedReg(std::shared_ptr<Register> reg) { relatedReg.insert(reg); }
+	std::unordered_set<std::shared_ptr<Register> >  &getRelatedRegs() { return relatedReg; }
+
 	std::shared_ptr<Register> getDst() { return dst; }
 	//override functions
 	virtual std::shared_ptr<Register> getDefReg() override;
@@ -257,3 +259,7 @@ private:
 	std::shared_ptr<Register> dst;
 	std::unordered_set<std::shared_ptr<Register> > relatedReg;
 };
+
+// Check if reg is a register and renew it if it is in the table
+void updateRegister(std::shared_ptr<Operand> &reg,
+	std::unordered_map<std::shared_ptr<Register>, std::shared_ptr<Register>>& table);

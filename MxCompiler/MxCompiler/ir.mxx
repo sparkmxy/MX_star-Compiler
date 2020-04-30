@@ -1,117 +1,173 @@
-@t0
-@a0
-@t1
-def @jud %t2  { 
+def @main  { 
 $entry0:
-    mov %t3 #0
-    mov %t4 #0
-    mov %t3 #0
+    mul %t0 #4 #100
+    add %t1 %t1 #4
+    malloc %t2 %t1
+    store %t3 %t1
+    mov %t4 %t3
+    mov %t5 #0
+    mov %t6 #0
+    mov %t7 #0
     jmp for_cond0
 $for_cond0:
-    div %t5 @t0 %t2
-    slt %t6 %t3 %t5
-    br %t6 for_body0 for_final0
+    phi %t8 %t7 
+    slt %t9 %t8 #100
+    br %t9 for_body0 for_final0
 $for_body0:
-    mov %t7 #0
-    mov %t4 #0
-    jmp for_cond1
-$for_cond1:
-    sub %t8 %t2 #1
-    slt %t9 %t4 %t8
-    br %t9 for_body1 for_final1
-$for_final1:
-    br %t7 if_final0 if_true0
-$if_final0:
+    mul %t10 %t8 #4
+    add %t11 %t10 #4
+    add %t12 %t11 %t4
+    mul %t13 #4 #100
+    add %t14 %t14 #4
+    malloc %t15 %t14
+    store %t16 %t14
+    store %t17 %t16
     jmp for_iter0
 $for_iter0:
-    mov %t10 %t3
-    add %t3 %t3 #1
+    mov %t18 %t8
+    add %t19 %t19 #1
     jmp for_cond0
+$for_final0:
+    mov %t20 #0
+    mov %t21 #0
+    jmp for_cond1
+$for_cond1:
+    phi %t22 %t6 
+    phi %t23 %t21 
+    slt %t24 %t23 #100
+    br %t24 for_body1 for_final1
+$for_final1:
+    mov %t25 #0
+    jmp for_cond2
+$for_cond2:
+    phi %t26 %t22 
+    phi %t27 %t25 
+    slt %t28 %t27 #100
+    br %t28 for_body2 for_final2
+$for_body2:
+    sgt %t29 %t27 #20
+    br %t29 lhs_true0 if_final0
+$lhs_true0:
+    slt %t30 %t27 #80
+    br %t30 if_true0 if_final0
 $if_true0:
-    mov %t11 #1
-    ret %t11
-$for_body1:
-    add %t12 %t2 %t4
-    mul %t13 %t3 %t12
-    mul %t14 %t13 #4
-    add %t15 %t14 #4
-    add %t16 %t15 @a0
-    add %t17 %t2 %t4
-    add %t18 %t17 #1
-    mul %t19 %t3 %t18
-    mul %t20 %t19 #4
-    add %t21 %t20 #4
-    add %t22 %t21 @a0
-    load %t23 %t16
-    load %t24 %t22
-    sgt %t25 %t23 %t24
-    br %t25 if_true1 if_final1
+    mov %t31 #0
+    jmp for_cond3
+$for_cond3:
+    phi %t32 %t31 
+    slt %t33 %t32 #100
+    br %t33 for_body3 for_final3
+$for_body3:
+    sgt %t34 %t32 #5
+    br %t34 if_true1 lhs_false0
 $if_true1:
-    mov %t7 #1
+    mul %t35 %t27 #4
+    add %t36 %t35 #4
+    add %t37 %t36 %t4
+    load %t38 %t37
+    mul %t39 %t32 #4
+    add %t40 %t39 #4
+    add %t41 %t40 %t38
+    sub %t42 #100 #1
+    add %t43 %t42 #1
+    sub %t44 %t43 #1
+    add %t45 %t44 #1
+    add %t46 %t32 %t45
+    div %t47 %t46 #2
+    store %t48 %t47
     jmp if_final1
 $if_final1:
     jmp for_iter1
 $for_iter1:
-    mov %t26 %t4
-    add %t4 %t4 #1
-    jmp for_cond1
-$for_final0:
-    mov %t27 #0
-    ret %t27
-}
-def @main  { 
-$entry1:
-    call %t28 getInt 
-    mov @t0 %t28
-    mov @t1 #0
-    jmp for_cond2
-$for_cond2:
-    slt %t29 @t1 @t0
-    br %t29 for_body2 for_final2
-$for_final2:
-    mov @t1 @t0
+    mov %t49 %t32
+    add %t50 %t50 #1
     jmp for_cond3
-$for_cond3:
-    sgt %t30 @t1 #0
-    br %t30 for_body3 for_final3
-$for_body3:
-    call %t31 jud @t1 
-    sgt %t32 %t31 #0
-    br %t32 if_true2 if_final2
-$if_true2:
-    call %t33 toString @t1 
-    call null print %t33 
-    mov %t34 #0
-    ret %t34
-$if_final2:
+$lhs_false0:
+    slt %t51 %t27 #90
+    br %t51 if_true1 if_final1
+$for_final3:
+    jmp if_final0
+$if_final0:
+    phi %t52 %t26 %t32 
     jmp for_iter2
 $for_iter2:
-    div %t35 @t1 #2
-    mov @t1 %t35
-    jmp for_cond3
-$for_final3:
-    mov %t36 #0
-    ret %t36
-$for_body2:
-    mul %t37 @t1 #4
-    add %t38 %t37 #4
-    add %t39 %t38 @a0
-    call %t40 getInt 
-    store %t39 %t40
+    mov %t53 %t27
+    add %t54 %t54 #1
+    jmp for_cond2
+$for_final2:
+    mov %t55 #0
+    jmp for_cond4
+$for_cond4:
+    phi %t56 %t20 
+    phi %t57 %t26 
+    phi %t58 %t55 
+    slt %t59 %t58 #100
+    br %t59 for_body4 for_final4
+$for_final4:
+    call %t60 toString %t61 
+    call null println %t62 
+    ret #0
+$for_body4:
+    mov %t63 #0
+    jmp for_cond5
+$for_cond5:
+    phi %t64 %t56 
+    phi %t65 %t63 
+    slt %t66 %t65 #100
+    br %t66 for_body5 for_final5
+$for_body5:
+    mul %t67 %t58 #4
+    add %t68 %t67 #4
+    add %t69 %t68 %t4
+    load %t70 %t69
+    mul %t71 %t65 #4
+    add %t72 %t71 #4
+    add %t73 %t72 %t70
+    load %t74 %t73
+    add %t75 %t64 %t74
+    mov %t76 %t75
     jmp for_iter3
 $for_iter3:
-    mov %t41 @t1
-    add @t1 @t1 #1
-    jmp for_cond2
+    mov %t77 %t65
+    add %t78 %t78 #1
+    jmp for_cond5
+$for_final5:
+    jmp for_iter4
+$for_iter4:
+    mov %t79 %t58
+    add %t80 %t80 #1
+    jmp for_cond4
+$for_body1:
+    mov %t81 #0
+    jmp for_cond6
+$for_cond6:
+    phi %t82 %t81 
+    slt %t83 %t82 #100
+    br %t83 for_body6 for_final6
+$for_body6:
+    mul %t84 %t23 #4
+    add %t85 %t84 #4
+    add %t86 %t85 %t4
+    load %t87 %t86
+    mul %t88 %t82 #4
+    add %t89 %t88 #4
+    add %t90 %t89 %t87
+    store %t91 #0
+    jmp for_iter5
+$for_iter5:
+    mov %t92 %t82
+    add %t93 %t93 #1
+    jmp for_cond6
+$for_final6:
+    jmp for_iter6
+$for_iter6:
+    mov %t94 %t23
+    add %t95 %t95 #1
+    jmp for_cond1
 }
 def @__bootstrap  { 
-$entry2:
-    mul %t42 #4 #20
-    add %t42 %t42 #4
-    malloc %t43 %t42
-    store %t43 %t42
-    mov @a0 %t43
-    call %t44 main 
-    mov %t45 %t44
-    ret %t45
+$entry1:
+    call %t96 main 
+    mov %t97 %t96
+    ret %t97
 }

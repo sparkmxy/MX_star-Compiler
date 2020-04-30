@@ -60,7 +60,7 @@ class RegForSSA;
 class VirtualReg: public Register {
 public:
 	VirtualReg(Category tag = REG_VAL, std::string _name = "") 
-		:Register(tag, _name),reachingDef(nullptr){}
+		:Register(tag, _name){}
 
 	std::vector<std::shared_ptr<BasicBlock> > &getDefBlocks() { return defBlocks; }
 	void append_def_block(std::shared_ptr<BasicBlock> block) { defBlocks.emplace_back(block); }
@@ -69,8 +69,10 @@ public:
 		return ssaNames.back();
 	}
 
-	std::shared_ptr<RegForSSA> getReachingDef() { return reachingDef; }
-	void setReachingDef(const std::shared_ptr<RegForSSA> rdef) { reachingDef = rdef; }
+	std::shared_ptr<RegForSSA> getReachingDef() {  
+		return reachingDef;
+	}
+	void setReachingDef(std::shared_ptr<RegForSSA> rdef) {reachingDef = rdef;}
 private:
 	//for SSA
 	std::vector<std::shared_ptr<BasicBlock> > defBlocks;

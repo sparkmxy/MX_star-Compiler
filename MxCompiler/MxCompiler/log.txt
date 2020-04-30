@@ -1,0 +1,5 @@
+--------------------Open: test/sema/misc-package/misc-23.mx-------------------
+define variable a in scopce main_LOCAL
+define variable i in scopce main_LOCAL
+define variable j in scopce main_LOCAL
+define variable sum in scopce main_LOCAL

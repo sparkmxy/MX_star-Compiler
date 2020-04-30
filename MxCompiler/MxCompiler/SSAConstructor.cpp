@@ -23,9 +23,25 @@ void SSAConstructor::insertPhiFunction()
 
 void SSAConstructor::renameVariables()
 {
+	// define global vars
+	auto glbVars = ir->getGlbVars();
+	for (auto &var : glbVars) {
+		auto def_var = std::static_pointer_cast<VirtualReg>(var);
+		auto new_var = def_var->newName(nullptr); // is this ok?
+		def_var->setReachingDef(new_var);
+	}
+
 	auto &functions = ir->getFunctions();
-	for (auto &function : functions)
+	for (auto &function : functions) {
+		// define parameters
+		auto args = function->getArgs();
+		for (auto &arg : args) {
+			auto def_var = std::static_pointer_cast<VirtualReg>(arg);
+			auto new_var = def_var->newName(nullptr); // is this ok?
+			def_var->setReachingDef(new_var);
+		}
 		renameVariables(function);
+	}
 }
 
 void SSAConstructor::renameVariables(std::shared_ptr<Function> func)
@@ -33,8 +49,9 @@ void SSAConstructor::renameVariables(std::shared_ptr<Function> func)
 	auto &blocks = func->getBlockList();
 	for (auto &block : blocks){
 		for (auto instr = block->getFront(); instr != nullptr; instr = instr->getNextInstr()) {
-			auto def_var = std::static_pointer_cast<VirtualReg>(instr->getDefReg());
-			if (def_var != nullptr) {
+		
+			if (instr->getDefReg() != nullptr) {
+				auto def_var = std::static_pointer_cast<VirtualReg>(instr->getDefReg());
 				updateReachingDef(def_var, instr, func);
 				auto new_var = def_var->newName(block);
 				instr->setDefReg(new_var);
@@ -47,6 +64,7 @@ void SSAConstructor::renameVariables(std::shared_ptr<Function> func)
 				for (auto &var : use_regs) {
 					updateReachingDef(std::static_pointer_cast<VirtualReg>(var), instr, func);
 					table[var] = std::static_pointer_cast<VirtualReg>(var)->getReachingDef();
+					// What if reachingDef is nullptr?
 				}
 				instr->renameUseRegs(table);
 			}
@@ -56,6 +74,7 @@ void SSAConstructor::renameVariables(std::shared_ptr<Function> func)
 			for (auto instr = block_to->getFront(); instr != nullptr; instr = instr->getNextInstr()) 
 				if (instr->getTag() == IRInstruction::PHI) {
 					auto var = std::static_pointer_cast<VirtualReg>(std::static_pointer_cast<PhiFunction>(instr)->getDst());
+					updateReachingDef(var, instr, func);
 					std::static_pointer_cast<PhiFunction>(instr)->appendRelatedReg(var->getReachingDef());
 				}
 				else break;
@@ -92,7 +111,8 @@ void SSAConstructor::updateReachingDef
 (std::shared_ptr<VirtualReg> v, std::shared_ptr<IRInstruction> i, std::shared_ptr<Function> f)
 {
 	auto r = v->getReachingDef();
-	while (r != nullptr && f->getDT()->isDominating(r->getDefiningBlock(), i->getBlock()))
+	while (r != nullptr && r->getDefiningBlock() != nullptr					// globals
+		&&!f->getDT()->isDominating(r->getDefiningBlock(), i->getBlock()))
 		r = r->getReachingDef();
 	v->setReachingDef(r);
 }

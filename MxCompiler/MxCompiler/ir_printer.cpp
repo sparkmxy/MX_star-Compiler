@@ -162,7 +162,14 @@ void IR_Printer::visit(Jump * j)
 
 void IR_Printer::visit(PhiFunction * p)
 {
-	// do nothing for now
+	os << "phi ";
+	p->getDst()->accept(*this);
+	os << " ";
+	auto regs = p->getRelatedRegs();
+	for (auto &reg : regs) {
+		reg->accept(*this);
+		os << " ";
+	}
 }
 
 void IR_Printer::visit(Register * r)
