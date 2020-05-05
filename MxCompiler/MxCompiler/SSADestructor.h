@@ -1,10 +1,14 @@
 #pragma once
 
 #include "cfg_pass.h"
+#include "IR.h"
 
-class SSADestructor{
+class SSADestructor: public CFG_Pass{
 public:
-	SSADestructor();
-	~SSADestructor();
+	SSADestructor(std::shared_ptr<IR> ir) :CFG_Pass(ir) {}
+
+	bool run() override;
+
+private:
 };
 

@@ -26,7 +26,7 @@ class SSAConstructor :public CFG_Pass{
 public:
 	SSAConstructor(std::shared_ptr<IR> _ir) :CFG_Pass(_ir){}
 
-	void constructSSA();
+	bool run() override;
 private:
 	void insertPhiFunction();
 	void renameVariables();

@@ -20,6 +20,13 @@ void Quadruple::updateUseRegs()
 		useRegs.push_back(std::static_pointer_cast<Register>(dst));
 }
 
+void Quadruple::replaceUseReg(std::shared_ptr<Operand> old, std::shared_ptr<Operand> _new)
+{
+	if (src1 == old) src1 = old;
+	if (src2 == old) src1 = old;
+	updateUseRegs();
+}
+
 std::shared_ptr<Register> Quadruple::getDefReg()
 {
 	if (op == STORE) return nullptr;
@@ -37,6 +44,12 @@ void Branch::updateUseRegs()
 	useRegs.clear();
 	if(Operand::isRegister(condition->category()))
 		useRegs.push_back(std::static_pointer_cast<Register>(condition));
+}
+
+void Branch::replaceUseReg(std::shared_ptr<Operand> old, std::shared_ptr<Operand> _new)
+{
+	if(condition == old) condition = _new;
+	updateUseRegs();
 }
 
 void Call::renameUseRegs(std::unordered_map<std::shared_ptr<Register>, std::shared_ptr<Register>>& table)
@@ -67,6 +80,15 @@ void Call::setDefReg(std::shared_ptr<Register> _defReg)
 	result = _defReg;
 }
 
+void Call::replaceUseReg(std::shared_ptr<Operand> old, std::shared_ptr<Operand> _new)
+{
+	if (result == old) result = _new;
+	for (auto &arg : args)
+		if (arg == old) arg = _new;
+	if (object == old) object = _new;
+	updateUseRegs();
+}
+
 void Return::renameUseRegs(std::unordered_map<std::shared_ptr<Register>, std::shared_ptr<Register>>& table)
 {
 	if (Operand::isRegister(value->category()))
@@ -81,6 +103,12 @@ void Return::updateUseRegs()
 		useRegs.push_back(std::static_pointer_cast<Register>(value));
 }
 
+void Return::replaceUseReg(std::shared_ptr<Operand> old, std::shared_ptr<Operand> _new)
+{
+	if (value == old) value = _new;
+	updateUseRegs();
+}
+
 void Malloc::renameUseRegs(std::unordered_map<std::shared_ptr<Register>, std::shared_ptr<Register>>& table)
 {
 	updateRegister(size, table);
@@ -92,6 +120,12 @@ void Malloc::updateUseRegs()
 	useRegs.clear();
 	if (Operand::isRegister(size->category()))
 		useRegs.push_back(std::static_pointer_cast<Register>(size));
+}
+
+void Malloc::replaceUseReg(std::shared_ptr<Operand> old, std::shared_ptr<Operand> _new)
+{
+	if(size == old) size = _new;
+	updateUseRegs();
 }
 
 
@@ -115,4 +149,17 @@ void updateRegister(std::shared_ptr<Operand>& reg, std::unordered_map<std::share
 	if (!Operand::isRegister(reg->category())) return;
 	auto it = table.find(std::static_pointer_cast<Register>(reg));
 	if (it != table.end()) reg = it->second;
+}
+
+void IRInstruction::replaceBy(std::shared_ptr<IRInstruction> i)
+{
+	prev->next = i;
+	i->prev = prev;
+	i->next = next;
+}
+
+void IRInstruction::removeThis()
+{
+	prev->next = next;
+	if (next != nullptr) next->prev = prev;
 }

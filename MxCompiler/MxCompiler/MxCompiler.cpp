@@ -75,5 +75,5 @@ void MxCompiler::generateIR()
 	ir = irGenerator->getIR();
 	ssaCtor = std::make_shared<SSAConstructor>(ir);
 	std::make_shared<IR_Printer>(ir, std::cout)->print();
-	ssaCtor->constructSSA();
+	ssaCtor->run();
 }

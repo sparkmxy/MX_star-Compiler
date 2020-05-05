@@ -1,10 +1,11 @@
 #include "SSAConstructor.h"
 
-void SSAConstructor::constructSSA()
+bool SSAConstructor::run()
 {
 	collectVariales();
 	insertPhiFunction();
 	renameVariables();
+	return true;
 }
 
 void SSAConstructor::insertPhiFunction()

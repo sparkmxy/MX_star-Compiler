@@ -24,9 +24,14 @@ public:
 		ALLOC,
 		PHI
 	};
+
+
 	IRInstruction(InstrTag _tag, std::shared_ptr<BasicBlock> block) 
 		:tag(_tag), residingBlock(block){}
 	
+	InstrTag getTag() { return tag; }
+
+
 	std::shared_ptr<BasicBlock> getBlock() { return residingBlock; }
 
 	std::shared_ptr<IRInstruction> getNextInstr() { return next;}
@@ -35,9 +40,11 @@ public:
 	std::shared_ptr<IRInstruction> getPreviousInstr() { return prev; }
 	void setPreviousInstr(const std::shared_ptr<IRInstruction> &_prev) { prev = _prev; }
 
+	void replaceBy(std::shared_ptr<IRInstruction> i);
+	void removeThis();
+
 	std::vector<std::shared_ptr<Register> > &getUseRegs() { return useRegs; }
 
-	InstrTag getTag() { return tag; }
 	// virtual functions (do nothing by default)
 	virtual void renameUseRegs(std::unordered_map<std::shared_ptr<Register>,
 		std::shared_ptr<Register> > &table) {}
@@ -46,6 +53,8 @@ public:
 	virtual void setDefReg(std::shared_ptr<Register> _defReg) {}
 
 	virtual void accept(CFG_Visitor &vis) = 0;
+
+	virtual void replaceUseReg(std::shared_ptr<Operand> old, std::shared_ptr<Operand> _new) {}
 	
 protected:
 	std::shared_ptr<BasicBlock> residingBlock;
@@ -75,10 +84,9 @@ public:
 
 		BITAND, BITOR, BITXOR,
 		//unary
-		NEG, INV,
+		NEG, INV, MOVE,
 		// momory access
-		LOAD, STORE,
-		MOVE
+		LOAD, STORE
 	};
 	Quadruple(std::shared_ptr<BasicBlock> _block, Operator _op,
 		std::shared_ptr<Operand> _dst,
@@ -96,6 +104,8 @@ public:
 	void renameUseRegs(std::unordered_map<std::shared_ptr<Register>,
 		std::shared_ptr<Register> > &table)override;
 	void updateUseRegs()override;
+	
+	void replaceUseReg(std::shared_ptr<Operand> old, std::shared_ptr<Operand> _new) override;
 
 	std::shared_ptr<Register> getDefReg() override;
 	void setDefReg(std::shared_ptr<Register> _defReg) override { dst = _defReg; }
@@ -128,6 +138,8 @@ public:
 	void renameUseRegs(std::unordered_map<std::shared_ptr<Register>,
 		std::shared_ptr<Register> > &table)override;
 	void updateUseRegs()override;
+
+	void replaceUseReg(std::shared_ptr<Operand> old, std::shared_ptr<Operand> _new) override;
 
 	ACCEPT_CFG_VISITOR
 private:
@@ -165,6 +177,8 @@ public:
 	virtual std::shared_ptr<Register> getDefReg() override;
 	virtual void setDefReg(std::shared_ptr<Register> _defReg) override;
 
+	void replaceUseReg(std::shared_ptr<Operand> old, std::shared_ptr<Operand> _new) override;
+
 	ACCEPT_CFG_VISITOR
 private:
 	std::shared_ptr<Function> func;
@@ -198,6 +212,8 @@ public:
 	} // is this safe ?
 	void setDefReg(std::shared_ptr<Register> _defReg) override { ptr = _defReg; }
 
+	void replaceUseReg(std::shared_ptr<Operand> old, std::shared_ptr<Operand> _new) override;
+
 	ACCEPT_CFG_VISITOR
 private:
 	std::shared_ptr<Operand> size, ptr;
@@ -213,10 +229,11 @@ public:
 	std::shared_ptr<Operand> getValue() { return value; }
 
 	// override functions (no def-register here)
-	virtual void renameUseRegs(std::unordered_map<std::shared_ptr<Register>,
+	void renameUseRegs(std::unordered_map<std::shared_ptr<Register>,
 		std::shared_ptr<Register> > &table)override;
-	virtual void updateUseRegs()override;
+	void updateUseRegs()override;
 
+	void replaceUseReg(std::shared_ptr<Operand> old, std::shared_ptr<Operand> _new) override;
 	ACCEPT_CFG_VISITOR
 private:
 	std::shared_ptr<Operand> value;

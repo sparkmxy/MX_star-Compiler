@@ -6,7 +6,7 @@ class DeadCodeEliminationPass : public CFG_Pass {
 public:
 	DeadCodeEliminationPass(std::shared_ptr<IR> ir) :CFG_Pass(ir) {}
 
-	void run();
+	bool run() override;
 
 private:
 

@@ -1,11 +1,6 @@
 #include "SSADestructor.h"
 
-
-SSADestructor::SSADestructor()
+bool SSADestructor::run()
 {
-}
-
-
-SSADestructor::~SSADestructor()
-{
+	return true;
 }

@@ -174,6 +174,9 @@
     <ClInclude Include="dead_code_elimination.h">
       <Filter>头文件\backend\optimize</Filter>
     </ClInclude>
+    <ClInclude Include="ConstantExpressionEvaluation.h">
+      <Filter>头文件\backend\optimize</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="lexer.cpp">
@@ -252,6 +255,9 @@
       <Filter>源文件\IRTools</Filter>
     </ClCompile>
     <ClCompile Include="dead_code_elimination.cpp">
+      <Filter>源文件\backend\optimize</Filter>
+    </ClCompile>
+    <ClCompile Include="ConstantExpressionEvaluation.cpp">
       <Filter>源文件\backend\optimize</Filter>
     </ClCompile>
   </ItemGroup>

@@ -14,6 +14,7 @@ class CFG_Pass{
 public:
 	CFG_Pass(std::shared_ptr<IR> _ir) :ir(_ir) {}
 	
+	virtual bool run() = 0;
 protected:
 	std::shared_ptr<IR> ir;
 
@@ -21,6 +22,8 @@ protected:
 	std::unordered_map<std::shared_ptr<Register>, std::shared_ptr<IRInstruction> > def;
 	std::unordered_map<std::shared_ptr<Register>, 
 		std::unordered_set<std::shared_ptr<IRInstruction> > > use;
+
+	void resolveDefineUseChain(std::shared_ptr<Function> f);
 private:
 };
 
