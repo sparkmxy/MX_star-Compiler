@@ -43,6 +43,8 @@ private:
 		return ch;
 	}
 
+	std::stack<std::string> lastBlockName, curblockName;
+	int getPhiVal(std::vector<std::string> &V, std::unordered_map<std::string, int> &local);
 	// builtin function
 public:
 	using Args = const std::vector<int> &;

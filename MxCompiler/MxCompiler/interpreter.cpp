@@ -120,6 +120,18 @@ std::shared_ptr<VMInstruction> IR_Interpreter::parseInstruction()
 		is >> dst >> src1;
 		return std::make_shared<VMInstruction>(op, dst, src1);
 	}
+	else if (op == "phi") {
+		is >> dst;
+		int n;
+		is >> n;
+		std::vector<std::string> args;
+		while (n--) {
+			is >> src1 >> src2;
+			args.push_back(src1);
+			args.push_back(src2);
+		}
+		return std::make_shared<VMInstruction>(op, dst, "", "", args);
+	}
 	else {
 		is >> dst >> src1 >> src2;
 		return std::make_shared<VMInstruction>(op, dst, src1, src2);
@@ -138,10 +150,19 @@ int IR_Interpreter::executeFunction(std::shared_ptr<VMFunction> f, std::vector<i
 {
 	auto argMap = f->getArgMap(args);
 	std::shared_ptr<VMBasicBlock> curBlock = f->getEntry();
+	curblockName.push("");
+	lastBlockName.push("");
 	while (true) {
+
+		lastBlockName.top() = curblockName.top();
+		curblockName.top() = curBlock->getLabel();
+
 		auto instructions = curBlock->getInstructions();
+		
 		for (auto &inst : instructions) {
 			if (inst->op == "ret") {
+				curblockName.pop();
+				lastBlockName.pop();
 				return getRegVal(inst->dst, argMap);
 			}
 			else if (inst->op == "jmp") {
@@ -205,12 +226,12 @@ void IR_Interpreter::executeInstruction(std::shared_ptr<VMInstruction> inst, std
 	else if (inst->op == "mov")
 		setRegVal(inst->dst, localRegs, getRegVal(inst->src1, localRegs));
 	else if (inst->op == "load")
-		setRegVal(inst->dst, localRegs, M.load(getRegVal(inst->src1,localRegs)));
+		setRegVal(inst->dst, localRegs, M.load(getRegVal(inst->src1, localRegs)));
 	else if (inst->op == "store")
 		M.store(getRegVal(inst->dst, localRegs), getRegVal(inst->src1, localRegs));
-	else if (inst->op == "malloc") 
-		setRegVal(inst->dst, localRegs, 
-			(int)M.allocate_memory(getRegVal(inst->src1, localRegs)));
+	else if (inst->op == "malloc")
+		setRegVal(inst->dst, localRegs,
+		(int)M.allocate_memory(getRegVal(inst->src1, localRegs)));
 	else if (inst->op == "call") {
 		std::vector<int> argv;
 		for (auto &reg : inst->args) argv.push_back(getRegVal(reg, localRegs));
@@ -219,7 +240,18 @@ void IR_Interpreter::executeInstruction(std::shared_ptr<VMInstruction> inst, std
 		else
 			setRegVal(inst->src1, localRegs, executeFunction(inst->dst, argv));
 	}
+	else if (inst->op == "phi")
+		setRegVal(inst->dst, localRegs, getPhiVal(inst->args,localRegs));
 	else throw Error("What the fuck are you doing here!");
+}
+
+int IR_Interpreter::getPhiVal(std::vector<std::string>& V, std::unordered_map<std::string,int> &local)
+{
+	for (int i = 0; i < V.size(); i += 2) {
+		if (V[i + 1] == lastBlockName.top())
+			return getRegVal(V[i], local);
+	}
+	throw Error("getPhiVal: no active variable");
 }
 
 int IR_Interpreter::print(Args args)

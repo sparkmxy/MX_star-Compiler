@@ -20,13 +20,13 @@ private:
 	std::unordered_map<Tag, BinaryExpr::Operator> Equality, Additive, Multiplicative, Rel, Shift;
 
 	void init() {
-		Additive = { 
+		Multiplicative = {
 			{Multiply,BinaryExpr::TIMES},
 			{Divide, BinaryExpr::DIVIDE},
 			{Mod, BinaryExpr::MOD} 
 		};
 
-		Multiplicative = {
+		Additive = {
 			{Add, BinaryExpr::ADD},
 			{Minus, BinaryExpr::MINUS}
 		};

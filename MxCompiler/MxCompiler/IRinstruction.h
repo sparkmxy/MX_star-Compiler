@@ -97,8 +97,7 @@ public:
 		std::shared_ptr<Register> > &table)override;
 	void updateUseRegs()override;
 
-	std::shared_ptr<Register> getDefReg() override
-	{ return std::static_pointer_cast<Register>(dst); } // is this safe ?
+	std::shared_ptr<Register> getDefReg() override;
 	void setDefReg(std::shared_ptr<Register> _defReg) override { dst = _defReg; }
 
 	ACCEPT_CFG_VISITOR
@@ -151,7 +150,7 @@ public:
 	std::shared_ptr<Function> getFunction() { return func; }
 
 	std::vector<std::shared_ptr<Operand> > getArgs() { return args; }
-	void addArg(std::shared_ptr<Operand> arg) { args.emplace_back(arg); }
+	void addArg(std::shared_ptr<Operand> arg) { args.emplace_back(arg); updateUseRegs(); }
 	std::shared_ptr<Operand> getResult() { return result; }
 	void setResult(const std::shared_ptr<Operand> &_res) { result = _res; }
 
@@ -243,21 +242,23 @@ private:
 class PhiFunction : public IRInstruction {
 public:
 	PhiFunction(std::shared_ptr<BasicBlock> _residingBlock, std::shared_ptr<Register> _dst)
-		:IRInstruction(PHI, _residingBlock), dst(_dst) {}
+		:IRInstruction(PHI, _residingBlock), dst(_dst), origin(_dst){}
 
 	
-	void appendRelatedReg(std::shared_ptr<Register> reg) { relatedReg.insert(reg); }
-	std::unordered_set<std::shared_ptr<Register> >  &getRelatedRegs() { return relatedReg; }
+	void appendRelatedReg(std::shared_ptr<Register> reg, std::shared_ptr<BasicBlock> from);
+	std::vector<std::pair<std::shared_ptr<Register>,std::shared_ptr<BasicBlock> > > 
+		&getRelatedRegs() { return relatedReg; }
 
 	std::shared_ptr<Register> getDst() { return dst; }
+	std::shared_ptr<Register> getOrigin() { return origin; }
 	//override functions
 	virtual std::shared_ptr<Register> getDefReg() override;
 	virtual void setDefReg(std::shared_ptr<Register> _defReg) override;
 
 	ACCEPT_CFG_VISITOR
 private:
-	std::shared_ptr<Register> dst;
-	std::unordered_set<std::shared_ptr<Register> > relatedReg;
+	std::shared_ptr<Register> dst,origin;
+	std::vector<std::pair<std::shared_ptr<Register>, std::shared_ptr<BasicBlock> > > relatedReg;
 };
 
 // Check if reg is a register and renew it if it is in the table

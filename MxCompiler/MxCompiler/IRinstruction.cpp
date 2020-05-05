@@ -20,6 +20,12 @@ void Quadruple::updateUseRegs()
 		useRegs.push_back(std::static_pointer_cast<Register>(dst));
 }
 
+std::shared_ptr<Register> Quadruple::getDefReg()
+{
+	if (op == STORE) return nullptr;
+	return std::static_pointer_cast<Register>(dst);
+}
+
 void Branch::renameUseRegs(std::unordered_map<std::shared_ptr<Register>, std::shared_ptr<Register>>& table)
 {
 	updateRegister(condition, table);
@@ -89,7 +95,12 @@ void Malloc::updateUseRegs()
 }
 
 
-std::shared_ptr<Register> PhiFunction::getDefReg() 
+void PhiFunction::appendRelatedReg(std::shared_ptr<Register> reg, std::shared_ptr<BasicBlock> from)
+{
+	relatedReg.push_back(std::make_pair(reg,from));
+}
+
+std::shared_ptr<Register> PhiFunction::getDefReg()
 {
 	return dst;
 }

@@ -60,10 +60,10 @@ void Test::runWithInterpreter(std::string src)
 	std::ofstream fout("ir.mxx");
 	compiler.printIR(fout);
 	fout.close();
-//	std::ifstream fin("ir.mxx");
-//	IR_Interpreter I(fin);
-//	I.run();
-//	fin.close();
+	std::ifstream fin("ir.mxx");
+	IR_Interpreter I(fin);
+	I.run();
+	fin.close();
 }
 
 bool Test::compile(std::string src) {

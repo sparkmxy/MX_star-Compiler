@@ -22,7 +22,7 @@ public:
 	}
 
 	bool isDominating(std::shared_ptr<BasicBlock> x, std::shared_ptr<BasicBlock> y);
-
+	bool isStrictlyDominating(std::shared_ptr<BasicBlock> x, std::shared_ptr<BasicBlock> y);
 private:
 	std::shared_ptr<Function> f;
 
@@ -35,7 +35,7 @@ private:
 	void buildDJGraph(std::shared_ptr<BasicBlock> x);
 
 	//return true if x strictly dominates y
-	bool isStrictlyDominating(std::shared_ptr<BasicBlock> x, std::shared_ptr<BasicBlock> y);
+
 	// Union-find
 	std::vector<int> S, val;
 	void union_find_init(int n);

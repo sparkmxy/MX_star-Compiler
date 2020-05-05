@@ -99,7 +99,7 @@ void IR_Printer::visit(Quadruple * q)
 	case Quadruple::MOVE:    op = "mov";
 		break;
 	default:
-		break;
+		throw Error("Printer: Undefined operation");
 	}   
 	os << op << " ";
 	q->getDst()->accept(*this);
@@ -165,10 +165,12 @@ void IR_Printer::visit(PhiFunction * p)
 	os << "phi ";
 	p->getDst()->accept(*this);
 	os << " ";
-	auto regs = p->getRelatedRegs();
-	for (auto &reg : regs) {
-		reg->accept(*this);
+	auto options = p->getRelatedRegs();
+	os << options.size() << " ";
+	for (auto &opt : options) {
+		opt.first->accept(*this);
 		os << " ";
+		os << getLabel(opt.second.get()) << " ";
 	}
 }
 
