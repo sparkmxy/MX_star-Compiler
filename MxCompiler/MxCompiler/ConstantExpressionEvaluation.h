@@ -6,7 +6,7 @@
 #include<queue>
 
 /*
-
+Calculate constant expressions and copy propagation.
 */
 class ConstantExpressionEvaluation :public CFG_Pass{
 public:
@@ -25,9 +25,9 @@ private:
 	void optimizeCall(std::shared_ptr<Call> c);
 
 	void propagateImm(std::shared_ptr<IRInstruction> i, 
-		std::shared_ptr<Operand> old, std::shared_ptr<Immediate> _new);
+		std::shared_ptr<Register> old, std::shared_ptr<Immediate> _new);
 
 	void copyPropagate(std::shared_ptr<IRInstruction> i,
-		std::shared_ptr<Operand> old, std::shared_ptr<Register> _new);
+		std::shared_ptr<Register> old, std::shared_ptr<Register> _new);
 };
 

@@ -22,6 +22,11 @@ public:
 	std::vector<std::shared_ptr<Register> > & getGlbVars() { return glbVars; }
 	std::vector<std::shared_ptr<StaticString> > & getStringConstants() { return stringConstants; }
 
+	bool isStringFunction(std::shared_ptr<Function> f) {
+		auto n = f->getName();
+		return n.length() > 7 && n.substr(0, 7) == "string.";
+	}
+
 	ACCEPT_CFG_VISITOR
 
 private:
