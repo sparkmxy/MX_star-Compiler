@@ -10,6 +10,7 @@
 #include "ir_printer.h"
 #include "SSAConstructor.h"
 #include "ir_printer.h"
+#include "Optimizer.h"
 
 class MxCompiler {
 public:
@@ -25,6 +26,7 @@ private:
 	void parse();
 	void buildAST();
 	void generateIR();
+	void optimize();
 
 	/*Input file*/
 	std::ifstream src;
@@ -35,7 +37,7 @@ private:
 	std::shared_ptr<Parser> parser;
 	std::shared_ptr<Environment> environment;
 	std::shared_ptr<IR_Generator> irGenerator;
-	std::shared_ptr<SSAConstructor> ssaCtor;
+	std::shared_ptr<Optimizer> opt;
 	/*Data structures for IR*/
 	std::vector<std::shared_ptr<Token> > tokens;
 	std::shared_ptr<ProgramAST> ast;

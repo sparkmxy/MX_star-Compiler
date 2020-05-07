@@ -2,4 +2,5 @@
 
 bool DeadCodeEliminationPass::run()
 {
+	return true;
 }

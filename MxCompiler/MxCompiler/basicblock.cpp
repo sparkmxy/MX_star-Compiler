@@ -73,3 +73,19 @@ void BasicBlock::endWith(std::shared_ptr<IRInstruction> instr)
 		func->appendReturnInstr(std::static_pointer_cast<Return>(instr));
 	endFlag = true;
 }
+
+
+
+void replaceInstruction(std::shared_ptr<IRInstruction> old, std::shared_ptr<IRInstruction> _new)
+{
+	if (old->getPreviousInstr() == nullptr) old->getBlock()->setFront(_new);
+	if (old->getNextInstr() == nullptr) old->getBlock()->setBack(_new);
+	old->replaceBy(_new);
+}
+
+void removeInstruction(std::shared_ptr<IRInstruction> i)
+{
+	if (i->getPreviousInstr() == nullptr) i->getBlock()->setFront(i->getNextInstr());
+	if (i->getNextInstr() == nullptr) i->getBlock()->setBack(i->getPreviousInstr());
+	i->removeThis();
+}

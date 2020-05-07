@@ -26,7 +26,8 @@ static const std::string namesForBasicBlocks[] = {
 	"while_body", "while_cond", "while_final",
 	"if_true", "if_false", "if_final",
 	"true", "false", "final",
-	"lhs_true", "lhs_false"
+	"lhs_true", "lhs_false",
+	"parallel_copy"
 };
 
 class BasicBlock : public std::enable_shared_from_this<BasicBlock>{
@@ -38,7 +39,8 @@ public:
 		WHILE_BODY, WHILE_COND, WHILE_FINAL,
 		IF_TRUE, IF_FALSE, IF_FINAL,
 		TRUE, FALSE, FINAL,
-		LHS_TRUE, LHS_FALSE
+		LHS_TRUE, LHS_FALSE,
+		PARALLEL_COPY
 	};
 
 	BasicBlock(std::shared_ptr<Function> _func, Tag _tag)
@@ -52,8 +54,11 @@ public:
 	void remove_back();
 
 	std::shared_ptr<IRInstruction> getFront() { return front; }
+	void setFront(std::shared_ptr<IRInstruction> i) { front = i; }
+
 	std::shared_ptr<IRInstruction> getBack() { return back; }
-	
+	void setBack(std::shared_ptr<IRInstruction> i) { back = i; }
+
 	void append_from(std::shared_ptr<BasicBlock> block);
 	void append_to(std::shared_ptr<BasicBlock> block);
 	void erase_from(std::shared_ptr<BasicBlock> block);
@@ -87,3 +92,6 @@ private:
 	DT_Info dtInfo;
 
 };
+
+void replaceInstruction(std::shared_ptr<IRInstruction> old, std::shared_ptr<IRInstruction> _new);
+void removeInstruction(std::shared_ptr<IRInstruction> i);

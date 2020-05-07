@@ -181,6 +181,9 @@
     <ClCompile Include="test.cpp" />
     <ClCompile Include="vm.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="ir.mxx" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

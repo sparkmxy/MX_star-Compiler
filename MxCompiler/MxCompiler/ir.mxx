@@ -1,173 +1,154 @@
 def @main  { 
 $entry0:
-    mul %t0 #4 #100
-    add %t1 %t0 #4
-    malloc %t2 %t1
-    store %t2 %t1
-    mov %t3 %t2
-    mov %t4 #0
-    mov %t5 #0
-    mov %t6 #0
+    malloc %t0 #404
+    store %t0 #404
+    mov %t1 #0
+    mov %t2 #0
     jmp for_cond0
 $for_cond0:
-    phi %t7 2 %t6 entry0 %t8 for_iter0 
-    slt %t9 %t7 #100
-    br %t9 for_body0 for_final0
+    phi %t3 2 %t2 entry0 %t4 for_iter0 
+    slt %t5 %t3 #100
+    br %t5 for_body0 for_final0
 $for_body0:
-    mul %t10 %t7 #4
-    add %t11 %t10 #4
-    add %t12 %t11 %t3
-    mul %t13 #4 #100
-    add %t14 %t13 #4
-    malloc %t15 %t14
-    store %t15 %t14
-    store %t12 %t15
+    mul %t6 %t3 #4
+    add %t7 %t6 #4
+    add %t8 %t7 %t0
+    malloc %t9 #404
+    store %t9 #404
+    store %t8 %t9
     jmp for_iter0
 $for_iter0:
-    mov %t16 %t7
-    add %t8 %t7 #1
+    add %t4 %t3 #1
     jmp for_cond0
 $for_final0:
-    mov %t17 #0
-    mov %t18 #0
+    mov %t10 #0
+    mov %t11 #0
     jmp for_cond1
 $for_cond1:
-    phi %t19 2 %t5 for_final0 %t20 for_iter1 
-    phi %t21 2 %t18 for_final0 %t22 for_iter1 
-    slt %t23 %t21 #100
-    br %t23 for_body1 for_final1
+    phi %t12 2 %t11 for_final0 %t13 for_iter1 
+    phi %t14 2 %t1 for_final0 %t15 for_iter1 
+    slt %t16 %t12 #100
+    br %t16 for_body1 for_final1
 $for_body1:
-    mov %t24 #0
+    mov %t17 #0
     jmp for_cond2
 $for_cond2:
-    phi %t25 2 %t24 for_body1 %t20 for_iter2 
-    slt %t26 %t25 #100
-    br %t26 for_body2 for_final2
+    phi %t18 2 %t17 for_body1 %t15 for_iter2 
+    slt %t19 %t18 #100
+    br %t19 for_body2 for_final2
 $for_body2:
-    mul %t27 %t21 #4
-    add %t28 %t27 #4
-    add %t29 %t28 %t3
-    load %t30 %t29
-    mul %t31 %t25 #4
-    add %t32 %t31 #4
-    add %t33 %t32 %t30
-    store %t33 #0
+    mul %t20 %t12 #4
+    add %t21 %t20 #4
+    add %t22 %t21 %t0
+    load %t23 %t22
+    mul %t24 %t18 #4
+    add %t25 %t24 #4
+    add %t26 %t25 %t23
+    store %t26 #0
     jmp for_iter2
 $for_iter2:
-    mov %t34 %t25
-    add %t20 %t25 #1
+    add %t15 %t18 #1
     jmp for_cond2
 $for_final2:
     jmp for_iter1
 $for_iter1:
-    mov %t35 %t21
-    add %t22 %t21 #1
+    add %t13 %t12 #1
     jmp for_cond1
 $for_final1:
-    mov %t36 #0
+    mov %t27 #0
     jmp for_cond3
 $for_cond3:
-    phi %t37 2 %t20 for_final1 %t38 for_iter3 
-    phi %t39 2 %t36 for_final1 %t40 for_iter3 
-    slt %t41 %t39 #100
-    br %t41 for_body3 for_final3
+    phi %t28 2 %t27 for_final1 %t29 for_iter3 
+    phi %t30 2 %t15 for_final1 %t31 for_iter3 
+    slt %t32 %t28 #100
+    br %t32 for_body3 for_final3
 $for_body3:
-    sgt %t42 %t39 #20
-    br %t42 lhs_true0 if_final0
+    sgt %t33 %t28 #20
+    br %t33 lhs_true0 if_final0
 $lhs_true0:
-    slt %t43 %t39 #80
-    br %t43 if_true0 if_final0
+    slt %t34 %t28 #80
+    br %t34 if_true0 if_final0
 $if_true0:
-    mov %t44 #0
+    mov %t35 #0
     jmp for_cond4
 $for_cond4:
-    phi %t45 2 %t44 if_true0 %t46 for_iter4 
-    slt %t47 %t45 #100
-    br %t47 for_body4 for_final4
+    phi %t36 2 %t35 if_true0 %t37 for_iter4 
+    slt %t38 %t36 #100
+    br %t38 for_body4 for_final4
 $for_body4:
-    sgt %t48 %t45 #5
-    br %t48 if_true1 lhs_false0
+    sgt %t39 %t36 #5
+    br %t39 if_true1 lhs_false0
 $if_true1:
-    mul %t49 %t39 #4
-    add %t50 %t49 #4
-    add %t51 %t50 %t3
-    load %t52 %t51
-    mul %t53 %t45 #4
-    add %t54 %t53 #4
-    add %t55 %t54 %t52
-    sub %t56 #100 #1
-    add %t57 %t56 #1
-    sub %t58 %t57 #1
-    add %t59 %t58 #1
-    div %t60 %t59 #2
-    add %t61 %t45 %t60
-    store %t55 %t61
+    mul %t40 %t28 #4
+    add %t41 %t40 #4
+    add %t42 %t41 %t0
+    load %t43 %t42
+    mul %t44 %t36 #4
+    add %t45 %t44 #4
+    add %t46 %t45 %t43
+    add %t47 %t36 #50
+    store %t46 %t47
     jmp if_final1
 $if_final1:
     jmp for_iter4
 $for_iter4:
-    mov %t62 %t45
-    add %t46 %t45 #1
+    add %t37 %t36 #1
     jmp for_cond4
 $lhs_false0:
-    slt %t63 %t39 #90
-    br %t63 if_true1 if_final1
+    slt %t48 %t28 #90
+    br %t48 if_true1 if_final1
 $for_final4:
     jmp if_final0
 $if_final0:
-    phi %t38 3 %t37 for_body3 %t37 lhs_true0 %t46 for_final4 
+    phi %t31 3 %t30 for_body3 %t30 lhs_true0 %t37 for_final4 
     jmp for_iter3
 $for_iter3:
-    mov %t64 %t39
-    add %t40 %t39 #1
+    add %t29 %t28 #1
     jmp for_cond3
 $for_final3:
-    mov %t65 #0
+    mov %t49 #0
     jmp for_cond5
 $for_cond5:
-    phi %t66 2 %t17 for_final3 %t67 for_iter5 
-    phi %t68 2 %t38 for_final3 %t69 for_iter5 
-    phi %t70 2 %t65 for_final3 %t71 for_iter5 
-    slt %t72 %t70 #100
-    br %t72 for_body5 for_final5
+    phi %t50 2 %t10 for_final3 %t51 for_iter5 
+    phi %t52 2 %t49 for_final3 %t53 for_iter5 
+    phi %t54 2 %t31 for_final3 %t55 for_iter5 
+    slt %t56 %t52 #100
+    br %t56 for_body5 for_final5
 $for_body5:
-    mov %t73 #0
+    mov %t57 #0
     jmp for_cond6
 $for_cond6:
-    phi %t74 2 %t66 for_body5 %t67 for_iter6 
-    phi %t75 2 %t73 for_body5 %t69 for_iter6 
-    slt %t76 %t75 #100
-    br %t76 for_body6 for_final6
+    phi %t58 2 %t50 for_body5 %t51 for_iter6 
+    phi %t59 2 %t57 for_body5 %t55 for_iter6 
+    slt %t60 %t59 #100
+    br %t60 for_body6 for_final6
 $for_body6:
-    mul %t77 %t70 #4
-    add %t78 %t77 #4
-    add %t79 %t78 %t3
-    load %t80 %t79
-    mul %t81 %t75 #4
-    add %t82 %t81 #4
-    add %t83 %t82 %t80
-    load %t84 %t83
-    add %t85 %t74 %t84
-    mov %t67 %t85
+    mul %t61 %t52 #4
+    add %t62 %t61 #4
+    add %t63 %t62 %t0
+    load %t64 %t63
+    mul %t65 %t59 #4
+    add %t66 %t65 #4
+    add %t67 %t66 %t64
+    load %t68 %t67
+    add %t69 %t58 %t68
+    mov %t51 %t69
     jmp for_iter6
 $for_iter6:
-    mov %t86 %t75
-    add %t69 %t75 #1
+    add %t55 %t59 #1
     jmp for_cond6
 $for_final6:
     jmp for_iter5
 $for_iter5:
-    mov %t87 %t70
-    add %t71 %t70 #1
+    add %t53 %t52 #1
     jmp for_cond5
 $for_final5:
-    call %t88 toString %t74 
-    call null println %t88 
+    call %t70 toString %t58 
+    call null println %t70 
     ret #0
 }
 def @__bootstrap  { 
 $entry1:
-    call %t89 main 
-    mov %t90 %t89
-    ret %t90
+    call %t71 main 
+    ret %t71
 }

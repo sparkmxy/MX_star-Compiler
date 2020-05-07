@@ -18,6 +18,7 @@ public:
 		union_find_init(dfs_clock + 1);
 		workOutIdoms();
 		dfs_clock = 0;
+		f->getBlockList().clear();
 		buildDJGraph(f->getEntry());
 	}
 

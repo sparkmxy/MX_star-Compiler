@@ -4,7 +4,7 @@
 #include "configuration.h"
 #include "vm.h"
 
-#define SHOW_LOG
+// #define SHOW_LOG
 
 class IR_Interpreter {
 public:

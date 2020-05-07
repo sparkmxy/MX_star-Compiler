@@ -22,8 +22,8 @@ void Quadruple::updateUseRegs()
 
 void Quadruple::replaceUseReg(std::shared_ptr<Operand> old, std::shared_ptr<Operand> _new)
 {
-	if (src1 == old) src1 = old;
-	if (src2 == old) src1 = old;
+	if (src1 == old) src1 = _new;
+	if (src2 == old) src2 = _new;
 	updateUseRegs();
 }
 
@@ -153,13 +153,13 @@ void updateRegister(std::shared_ptr<Operand>& reg, std::unordered_map<std::share
 
 void IRInstruction::replaceBy(std::shared_ptr<IRInstruction> i)
 {
-	prev->next = i;
 	i->prev = prev;
+	if(prev != nullptr) prev->next = i;
 	i->next = next;
 }
 
 void IRInstruction::removeThis()
 {
-	prev->next = next;
+	if (prev != nullptr) prev->next = next;
 	if (next != nullptr) next->prev = prev;
 }

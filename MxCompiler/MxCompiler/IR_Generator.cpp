@@ -110,7 +110,7 @@ void IR_Generator::visit(FunctionDecl * node)   // Function module is linked to 
 	ir->addFunction(funcModule);
 
 	//build dominance tree
-	funcModule->initDT(std::make_shared<DominatorTree>(funcModule));
+	funcModule->setDT(std::make_shared<DominatorTree>(funcModule));
 }
 
 /*

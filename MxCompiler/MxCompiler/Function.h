@@ -39,7 +39,7 @@ public:
 	//for SSA
 
 	std::shared_ptr<DominatorTree> getDT() { return dt; }
-	void initDT(std::shared_ptr<DominatorTree> _dt) { dt = _dt; }
+	void setDT(std::shared_ptr<DominatorTree> _dt) { dt = _dt; }
 	void append_var(std::shared_ptr<VirtualReg> reg) { vars.insert(reg); }
 	std::unordered_set<std::shared_ptr<VirtualReg> > &getVars() { return vars; }
 

@@ -9,6 +9,7 @@ void MxCompiler::complie()
 	buildAST();
 	semanticCheck();
 	generateIR();
+	optimize();
 }
 
 void MxCompiler::semantic()
@@ -64,8 +65,7 @@ void MxCompiler::semanticCheck()
 
 void MxCompiler::printIR(std::ostream &os)
 {
-	auto printer = std::make_shared<IR_Printer>(ir, os);
-	printer->print();
+	std::make_shared<IR_Printer>(ir, os)->print();
 }
 
 void MxCompiler::generateIR()
@@ -73,7 +73,11 @@ void MxCompiler::generateIR()
 	irGenerator = std::make_shared<IR_Generator>(environment->globalScope(),ast);
 	irGenerator->generate();
 	ir = irGenerator->getIR();
-	ssaCtor = std::make_shared<SSAConstructor>(ir);
-	std::make_shared<IR_Printer>(ir, std::cout)->print();
-	ssaCtor->run();
+	std::cout << "IR generation completed." << std::endl;
+}
+
+void MxCompiler::optimize()
+{
+	opt = std::make_shared<Optimizer>(ir);
+	opt->optimize();
 }

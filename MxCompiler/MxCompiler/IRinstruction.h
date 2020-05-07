@@ -40,7 +40,9 @@ public:
 	std::shared_ptr<IRInstruction> getPreviousInstr() { return prev; }
 	void setPreviousInstr(const std::shared_ptr<IRInstruction> &_prev) { prev = _prev; }
 
+	// Warning: do no use this directly, use replaceInstruction() instead
 	void replaceBy(std::shared_ptr<IRInstruction> i);
+	// Warning: do no use this directly, use removeInstruction() instead
 	void removeThis();
 
 	std::vector<std::shared_ptr<Register> > &getUseRegs() { return useRegs; }
@@ -134,6 +136,10 @@ public:
 	std::shared_ptr<BasicBlock> getTrueBlock() { return trueBlock; }
 	std::shared_ptr<BasicBlock> getFalseBlock() { return falseBlock; }
 
+	void replaceTargetBlock(std::shared_ptr<BasicBlock> old, std::shared_ptr<BasicBlock> b) {
+		if (trueBlock == old) trueBlock = b;
+		else if (falseBlock == old) falseBlock = b;
+	}
 	//override functions (there is no def-register in branch instructions)
 	void renameUseRegs(std::unordered_map<std::shared_ptr<Register>,
 		std::shared_ptr<Register> > &table)override;

@@ -28,7 +28,6 @@ Byte MemoryManager::loadByte(int addr)
 Byte *MemoryManager::allocate_memory(int size)
 {
 	if (used + size > poolSize) {
-		poolSize <<= 1;
 		while (poolSize < size) poolSize <<= 1;
 		mem = new Byte[poolSize];
 		memPools.push_back(mem);
