@@ -20,6 +20,17 @@ void BasicBlock::append_back(std::shared_ptr<IRInstruction> instr)
 	}
 }
 
+void BasicBlock::append_before_back(std::shared_ptr<IRInstruction> i)
+{
+	if (front == back) front = i;
+	else {
+		i->setPreviousInstr(back->getPreviousInstr());
+		i->getPreviousInstr()->setNextInstr(i);
+	}
+	i->setNextInstr(back);
+	back->setPreviousInstr(i);
+}
+
 void BasicBlock::remove_back()
 {
 	if (back == nullptr) return; //throw error?

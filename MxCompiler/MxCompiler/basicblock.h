@@ -14,6 +14,12 @@ struct DT_Info {
 	int depth; // the depth in dominance tree
 	int dt_dfn, dt_dfn_r; // the subtree on DT is [dt_dfn, dt_dfn_r]
 	std::shared_ptr<BasicBlock> idom, sdom;    // immediate dominator and semi-dominator
+
+	void clear() {
+		DEdges.clear();
+		JEdges.clear();
+		idom = sdom = nullptr;
+	}
 };
 
 /*
@@ -51,6 +57,7 @@ public:
 
 	void append_front(std::shared_ptr<IRInstruction> instr);
 	void append_back(std::shared_ptr<IRInstruction> instr);
+	void append_before_back(std::shared_ptr<IRInstruction> i);
 	void remove_back();
 
 	std::shared_ptr<IRInstruction> getFront() { return front; }
@@ -70,6 +77,8 @@ public:
 
 	DT_Info &getDTInfo() { return dtInfo;}
 	const DT_Info &getDTInfo() const { return dtInfo; }
+	void clearDTInfo() { dtInfo.clear(); }
+
 	std::unordered_set<std::shared_ptr<BasicBlock> > &getBlocksTo() { return to; }
 	std::unordered_set<std::shared_ptr<BasicBlock> > &getBlocksFrom() { return from; }
 

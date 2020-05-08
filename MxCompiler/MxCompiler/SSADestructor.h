@@ -14,16 +14,16 @@ public:
 private:
 
 	struct ParallelCopy {
-		std::shared_ptr<VirtualReg> dst;
-		std::shared_ptr<Operand> src;
+		std::shared_ptr<Register> dst, src;
 
-		ParallelCopy(std::shared_ptr<VirtualReg> _dst, std::shared_ptr<Operand> _src)
+		ParallelCopy(std::shared_ptr<Register> _dst, std::shared_ptr<Register> _src)
 			:dst(_dst), src(_src) {}
 	};
 
-	std::unordered_map<std::shared_ptr<BasicBlock>, std::unordered_set<ParallelCopy> > parallel_copy;
+	std::unordered_map<std::shared_ptr<BasicBlock>, 
+		std::unordered_set<std::shared_ptr<ParallelCopy> > > parallel_copy;
 
 	void removePhiFunction(std::shared_ptr<Function> f);
-	void replaceParalleCopy(std::shared_ptr<Function> f);
+	void sequentializeParalleCopy(std::shared_ptr<Function> f);
 };
 

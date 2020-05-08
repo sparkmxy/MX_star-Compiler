@@ -117,6 +117,7 @@
   <ItemGroup>
     <ClInclude Include="astnode.h" />
     <ClInclude Include="basicblock.h" />
+    <ClInclude Include="CFGCleanUp.h" />
     <ClInclude Include="cfg_visitor.h" />
     <ClInclude Include="ClassDeclVisitor.h" />
     <ClInclude Include="configuration.h" />
@@ -151,9 +152,11 @@
     <ClInclude Include="visitor.h" />
     <ClInclude Include="Function.h" />
     <ClInclude Include="vm.h" />
+    <ClInclude Include="x86codegen.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="basicblock.cpp" />
+    <ClCompile Include="CFGCleanUp.cpp" />
     <ClCompile Include="cfg_pass.cpp" />
     <ClCompile Include="ClassDeclVisitor.cpp" />
     <ClCompile Include="ConstantExpressionEvaluation.cpp" />
@@ -180,6 +183,7 @@
     <ClCompile Include="symbolTable.cpp" />
     <ClCompile Include="test.cpp" />
     <ClCompile Include="vm.cpp" />
+    <ClCompile Include="x86codegen.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ir.mxx" />

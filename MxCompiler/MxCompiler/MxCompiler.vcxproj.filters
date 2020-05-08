@@ -69,9 +69,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="pch.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="lexer.h">
       <Filter>头文件\frontend\parser</Filter>
     </ClInclude>
@@ -135,9 +132,6 @@
     <ClInclude Include="test.h">
       <Filter>头文件\toplevel</Filter>
     </ClInclude>
-    <ClInclude Include="error.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="SSAConstructor.h">
       <Filter>头文件\backend\optimize</Filter>
     </ClInclude>
@@ -176,6 +170,18 @@
     </ClInclude>
     <ClInclude Include="ConstantExpressionEvaluation.h">
       <Filter>头文件\backend\optimize</Filter>
+    </ClInclude>
+    <ClInclude Include="CFGCleanUp.h">
+      <Filter>头文件\backend\optimize</Filter>
+    </ClInclude>
+    <ClInclude Include="error.h">
+      <Filter>头文件\toplevel</Filter>
+    </ClInclude>
+    <ClInclude Include="pch.h">
+      <Filter>头文件\toplevel</Filter>
+    </ClInclude>
+    <ClInclude Include="x86codegen.h">
+      <Filter>头文件\backend\codegen</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -259,6 +265,12 @@
     </ClCompile>
     <ClCompile Include="ConstantExpressionEvaluation.cpp">
       <Filter>源文件\backend\optimize</Filter>
+    </ClCompile>
+    <ClCompile Include="CFGCleanUp.cpp">
+      <Filter>源文件\backend\optimize</Filter>
+    </ClCompile>
+    <ClCompile Include="x86codegen.cpp">
+      <Filter>源文件\backend\codegen</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
