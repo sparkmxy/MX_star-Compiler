@@ -22,7 +22,8 @@ public:
 		QUADR, 
 		CALL, RET, JUMP, BRANCH,   // control-related instructions
 		ALLOC,
-		PHI
+		// Assembly instructions
+		BTYPE, ITYPE, RTYPE,
 	};
 
 
@@ -37,8 +38,8 @@ public:
 	std::shared_ptr<IRInstruction> getNextInstr() { return next;}
 	void setNextInstr(const std::shared_ptr<IRInstruction> &_next) { next = _next; }
 
-	std::shared_ptr<IRInstruction> getPreviousInstr() { return prev; }
-	void setPreviousInstr(const std::shared_ptr<IRInstruction> &_prev) { prev = _prev; }
+	std::shared_ptr<IRInstruction> getPreviousInstr() { return prev.lock();}
+	void setPreviousInstr(const std::shared_ptr<IRInstruction>&_prev) { prev = _prev; }
 
 	// Warning: do no use this directly, use replaceInstruction() instead
 	void replaceBy(std::shared_ptr<IRInstruction> i);
@@ -61,7 +62,8 @@ public:
 protected:
 	std::shared_ptr<BasicBlock> residingBlock;
 	std::vector<std::shared_ptr<Register> > useRegs;
-	std::shared_ptr<IRInstruction> next, prev;
+	std::shared_ptr<IRInstruction> next;
+	std::weak_ptr<IRInstruction> prev;  // use weak_ptr to prevent reference cycle
 	InstrTag tag;
 };
 
@@ -97,6 +99,9 @@ public:
 		updateUseRegs();
 	}
 
+	static bool isCompare(Operator op) {
+		return op >= LESS && op <= EQ;
+	}
 	Operator getOp() { return op; }
 	std::shared_ptr<Operand> getSrc1() { return src1; }
 	std::shared_ptr<Operand> getSrc2() { return src2; }

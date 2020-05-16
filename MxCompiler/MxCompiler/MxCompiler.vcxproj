@@ -129,6 +129,7 @@
     <ClInclude Include="error.h" />
     <ClInclude Include="exprHelper.h" />
     <ClInclude Include="GlobalFuncAndClsDecl.h" />
+    <ClInclude Include="instructionSelector.h" />
     <ClInclude Include="interpreter.h" />
     <ClInclude Include="IR.h" />
     <ClInclude Include="IRinstruction.h" />
@@ -139,7 +140,12 @@
     <ClInclude Include="Optimizer.h" />
     <ClInclude Include="parser.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="peeholeMatching.h" />
+    <ClInclude Include="RISCVassembly.h" />
+    <ClInclude Include="RISCVOperand.h" />
     <ClInclude Include="position.h" />
+    <ClInclude Include="registerAllocator.h" />
+    <ClInclude Include="RISCVinstruction.h" />
     <ClInclude Include="scope.h" />
     <ClInclude Include="semanticChecker.h" />
     <ClInclude Include="SSAConstructor.h" />
@@ -152,7 +158,7 @@
     <ClInclude Include="visitor.h" />
     <ClInclude Include="Function.h" />
     <ClInclude Include="vm.h" />
-    <ClInclude Include="x86codegen.h" />
+    <ClInclude Include="RISCVcodegen.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="basicblock.cpp" />
@@ -165,6 +171,7 @@
     <ClCompile Include="environment.cpp" />
     <ClCompile Include="Function.cpp" />
     <ClCompile Include="GlobalFuncDeclVistor.cpp" />
+    <ClCompile Include="instructionSelector.cpp" />
     <ClCompile Include="interpreter.cpp" />
     <ClCompile Include="IR.cpp" />
     <ClCompile Include="IRinstruction.cpp" />
@@ -175,6 +182,9 @@
     <ClCompile Include="MxCompiler.cpp" />
     <ClCompile Include="Optimizer.cpp" />
     <ClCompile Include="parser.cpp" />
+    <ClCompile Include="registerAllocator.cpp" />
+    <ClCompile Include="RISCVassembly.cpp" />
+    <ClCompile Include="RISCVcodegen.cpp" />
     <ClCompile Include="scope.cpp" />
     <ClCompile Include="semanticChecker.cpp" />
     <ClCompile Include="SSAConstructor.cpp" />
@@ -183,7 +193,6 @@
     <ClCompile Include="symbolTable.cpp" />
     <ClCompile Include="test.cpp" />
     <ClCompile Include="vm.cpp" />
-    <ClCompile Include="x86codegen.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ir.mxx" />

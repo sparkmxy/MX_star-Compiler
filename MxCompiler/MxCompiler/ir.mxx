@@ -43,36 +43,36 @@ $for_body1:
 $for_cond2:
     slt %t17 %t16 #100
     br %t17 parallel_copy5 parallel_copy4
-$parallel_copy5:
-    jmp for_body2
-$for_body2:
-    mul %t18 %t13 #4
-    add %t19 %t18 #4
-    add %t20 %t19 %t0
-    load %t21 %t20
-    mul %t22 %t16 #4
-    add %t23 %t22 #4
-    add %t24 %t23 %t21
-    store %t24 #0
-    jmp for_iter1
-$for_iter1:
-    add %t25 %t16 #1
-    mov %t16 %t25
-    jmp for_cond2
 $parallel_copy4:
     jmp for_final1
 $for_final1:
+    jmp for_iter1
+$for_iter1:
+    add %t18 %t13 #1
+    mov %t13 %t18
+    mov %t12 %t19
+    jmp for_cond1
+$parallel_copy5:
+    jmp for_body2
+$for_body2:
+    mul %t20 %t13 #4
+    add %t21 %t20 #4
+    add %t22 %t21 %t0
+    load %t23 %t22
+    mul %t24 %t16 #4
+    add %t25 %t24 #4
+    add %t26 %t25 %t23
+    store %t26 #0
     jmp for_iter2
 $for_iter2:
-    add %t26 %t13 #1
-    mov %t13 %t26
-    mov %t12 %t25
-    jmp for_cond1
+    add %t19 %t16 #1
+    mov %t16 %t19
+    jmp for_cond2
 $parallel_copy2:
     jmp for_final2
 $for_final2:
     mov %t27 #0
-    mov %t28 %t25
+    mov %t28 %t19
     mov %t29 %t27
     jmp for_cond3
 $for_cond3:
@@ -152,58 +152,58 @@ $parallel_copy6:
     jmp for_final4
 $for_final4:
     mov %t49 #0
-    mov %t50 %t10
-    mov %t51 %t47
-    mov %t52 %t49
+    mov %t50 %t47
+    mov %t51 %t49
+    mov %t52 %t10
     jmp for_cond5
 $for_cond5:
-    slt %t53 %t52 #100
+    slt %t53 %t51 #100
     br %t53 parallel_copy19 parallel_copy18
-$parallel_copy18:
-    jmp for_final5
-$for_final5:
-    call %t54 toString %t50 
-    call null println %t54 
-    ret #0
 $parallel_copy19:
     jmp for_body5
 $for_body5:
-    mov %t55 #0
-    mov %t56 %t50
-    mov %t57 %t55
+    mov %t54 #0
+    mov %t55 %t54
+    mov %t56 %t52
     jmp for_cond6
 $for_cond6:
-    slt %t58 %t57 #100
-    br %t58 parallel_copy21 parallel_copy20
+    slt %t57 %t55 #100
+    br %t57 parallel_copy21 parallel_copy20
 $parallel_copy21:
     jmp for_body6
 $for_body6:
-    mul %t59 %t52 #4
-    add %t60 %t59 #4
-    add %t61 %t60 %t0
-    load %t62 %t61
-    mul %t63 %t57 #4
-    add %t64 %t63 #4
-    add %t65 %t64 %t62
-    load %t66 %t65
-    add %t67 %t56 %t66
-    mov %t68 %t67
+    mul %t58 %t51 #4
+    add %t59 %t58 #4
+    add %t60 %t59 %t0
+    load %t61 %t60
+    mul %t62 %t55 #4
+    add %t63 %t62 #4
+    add %t64 %t63 %t61
+    load %t65 %t64
+    add %t66 %t56 %t65
+    mov %t67 %t66
     jmp for_iter5
 $for_iter5:
-    add %t69 %t57 #1
-    mov %t56 %t68
-    mov %t57 %t69
+    add %t68 %t55 #1
+    mov %t55 %t68
+    mov %t56 %t67
     jmp for_cond6
 $parallel_copy20:
-    jmp for_final6
-$for_final6:
+    jmp for_final5
+$for_final5:
     jmp for_iter6
 $for_iter6:
-    add %t70 %t52 #1
+    add %t69 %t51 #1
     mov %t50 %t68
+    mov %t52 %t67
     mov %t51 %t69
-    mov %t52 %t70
     jmp for_cond5
+$parallel_copy18:
+    jmp for_final6
+$for_final6:
+    call %t70 toString %t56 
+    call null println %t70 
+    ret #0
 }
 def @__bootstrap  { 
 $entry1:

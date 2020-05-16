@@ -10,6 +10,7 @@ void MxCompiler::complie()
 	semanticCheck();
 	generateIR();
 	optimize();
+	codegen();
 }
 
 void MxCompiler::semantic()
@@ -80,4 +81,10 @@ void MxCompiler::optimize()
 {
 	opt = std::make_shared<Optimizer>(ir);
 	opt->optimize();
+}
+
+void MxCompiler::codegen()
+{
+	codeGenerator = std::make_shared<RISCVCodeGenerator>(ir);
+	codeGenerator->generate();
 }

@@ -63,7 +63,7 @@ public:
 	std::shared_ptr<IRInstruction> getFront() { return front; }
 	void setFront(std::shared_ptr<IRInstruction> i) { front = i; }
 
-	std::shared_ptr<IRInstruction> getBack() { return back; }
+	std::shared_ptr<IRInstruction> getBack() { return back.lock(); }
 	void setBack(std::shared_ptr<IRInstruction> i) { back = i; }
 
 	void append_from(std::shared_ptr<BasicBlock> block);
@@ -91,7 +91,8 @@ private:
 	std::shared_ptr<Function> func;
 	
 	// instructions form a list
-	std::shared_ptr<IRInstruction> front, back;
+	std::shared_ptr<IRInstruction> front;
+	std::weak_ptr<IRInstruction> back;
 	
 	std::unordered_set<std::shared_ptr<BasicBlock> > from, to;
 

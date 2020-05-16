@@ -180,7 +180,25 @@
     <ClInclude Include="pch.h">
       <Filter>头文件\toplevel</Filter>
     </ClInclude>
-    <ClInclude Include="x86codegen.h">
+    <ClInclude Include="registerAllocator.h">
+      <Filter>头文件\backend\codegen</Filter>
+    </ClInclude>
+    <ClInclude Include="RISCVcodegen.h">
+      <Filter>头文件\backend\codegen</Filter>
+    </ClInclude>
+    <ClInclude Include="RISCVinstruction.h">
+      <Filter>头文件\backend\codegen</Filter>
+    </ClInclude>
+    <ClInclude Include="RISCVOperand.h">
+      <Filter>头文件\backend\codegen</Filter>
+    </ClInclude>
+    <ClInclude Include="instructionSelector.h">
+      <Filter>头文件\backend\codegen</Filter>
+    </ClInclude>
+    <ClInclude Include="peeholeMatching.h">
+      <Filter>头文件\backend\codegen</Filter>
+    </ClInclude>
+    <ClInclude Include="RISCVassembly.h">
       <Filter>头文件\backend\codegen</Filter>
     </ClInclude>
   </ItemGroup>
@@ -269,8 +287,17 @@
     <ClCompile Include="CFGCleanUp.cpp">
       <Filter>源文件\backend\optimize</Filter>
     </ClCompile>
-    <ClCompile Include="x86codegen.cpp">
+    <ClCompile Include="registerAllocator.cpp">
       <Filter>源文件\backend\codegen</Filter>
+    </ClCompile>
+    <ClCompile Include="RISCVcodegen.cpp">
+      <Filter>源文件\backend\codegen</Filter>
+    </ClCompile>
+    <ClCompile Include="RISCVassembly.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="instructionSelector.cpp">
+      <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

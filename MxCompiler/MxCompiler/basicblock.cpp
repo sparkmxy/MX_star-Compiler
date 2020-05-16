@@ -2,7 +2,10 @@
 
 void BasicBlock::append_front(std::shared_ptr<IRInstruction> instr)
 {
-	if (front == nullptr) front = back = instr;
+	if (front == nullptr) {
+		front = instr;
+		back = instr;
+	}
 	else {
 		front->setPreviousInstr(instr);
 		instr->setNextInstr(front);
@@ -12,30 +15,37 @@ void BasicBlock::append_front(std::shared_ptr<IRInstruction> instr)
 
 void BasicBlock::append_back(std::shared_ptr<IRInstruction> instr)
 {
-	if (back == nullptr) front = back = instr;
+	if (back.lock() == nullptr)
+		front = instr;
 	else {
-		back->setNextInstr(instr);
-		instr->setPreviousInstr(back);
-		back = instr;
+		back.lock()->setNextInstr(instr);
+		instr->setPreviousInstr(back.lock());
 	}
+	back = instr;
 }
 
 void BasicBlock::append_before_back(std::shared_ptr<IRInstruction> i)
 {
-	if (front == back) front = i;
+	if (front == back.lock()) {
+		i->setNextInstr(front);
+		front = i;
+	}
 	else {
-		i->setPreviousInstr(back->getPreviousInstr());
+		i->setNextInstr(back.lock());
+		i->setPreviousInstr(back.lock()->getPreviousInstr());
 		i->getPreviousInstr()->setNextInstr(i);
 	}
-	i->setNextInstr(back);
-	back->setPreviousInstr(i);
+	back.lock()->setPreviousInstr(i);
 }
 
 void BasicBlock::remove_back()
 {
-	if (back == nullptr) return; //throw error?
-	auto newBack = back->getPreviousInstr();
-	if (newBack == nullptr) front = back = nullptr;
+	if (back.lock() == nullptr) return; //throw error?
+	auto newBack = back.lock()->getPreviousInstr();
+	if (newBack == nullptr) {
+		front = nullptr;
+		back.reset();
+	}
 	else {
 		newBack->setNextInstr(nullptr);
 		back = newBack;
