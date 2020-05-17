@@ -38,7 +38,7 @@ void SSADestructor::removePhiFunction(std::shared_ptr<Function> f)
 			auto i = std::static_pointer_cast<PhiFunction>(b->getFront());
 			auto options = i->getRelatedRegs();
 			for (auto &p : options)
-				parallel_copy[whereToPut[p.second]].insert(
+				parallel_copy[whereToPut[p.second.lock()]].insert(
 					std::make_shared<ParallelCopy>(i->getDst(), p.first));
 			removeInstruction(i);
 		}

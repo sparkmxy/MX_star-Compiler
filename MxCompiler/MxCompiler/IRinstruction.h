@@ -22,18 +22,19 @@ public:
 		QUADR, 
 		CALL, RET, JUMP, BRANCH,   // control-related instructions
 		ALLOC,
+		PHI,
 		// Assembly instructions
 		BTYPE, ITYPE, RTYPE,
 	};
 
 
-	IRInstruction(InstrTag _tag, std::shared_ptr<BasicBlock> block) 
+	IRInstruction(InstrTag _tag, std::weak_ptr<BasicBlock> block) 
 		:tag(_tag), residingBlock(block){}
 	
 	InstrTag getTag() { return tag; }
 
 
-	std::shared_ptr<BasicBlock> getBlock() { return residingBlock; }
+	std::weak_ptr<BasicBlock> getBlock() { return residingBlock.lock(); }
 
 	std::shared_ptr<IRInstruction> getNextInstr() { return next;}
 	void setNextInstr(const std::shared_ptr<IRInstruction> &_next) { next = _next; }
@@ -60,7 +61,7 @@ public:
 	virtual void replaceUseReg(std::shared_ptr<Operand> old, std::shared_ptr<Operand> _new) {}
 	
 protected:
-	std::shared_ptr<BasicBlock> residingBlock;
+	std::weak_ptr<BasicBlock> residingBlock;
 	std::vector<std::shared_ptr<Register> > useRegs;
 	std::shared_ptr<IRInstruction> next;
 	std::weak_ptr<IRInstruction> prev;  // use weak_ptr to prevent reference cycle
@@ -92,7 +93,7 @@ public:
 		// momory access
 		LOAD, STORE
 	};
-	Quadruple(std::shared_ptr<BasicBlock> _block, Operator _op,
+	Quadruple(std::weak_ptr<BasicBlock> _block, Operator _op,
 		std::shared_ptr<Operand> _dst,
 		std::shared_ptr<Operand> _src1, std::shared_ptr<Operand> _src2 = nullptr)  
 		:IRInstruction(QUADR,_block), op(_op),dst(_dst),src1(_src1), src2(_src2) {
@@ -129,7 +130,7 @@ Constructor: Branch(block, cond, trueBlock, falseBlock)
 */
 class Branch : public IRInstruction {
 public:
-	Branch(std::shared_ptr<BasicBlock> _residingBlock,
+	Branch(std::weak_ptr<BasicBlock> _residingBlock,
 		std::shared_ptr<Operand> _cond,
 		std::shared_ptr<BasicBlock> _true, std::shared_ptr<BasicBlock> _false)
 		:IRInstruction(BRANCH,_residingBlock),
@@ -138,12 +139,12 @@ public:
 	}
 
 	std::shared_ptr<Operand> getCondition() { return condition; }
-	std::shared_ptr<BasicBlock> getTrueBlock() { return trueBlock; }
-	std::shared_ptr<BasicBlock> getFalseBlock() { return falseBlock; }
+	std::shared_ptr<BasicBlock> getTrueBlock() { return trueBlock.lock(); }
+	std::shared_ptr<BasicBlock> getFalseBlock() { return falseBlock.lock(); }
 
 	void replaceTargetBlock(std::shared_ptr<BasicBlock> old, std::shared_ptr<BasicBlock> b) {
-		if (trueBlock == old) trueBlock = b;
-		else if (falseBlock == old) falseBlock = b;
+		if (trueBlock.lock() == old) trueBlock = b;
+		else if (falseBlock.lock() == old) falseBlock = b;
 	}
 	//override functions (there is no def-register in branch instructions)
 	void renameUseRegs(std::unordered_map<std::shared_ptr<Register>,
@@ -155,7 +156,7 @@ public:
 	ACCEPT_CFG_VISITOR
 private:
 	std::shared_ptr<Operand> condition;
-	std::shared_ptr<BasicBlock> trueBlock, falseBlock;
+	std::weak_ptr<BasicBlock> trueBlock, falseBlock;
 };
 
 /*
@@ -164,7 +165,7 @@ Constructor: Call(block, funcModule, result = nullptr);
 */
 class Call : public IRInstruction {
 public:
-	Call(std::shared_ptr<BasicBlock> _block,
+	Call(std::weak_ptr<BasicBlock> _block,
 		std::shared_ptr<Function> _func, std::shared_ptr<Operand> _result = nullptr)
 		: IRInstruction(CALL, _block), func(_func), result(_result) {
 		updateUseRegs();
@@ -201,7 +202,7 @@ private:
 
 class Malloc : public IRInstruction {
 public:
-	Malloc(std::shared_ptr<BasicBlock> block,
+	Malloc(std::weak_ptr<BasicBlock> block,
 		std::shared_ptr<Operand> _size, std::shared_ptr<Operand> _ptr)
 		:IRInstruction(ALLOC, block), size(_size), ptr(_ptr) {
 		updateUseRegs();
@@ -232,7 +233,7 @@ private:
 
 class Return : public IRInstruction {
 public: 
-	Return(std::shared_ptr<BasicBlock> block, std::shared_ptr<Operand> _value)
+	Return(std::weak_ptr<BasicBlock> block, std::shared_ptr<Operand> _value)
 		:IRInstruction(RET, block), value(_value) {
 		updateUseRegs();
 	}
@@ -252,16 +253,16 @@ private:
 
 class Jump : public IRInstruction {
 public:
-	Jump(std::shared_ptr<BasicBlock> _residing, std::shared_ptr<BasicBlock> _target)
+	Jump(std::weak_ptr<BasicBlock> _residing, std::weak_ptr<BasicBlock> _target)
 		:IRInstruction(JUMP, _residing), target(_target) {}
 
-	std::shared_ptr<BasicBlock> getTarget() { return target; }
-	void setTarget(const std::shared_ptr<BasicBlock> &_target) { target = _target; }
+	std::shared_ptr<BasicBlock> getTarget() { return target.lock(); }
+	void setTarget(const std::weak_ptr<BasicBlock> &_target) { target = _target; }
 	// virtual functions by default
 
 	ACCEPT_CFG_VISITOR
 private:
-	std::shared_ptr<BasicBlock> target;
+	std::weak_ptr<BasicBlock> target;
 };
 
 /*
@@ -269,12 +270,12 @@ private:
 */
 class PhiFunction : public IRInstruction {
 public:
-	PhiFunction(std::shared_ptr<BasicBlock> _residingBlock, std::shared_ptr<Register> _dst)
+	PhiFunction(std::weak_ptr<BasicBlock> _residingBlock, std::shared_ptr<Register> _dst)
 		:IRInstruction(PHI, _residingBlock), dst(_dst), origin(_dst){}
 
 	
 	void appendRelatedReg(std::shared_ptr<Register> reg, std::shared_ptr<BasicBlock> from);
-	std::vector<std::pair<std::shared_ptr<Register>,std::shared_ptr<BasicBlock> > > 
+	std::vector<std::pair<std::shared_ptr<Register>,std::weak_ptr<BasicBlock> > > 
 		&getRelatedRegs() { return relatedReg; }
 
 	std::shared_ptr<Register> getDst() { return dst; }
@@ -286,7 +287,7 @@ public:
 	ACCEPT_CFG_VISITOR
 private:
 	std::shared_ptr<Register> dst,origin;
-	std::vector<std::pair<std::shared_ptr<Register>, std::shared_ptr<BasicBlock> > > relatedReg;
+	std::vector<std::pair<std::shared_ptr<Register>, std::weak_ptr<BasicBlock> > > relatedReg;
 };
 
 // Check if reg is a register and renew it if it is in the table

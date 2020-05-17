@@ -1,6 +1,6 @@
 #include "RISCVassembly.h"
 
-const std::string RISCVConfig::regNames[] = { 
+const std::vector<std::string> RISCVConfig::physicalRegNames = { 
 		"zero", "ra", "sp", "gp", "tp", 
 		"t0", "t1", "t2", "s0", "s1",
 		"a0", "a1", "a2", "a3", "a4", "a5", "a6", "a7",
@@ -8,11 +8,11 @@ const std::string RISCVConfig::regNames[] = {
 		"t3", "t4", "t5", "t6" 
 };
 
-const std::string RISCVConfig::calleeSaveRegNames[] = { 
+const std::vector<std::string>  RISCVConfig::calleeSaveRegNames = {
 	"s0", "s1", "s2", "s3", "s4", "s5"," s6", "s7", "s8", "s9", "s10", "s11" 
 };
 
-const std::string RISCVConfig::callerSaveRegNames[] = {
+const std::vector<std::string>  RISCVConfig::callerSaveRegNames = {
 	"ra", 
 	"t0", "t1", "t2", 
 	"a0", "a1", "a2", "a3", "a4", "a5", "a6", "a7", 
@@ -20,6 +20,50 @@ const std::string RISCVConfig::callerSaveRegNames[] = {
 };
 
 
-RISCVBasicBlock::RISCVBasicBlock()
+void RISCVBasicBlock::append(const std::shared_ptr<RISCVinstruction>& i)
 {
+	if (front == nullptr) {
+		front = i;
+		back = i;
+	}
+	else {
+		i->setPrevInstr(back.lock());
+		back.lock()->setNextInstr(i);
+		back = i;
+	}
+	if (i->category() == RISCVinstruction::JUMP) {
+		auto target = std::static_pointer_cast<JumpAssembly>(i)->getTarget();
+		to.insert(target);
+		target->insertFromBlock(shared_from_this());
+	}
+	else if (i->category() == RISCVinstruction::BTYPE) {
+		auto target = std::static_pointer_cast<B_type>(i)->getTargetBlock();
+		to.insert(target);
+		target->insertFromBlock(shared_from_this());
+	}
+}
+
+RISCVProgram::RISCVProgram()
+{
+	for (auto &name : RISCVConfig::physicalRegNames)
+		physicalRegs[name] = std::make_shared<PhysicalRegister>(name);
+
+	mallocFunc = std::make_shared<RISCVFunction>("malloc");
+}
+
+void RISCVProgram::print(std::ostream & os)
+{
+}
+
+void removeRISCVinstruction(std::shared_ptr<RISCVinstruction> i)
+{
+	auto b = i->getBlock();
+
+	if (b->getBack() == i)
+		b->setBack(i->getPrevInstr());
+	else i->getNextInstr()->setPrevInstr(i->getNextInstr());
+
+	if (b->getFront() == i) 
+		b->setFront(i->getNextInstr());
+	else i->getPrevInstr()->setNextInstr(i->getNextInstr());
 }

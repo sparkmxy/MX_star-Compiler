@@ -17,18 +17,16 @@ public:
 		LOAD, STORE,
 		LI, LA
 	};
-	RISCVinstruction(std::shared_ptr<RISCVBasicBlock> b, Category _c)
+	RISCVinstruction(std::weak_ptr<RISCVBasicBlock> b, Category _c)
 		:residingBlk(b), c(_c) {}
 
-	std::shared_ptr<RISCVBasicBlock> getBlock() { return residingBlk; }
+	std::shared_ptr<RISCVBasicBlock> getBlock() { return residingBlk.lock(); }
 
 	std::shared_ptr<RISCVinstruction> getNextInstr() { return next; }
 	void setNextInstr(const std::shared_ptr<RISCVinstruction> & i) { next = i; }
 
 	std::shared_ptr<RISCVinstruction> getPrevInstr() { return prev.lock(); }
 	void setPrevInstr(const std::shared_ptr<RISCVinstruction> & i) { prev = i; }
-	
-	void removeThis();
 
 	Category category() { return c; }
 
@@ -37,7 +35,7 @@ public:
 
 private:
 	Category c;
-	std::shared_ptr<RISCVBasicBlock> residingBlk;
+	std::weak_ptr<RISCVBasicBlock> residingBlk;
 	std::shared_ptr<RISCVinstruction> next;
 	std::weak_ptr<RISCVinstruction> prev;
 };
@@ -50,7 +48,7 @@ public:
 		BEQ, BNE, BLE, BGE, BLT, BGT
 	};
 
-	B_type(std::shared_ptr<RISCVBasicBlock> b, CmpOp _op,
+	B_type(std::weak_ptr<RISCVBasicBlock> b, CmpOp _op,
 		std::shared_ptr<Register> _rs1, std::shared_ptr<Register> _rs2,
 		std::shared_ptr<RISCVBasicBlock> _target)
 		:RISCVinstruction(b, BTYPE), rs1(_rs1), rs2(_rs2), target(_target), op(_op){}
@@ -75,7 +73,7 @@ public:
 		SLTI, SLTIU, SLLI, SRAI
 	};
 
-	I_type(std::shared_ptr<RISCVBasicBlock> b, Operator _op,
+	I_type(std::weak_ptr<RISCVBasicBlock> b, Operator _op,
 		std::shared_ptr<Register> _rd, std::shared_ptr<Register> _rs1, std::shared_ptr<Immediate> _imm)
 		:RISCVinstruction(b, ITYPE), rd(_rd), rs1(_rs1), op(_op), imm(_imm) {}
 
@@ -97,7 +95,7 @@ public:
 		AND, OR, XOR
 	};
 
-	R_type(std::shared_ptr<RISCVBasicBlock> b, Operator _op,
+	R_type(std::weak_ptr<RISCVBasicBlock> b, Operator _op,
 		std::shared_ptr<Register> _rd, std::shared_ptr<Register> _rs1, std::shared_ptr<Register> _rs2)
 		:RISCVinstruction(b, RTYPE), op(_op), rd(_rd), rs1(_rs1), rs2(_rs2) {}
 
@@ -112,7 +110,7 @@ private:
 
 class CallAssembly : public RISCVinstruction {
 public:
-	CallAssembly(std::shared_ptr<RISCVBasicBlock> b, std::shared_ptr<RISCVFunction> f)
+	CallAssembly(std::weak_ptr<RISCVBasicBlock> b, std::shared_ptr<RISCVFunction> f)
 		:RISCVinstruction(b, CALL), func(f) {}
 
 	std::shared_ptr<RISCVFunction> getFunction() { return func; }
@@ -122,7 +120,7 @@ private:
 
 class MoveAssembly : public RISCVinstruction {
 public:
-	MoveAssembly(std::shared_ptr<RISCVBasicBlock> b,
+	MoveAssembly(std::weak_ptr<RISCVBasicBlock> b,
 		std::shared_ptr<Register> _rd, std::shared_ptr<Register> _rs1)
 		:RISCVinstruction(b, MOV), rd(_rd), rs1(_rs1) {}
 
@@ -135,12 +133,12 @@ private:
 
 class RetAssembly : public RISCVinstruction {
 public:
-	RetAssembly(std::shared_ptr<RISCVBasicBlock> b) :RISCVinstruction(b, RET) {}
+	RetAssembly(std::weak_ptr<RISCVBasicBlock> b) :RISCVinstruction(b, RET) {}
 };
 
 class JumpAssembly :public RISCVinstruction {
 public:
-	JumpAssembly(std::shared_ptr<RISCVBasicBlock> b, std::shared_ptr<RISCVBasicBlock> _target)
+	JumpAssembly(std::weak_ptr<RISCVBasicBlock> b, std::shared_ptr<RISCVBasicBlock> _target)
 		:RISCVinstruction(b, JUMP), target(_target) {}
 
 	std::shared_ptr<RISCVBasicBlock> getTarget() { return target; }
@@ -150,7 +148,7 @@ private:
 
 class LoadImm : public RISCVinstruction {
 public:
-	LoadImm(std::shared_ptr<RISCVBasicBlock> b,
+	LoadImm(std::weak_ptr<RISCVBasicBlock> b,
 		std::shared_ptr<Register> _rd, std::shared_ptr<Immediate> i)
 		:RISCVinstruction(b, LI), rd(_rd), imm(i) {}
 
@@ -163,7 +161,7 @@ private:
 
 class LoadAddr :public RISCVinstruction {
 public:
-	LoadAddr(std::shared_ptr<RISCVBasicBlock> b,
+	LoadAddr(std::weak_ptr<RISCVBasicBlock> b,
 		std::shared_ptr<Register> _rd, std::shared_ptr<StaticString> s)
 		:RISCVinstruction(b, LA), rd(_rd), symbol(s) {}
 
@@ -175,4 +173,32 @@ private:
 	std::shared_ptr<StaticString> symbol;
 };
 
-// TO DO : Load and Store
+class Load : public RISCVinstruction {
+public:
+	Load(std::weak_ptr<RISCVBasicBlock> b,
+		std::shared_ptr<Operand> addr, std::shared_ptr<Register> _rd, int _size)
+		:RISCVinstruction(b, LOAD), rd(_rd), size(_size){}
+
+	std::shared_ptr<Register> getRd() { return rd; }
+	std::shared_ptr<Operand> getAddr() { return addr; }
+private:
+	std::shared_ptr<Register> rd;
+	std::shared_ptr<Operand> addr; // This can be a register or a stackLocation
+	int size;
+};
+
+// Constructor: residingBlock, addr, rs, size
+class Store : public RISCVinstruction {
+public:
+	Store(std::weak_ptr<RISCVBasicBlock> b,
+		std::shared_ptr<Operand> addr, std::shared_ptr<Register> _rs, int _size)
+		:RISCVinstruction(b, STORE), rs(_rs), size(_size){}
+
+	std::shared_ptr<Register> getRd() { return rs; }
+	std::shared_ptr<Operand> getAddr() { return addr; }
+	int getSize() { return size; }
+private:
+	std::shared_ptr<Register> rs;
+	std::shared_ptr<Operand> addr;  // This can be a register or a stackLocation
+	int size;
+}; 

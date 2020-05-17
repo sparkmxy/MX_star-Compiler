@@ -170,7 +170,7 @@ void IR_Printer::visit(PhiFunction * p)
 	for (auto &opt : options) {
 		opt.first->accept(*this);
 		os << " ";
-		os << getLabel(opt.second.get()) << " ";
+		os << getLabel(opt.second.lock().get()) << " ";
 	}
 }
 

@@ -293,11 +293,11 @@
     <ClCompile Include="RISCVcodegen.cpp">
       <Filter>源文件\backend\codegen</Filter>
     </ClCompile>
-    <ClCompile Include="RISCVassembly.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="instructionSelector.cpp">
-      <Filter>源文件</Filter>
+      <Filter>源文件\backend\codegen</Filter>
+    </ClCompile>
+    <ClCompile Include="RISCVassembly.cpp">
+      <Filter>源文件\backend\codegen</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

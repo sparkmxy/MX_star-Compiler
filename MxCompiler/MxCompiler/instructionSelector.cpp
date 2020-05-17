@@ -22,19 +22,26 @@ void InstructionSelector::visit(Function * f)
 {
 	auto ff = std::make_shared<RISCVFunction>(f->getName());
 	irFunc2RISCV[f] = ff;
-	
+	P->appendFunction(ff);
+
 	currentFunction = ff;
 	auto blocks = f->getBlockList();
+	for (auto &b : blocks) {
+		auto bb = std::make_shared<RISCVBasicBlock>(
+			getLabel(currentFunction->getName() + "_" + b->toString()));
+		irBlock2RISCV[b.get()] = bb;
+		ff->appendBlock(bb);
+	}
+	ff->setEntry(irBlock2RISCV[f->getEntry().get()]);
+	ff->setExit(irBlock2RISCV[f->getExit().get()]);
+
+	functionEntryBlockInit(f, ff->getEntry());
 	for (auto &b : blocks) b->accept(*this);
 }
 
 void InstructionSelector::visit(BasicBlock * b)
 {
-	auto bb = std::make_shared<RISCVBasicBlock>(
-		getLabel(currentFunction->getName() + "_" + b->toString()));
-	currentBlock = bb;
-	irBlock2RISCV[b] = bb;
-
+	currentBlock = irBlock2RISCV[b];
 	for (auto i = b->getFront(); i != nullptr; i = i->getNextInstr())
 		i->accept(*this);
 }
@@ -43,18 +50,30 @@ void InstructionSelector::visit(Quadruple * q)
 {
 	auto op = q->getOp();
 	if (op == Quadruple::STORE) {
-
+		currentBlock->append(std::make_shared<Store>(currentBlock,
+			std::static_pointer_cast<Register>(q->getDst()), 
+			toRegister(q->getSrc1()), Configuration::SIZE_OF_PTR));
 	}
 	else if (op == Quadruple::LOAD) {
+		currentBlock->append(std::make_shared<Load>(currentBlock,
+			std::static_pointer_cast<Register>(q->getSrc1()),
+			std::static_pointer_cast<Register>(q->getDst())));
 	}
 	else if (op == Quadruple::MOVE) {
-
+		currentBlock->append(std::make_shared<MoveAssembly>(
+			std::static_pointer_cast<Register>(q->getDst()), toRegister(q->getSrc1())));
 	}
 	else if (op == Quadruple::NEG) {
-
+		auto rs1 = toRegister(q->getSrc1());
+		auto rd = std::static_pointer_cast<Register>(q->getDst());
+		currentBlock->append(std::make_shared<R_type>(currentBlock,
+			R_type::SUB, rd, (*P)["zeor"], rs1));
 	}
 	else if (op == Quadruple::INV) {
-
+		auto rs1 = toRegister(q->getSrc1());
+		auto rd = std::static_pointer_cast<Register>(q->getDst());
+		currentBlock->append(std::make_shared<I_type>(currentBlock,
+			I_type::XORI, rd, rs1, std::make_shared<Immediate>(-1)));
 	}
 	else {
 		if (isRtype(q->getSrc1(), op, q->getSrc2())) resolveRtype(q);
@@ -62,6 +81,87 @@ void InstructionSelector::visit(Quadruple * q)
 	}
 }
 
+void InstructionSelector::visit(Branch * b)
+{
+	currentBlock->append(std::make_shared<B_type>(currentBlock,
+		B_type::BNE, (*P)["zero"], b->getCondition(), b->getTrueBlock()));
+	currentBlock->append(std::make_shared<JumpAssembly>(
+		currentBlock, irBlock2RISCV[b->getFalseBlock().get()]));
+}
+
+void InstructionSelector::visit(Call * c)
+{
+	auto args = c->getArgs();
+	if (c->getObjRef() != nullptr) args.insert(args.begin(), c->getObjRef());
+
+	for (int i = 0; i < std::min(8, (int)args.size()); i++)
+		currentBlock->append(std::make_shared<MoveAssembly>(currentBlock,
+			toRegister(args[i]), (*P)["a" + std::to_string(i)]));
+
+	for (int i = 8; i < args.size(); i++) {
+		auto pos = std::make_shared<StackLocation>((*P)["sp"], (i - 8)*Configuration::SIZE_OF_INT);
+		currentBlock->append(std::make_shared<Store>(currentBlock, pos, toRegister(args[i]), Configuration::SIZE_OF_INT));
+	}
+
+	currentBlock->append(std::make_shared<CallAssembly>(currentBlock, irFunc2RISCV[c->getFunction().get()]));
+
+	// return value
+	if (c->getResult() != nullptr)
+		currentBlock->append(std::make_shared<MoveAssembly>(currentBlock,
+			std::static_pointer_cast<Register>(c->getResult()), (*P)["a0"]));
+}
+
+void InstructionSelector::visit(Malloc * m)
+{
+	currentBlock->append(std::make_shared<MoveAssembly>(currentBlock, (*P)["a0"], toRegister(m->getSize())));
+	currentBlock->append(std::make_shared<CallAssembly>(currentBlock, P->getMallocFunction()));
+	if (m->getPtr() != nullptr)
+		currentBlock->append(std::make_shared<MoveAssembly>(currentBlock,
+		(*P)["a0"], std::static_pointer_cast<Register>(m->getPtr())));
+}
+
+
+void InstructionSelector::visit(Return * r)
+{
+	if (r->getValue() != nullptr) 
+		currentBlock->append(std::make_shared<MoveAssembly>(currentBlock,
+			toRegister(r->getValue()), (*P)["a0"]));
+	
+	// need somethiing else?
+	currentBlock->append(std::make_shared<RetAssembly>(currentBlock));
+}
+
+void InstructionSelector::visit(Jump * j)
+{
+	currentBlock->append(std::make_shared<JumpAssembly>(
+		currentBlock, irBlock2RISCV[j->getTarget().get()]));
+}
+
+/*************************Helper functions**************************/
+
+void InstructionSelector::functionEntryBlockInit(Function *f, std::shared_ptr<RISCVBasicBlock> newEntry)
+{
+	// 1. save callee-save registers to somewhere else (recorded by <backup>)
+	calleeSaveRegbuckup.clear();
+	auto workList = RISCVConfig::calleeSaveRegNames;
+	workList.push_back("ra");
+	for (auto &regName : workList) {
+		auto reg = std::make_shared<VirtualReg>(VirtualReg::REG_VAL, "buckup_" + regName);
+		newEntry->append(std::make_shared<MoveAssembly>(currentBlock, (*P)[regName], reg));
+		calleeSaveRegbuckup[regName] = reg;
+	}
+
+	// 2. save argments
+	auto args = f->getArgs();
+	if (f->getObjRef() != nullptr) 
+		args.insert(args.begin(), std::static_pointer_cast<Register>(f->getObjRef()));
+	for (int i = 0; i < std::min(8, (int)args.size()); i++)
+		currentBlock->append(std::make_shared<MoveAssembly>(currentBlock, args[i], (*P)["a" + std::to_string(i)]));
+	for (int i = 8; i < args.size(); i++) {
+		auto addr = std::make_shared<StackLocation>((*P)["sp"], (i - 8)*Configuration::SIZE_OF_INT, false);
+		currentBlock->append(std::make_shared<Store>(currentBlock, addr, args[i], Configuration::SIZE_OF_INT));
+	}
+}
 
 void InstructionSelector::resolveRtype(Quadruple * q)
 {

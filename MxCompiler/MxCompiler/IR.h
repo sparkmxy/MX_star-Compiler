@@ -9,6 +9,8 @@
 class IR {
 public:
 	IR();
+	~IR();
+
 	void addGlobalVar(std::shared_ptr<Register> var);
 	void addFunction(std::shared_ptr<Function> func);
 	void addStringConst(std::shared_ptr<StaticString> str);

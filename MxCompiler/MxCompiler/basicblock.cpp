@@ -91,11 +91,16 @@ void BasicBlock::endWith(std::shared_ptr<IRInstruction> instr)
 	else if (tag == IRInstruction::JUMP)
 		link_to_block(std::static_pointer_cast<Jump>(instr)->getTarget());
 	else if (tag == IRInstruction::RET)
-		func->appendReturnInstr(std::static_pointer_cast<Return>(instr));
+		func.lock()->appendReturnInstr(std::static_pointer_cast<Return>(instr));
 	endFlag = true;
 }
 
-
+void BasicBlock::destroyEdges()
+{
+	to.clear();
+	from.clear();
+	dtInfo.clear();
+}
 
 void replaceInstruction(std::shared_ptr<IRInstruction> old, std::shared_ptr<IRInstruction> _new)
 {

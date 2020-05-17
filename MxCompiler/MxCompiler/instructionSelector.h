@@ -3,8 +3,11 @@
 #include "pch.h"
 #include "IR.h"
 #include "cfg_visitor.h"
+#include "basicblock.h"
 #include "RISCVassembly.h"
 #include "RISCVinstruction.h"
+#include "configuration.h"
+
 
 /*
 Translate IR into RISCV assembly with infinte number of registers
@@ -26,6 +29,9 @@ private:
 
 	std::unordered_map<std::string, int> labelCnt;
 	std::string getLabel(const std::string &label);
+
+	std::unordered_map<std::string, std::shared_ptr<VirtualReg> > calleeSaveRegbuckup;
+
 	// override functons 
 	void visit(IR *ir) override;
 	void visit(Function *f) override;
@@ -37,11 +43,10 @@ private:
 	void visit(Malloc *m) override;
 	void visit(Return *r) override;
 	void visit(Jump *j) override;
-	void visit(Register *r) override;
-	void visit(StaticString *s) override;
-	void visit(Immediate *i) override;
 
 	// Helper functions
+	void functionEntryBlockInit(Function *f, std::shared_ptr<RISCVBasicBlock> newEntry);
+
 	void resolveRtype(Quadruple *q);
 	void resolveItype(Quadruple *q);
 

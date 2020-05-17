@@ -29,6 +29,14 @@ IR::IR()
 	printlnInt = newBuiltInFunc("printlnInt");
 }
 
+IR::~IR()
+{
+	for (auto &f : functions) {
+		auto blocks = f->getBlockList();
+		for (auto &b : blocks) b->destroyEdges();
+	}
+}
+
 void IR::addGlobalVar(std::shared_ptr<Register> var)
 {
 	glbVars.push_back(var);

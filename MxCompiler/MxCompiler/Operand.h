@@ -13,7 +13,7 @@ public:
 	enum Category
 	{
 		REG_REF, IMM, REG_VAL, STATICSTR,
-		PHISICAL
+		PHISICAL, STACK
 	};
 	virtual Category category() = 0;
 	static bool isRegister(Category tag) { return tag == REG_REF || tag == REG_VAL; }
@@ -84,14 +84,14 @@ protected:
 
 class RegForSSA :public VirtualReg{
 public:
-	RegForSSA(int no, VirtualReg *_prototype, std::shared_ptr<BasicBlock> _def)
+	RegForSSA(int no, VirtualReg *_prototype, std::weak_ptr<BasicBlock> _def)
 		:ssaNo(no), prototype(_prototype), def(std::move(_def)){}
 
-	std::shared_ptr<BasicBlock> getDefiningBlock() { return def; }
+	std::shared_ptr<BasicBlock> getDefiningBlock() { return def.lock(); }
 private:
 	int ssaNo;
 	VirtualReg *prototype;
-	std::shared_ptr<BasicBlock> def;
+	std::weak_ptr<BasicBlock> def;
 	
 };
 

@@ -49,11 +49,11 @@ public:
 		PARALLEL_COPY
 	};
 
-	BasicBlock(std::shared_ptr<Function> _func, Tag _tag)
+	BasicBlock(std::weak_ptr<Function> _func, Tag _tag)
 		:func(_func), tag(_tag), endFlag(false){}
 	
 	Tag getTag() { return tag; }
-	std::shared_ptr<Function> getFunction() { return func; }
+	std::shared_ptr<Function> getFunction() { return func.lock; }
 
 	void append_front(std::shared_ptr<IRInstruction> instr);
 	void append_back(std::shared_ptr<IRInstruction> instr);
@@ -84,11 +84,13 @@ public:
 
 	std::string toString() { return namesForBasicBlocks[tag]; }
 
+	void destroyEdges();
+
 	ACCEPT_CFG_VISITOR
 
 private:
 	Tag tag;
-	std::shared_ptr<Function> func;
+	std::weak_ptr<Function> func;
 	
 	// instructions form a list
 	std::shared_ptr<IRInstruction> front;
