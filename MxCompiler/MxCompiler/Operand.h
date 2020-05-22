@@ -4,6 +4,30 @@
 #include "cfg_visitor.h"
 
 class BasicBlock;
+class Register;
+class MoveAssembly;
+class StackLocation;
+/*
+This struct is for register allocation information
+*/
+struct RAinfo {
+	std::unordered_set<std::weak_ptr<Register> > adjList;
+	std::unordered_set<std::weak_ptr<MoveAssembly> > moveList;
+	int degree;
+	std::weak_ptr<Register> alias;
+	std::weak_ptr<PhysicalRegister> color;
+	std::shared_ptr<StackLocation> spilladdr;
+
+	void clear() {
+		color.reset();
+		degree = 0;
+
+		adjList.clear();
+		moveList.clear();
+		alias.reset();
+		spilladdr = nullptr;
+	}
+};
 
 /*
 Class Operand: an interface class
@@ -16,7 +40,7 @@ public:
 		PHISICAL, STACK
 	};
 	virtual Category category() = 0;
-	static bool isRegister(Category tag) { return tag == REG_REF || tag == REG_VAL; }
+	static bool isRegister(Category tag) { return tag == REG_REF || tag == REG_VAL || tag == PHISICAL; }
 	virtual void accept(CFG_Visitor &vis) = 0;
 };
 
@@ -38,11 +62,17 @@ public:
 	bool isGlobal() { return global; }
 	void markAsGlobal() { global = true; }
 
+	RAinfo &info() { return raInfo; }
+
 	ACCEPT_CFG_VISITOR
 private:
 	bool global;
 	std::string name;
 	Category tag;
+
+	RAinfo raInfo;
+	// For codegen
+
 };
 
 class Immediate : public Operand {

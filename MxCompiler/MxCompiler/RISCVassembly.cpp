@@ -55,6 +55,15 @@ void RISCVProgram::print(std::ostream & os)
 {
 }
 
+void RISCVProgram::resetPrecoloredRegs()
+{
+	for (auto it : physicalRegs) {
+		it.second->info().clear();
+		it.second->info().degree = 2333;
+		it.second->info().color = it.second;
+	}
+}
+
 void removeRISCVinstruction(std::shared_ptr<RISCVinstruction> i)
 {
 	auto b = i->getBlock();

@@ -82,6 +82,8 @@ public:
 	}
 
 	std::shared_ptr<RISCVFunction> getMallocFunction() { return mallocFunc; }
+
+	void resetPrecoloredRegs();
 private:
 	std::vector<std::shared_ptr<RISCVFunction> > functions, builtinFunctions;
 

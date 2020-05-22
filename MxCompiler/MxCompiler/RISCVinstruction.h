@@ -32,6 +32,8 @@ public:
 
 	// virtual functions
 	virtual std::string toString() = 0;
+	virtual std::vector<std::shared_ptr<Register> > getUseReg() { return {}; }
+	virtual std::shared_ptr<Register> getDefReg() { return nullptr; }
 
 private:
 	Category c;
@@ -47,6 +49,7 @@ public:
 	{
 		BEQ, BNE, BLE, BGE, BLT, BGT
 	};
+	static const std::string op_to_string[];
 
 	B_type(std::weak_ptr<RISCVBasicBlock> b, CmpOp _op,
 		std::shared_ptr<Register> _rs1, std::shared_ptr<Register> _rs2,
@@ -57,6 +60,11 @@ public:
 	std::shared_ptr<Register> getRs2() { return rs2; }
 
 	std::shared_ptr<RISCVBasicBlock> getTargetBlock() { return target; }
+
+	// virtual functions
+	std::string toString() override;
+	std::vector<std::shared_ptr<Register> > getUseReg() override;
+
 private:
 
 	std::shared_ptr<Register> rs1, rs2; 
@@ -73,6 +81,8 @@ public:
 		SLTI, SLTIU, SLLI, SRAI
 	};
 
+	static const std::string op_to_string[];
+
 	I_type(std::weak_ptr<RISCVBasicBlock> b, Operator _op,
 		std::shared_ptr<Register> _rd, std::shared_ptr<Register> _rs1, std::shared_ptr<Immediate> _imm)
 		:RISCVinstruction(b, ITYPE), rd(_rd), rs1(_rs1), op(_op), imm(_imm) {}
@@ -80,6 +90,10 @@ public:
 	std::shared_ptr<Register> getRd() { return rd; }
 	std::shared_ptr<Register> getRs1() { return rs1; }
 	std::shared_ptr<Immediate> getImm() { return imm; }
+
+	std::string toString() override;
+	std::vector<std::shared_ptr<Register> > getUseReg() override;
+	std::shared_ptr<Register> getDefReg() override;
 private:
 	std::shared_ptr<Register> rd, rs1;
 	std::shared_ptr<Immediate> imm;
@@ -95,6 +109,8 @@ public:
 		AND, OR, XOR
 	};
 
+	static const std::string op_to_string[];
+
 	R_type(std::weak_ptr<RISCVBasicBlock> b, Operator _op,
 		std::shared_ptr<Register> _rd, std::shared_ptr<Register> _rs1, std::shared_ptr<Register> _rs2)
 		:RISCVinstruction(b, RTYPE), op(_op), rd(_rd), rs1(_rs1), rs2(_rs2) {}
@@ -103,6 +119,10 @@ public:
 	
 	std::shared_ptr<Register>getRS1() { return rs1; }
 	std::shared_ptr<Register> getRs2() { return rs2; }
+
+	std::string toString() override;
+	std::vector<std::shared_ptr<Register> > getUseReg() override;
+	std::shared_ptr<Register> getDefReg() override;
 private:
 	std::shared_ptr<Register> rs1, rs2, rd;
 	Operator op;
@@ -127,6 +147,10 @@ public:
 	std::shared_ptr<Register> getRd() { return rd; }
 
 	std::shared_ptr<Register> getRs1() { return rs1; }
+
+	std::string toString() override;
+	std::vector<std::shared_ptr<Register> > getUseReg() override;
+	std::shared_ptr<Register> getDefReg() override;
 private:
 	std::shared_ptr<Register> rs1, rd;
 };
@@ -142,6 +166,8 @@ public:
 		:RISCVinstruction(b, JUMP), target(_target) {}
 
 	std::shared_ptr<RISCVBasicBlock> getTarget() { return target; }
+	std::string toString() override;
+
 private:
 	std::shared_ptr<RISCVBasicBlock> target;
 };
@@ -154,6 +180,9 @@ public:
 
 	std::shared_ptr<Register> getRd() { return rd; }
 	std::shared_ptr<Immediate> getImm() { return imm; }
+
+	std::string toString() override;
+	std::shared_ptr<Register> getDefReg() override;
 private:
 	std::shared_ptr<Register> rd;
 	std::shared_ptr<Immediate> imm;
@@ -168,6 +197,9 @@ public:
 	std::shared_ptr<Register> getRd() { return rd; }
 
 	std::shared_ptr<StaticString> getSymbol() { return symbol; }
+
+	std::string toString() override;
+	std::shared_ptr<Register> getDefReg() override;
 private:
 	std::shared_ptr<Register> rd;
 	std::shared_ptr<StaticString> symbol;
@@ -181,6 +213,10 @@ public:
 
 	std::shared_ptr<Register> getRd() { return rd; }
 	std::shared_ptr<Operand> getAddr() { return addr; }
+
+	std::string toString() override;
+	std::vector<std::shared_ptr<Register> > getUseReg() override;  
+	std::shared_ptr<Register> getDefReg() override;
 private:
 	std::shared_ptr<Register> rd;
 	std::shared_ptr<Operand> addr; // This can be a register or a stackLocation
@@ -194,9 +230,13 @@ public:
 		std::shared_ptr<Operand> addr, std::shared_ptr<Register> _rs, int _size)
 		:RISCVinstruction(b, STORE), rs(_rs), size(_size){}
 
-	std::shared_ptr<Register> getRd() { return rs; }
+	std::shared_ptr<Register> getRs() { return rs; }
 	std::shared_ptr<Operand> getAddr() { return addr; }
 	int getSize() { return size; }
+
+	std::string toString() override;
+	std::vector<std::shared_ptr<Register> > getUseReg() override;
+	std::shared_ptr<Register> getDefReg() override;
 private:
 	std::shared_ptr<Register> rs;
 	std::shared_ptr<Operand> addr;  // This can be a register or a stackLocation

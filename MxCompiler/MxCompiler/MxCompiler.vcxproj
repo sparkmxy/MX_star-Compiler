@@ -185,6 +185,7 @@
     <ClCompile Include="registerAllocator.cpp" />
     <ClCompile Include="RISCVassembly.cpp" />
     <ClCompile Include="RISCVcodegen.cpp" />
+    <ClCompile Include="RISCVinstruction.cpp" />
     <ClCompile Include="scope.cpp" />
     <ClCompile Include="semanticChecker.cpp" />
     <ClCompile Include="SSAConstructor.cpp" />
