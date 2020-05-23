@@ -9,6 +9,7 @@ public:
 	static const std::vector<std::string> physicalRegNames;
 	static const std::vector<std::string> callerSaveRegNames;
 	static const std::vector<std::string> calleeSaveRegNames;
+	static const std::vector<std::string> allocatableRegNames;
 };
 
 
@@ -46,7 +47,7 @@ private:
 
 class RISCVFunction {
 public:
-	RISCVFunction(const std::string &_name) :name(_name) {}
+	RISCVFunction(const std::string &_name) :name(_name), fromBottom(0){}
 
 	void setEntry(const std::shared_ptr<RISCVBasicBlock> &_entry) { entry = _entry; }
 	std::shared_ptr<RISCVBasicBlock> getEntry() { return entry; }
@@ -58,11 +59,15 @@ public:
 	void appendBlock(std::shared_ptr<RISCVBasicBlock> b) { blocks.push_back(b); }
 
 	std::string getName() { return name; }
+
+	int stackLocationFromBottom(int size);
 private:
 	std::string name;
 	std::vector<std::shared_ptr<RISCVBasicBlock> > blocks;
 
 	std::shared_ptr<RISCVBasicBlock> entry, exit;
+
+	int fromBottom;
 };
 
 
@@ -84,6 +89,9 @@ public:
 	std::shared_ptr<RISCVFunction> getMallocFunction() { return mallocFunc; }
 
 	void resetPrecoloredRegs();
+
+	std::unordered_set<std::shared_ptr<PhysicalRegister> > getAllocatableRegs();
+
 private:
 	std::vector<std::shared_ptr<RISCVFunction> > functions, builtinFunctions;
 
@@ -93,3 +101,4 @@ private:
 };
 
 void removeRISCVinstruction(std::shared_ptr<RISCVinstruction> i);
+void appendBefore(std::shared_ptr<RISCVinstruction> i, std::shared_ptr<RISCVinstruction> new_i);

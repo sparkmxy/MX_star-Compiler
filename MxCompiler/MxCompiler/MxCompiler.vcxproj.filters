@@ -302,6 +302,9 @@
     <ClCompile Include="RISCVinstruction.cpp">
       <Filter>源文件\backend\codegen</Filter>
     </ClCompile>
+    <ClCompile Include="peeholeMatching.cpp">
+      <Filter>源文件\backend\codegen</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="ir.mxx">

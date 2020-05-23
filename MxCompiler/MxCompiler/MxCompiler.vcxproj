@@ -182,6 +182,7 @@
     <ClCompile Include="MxCompiler.cpp" />
     <ClCompile Include="Optimizer.cpp" />
     <ClCompile Include="parser.cpp" />
+    <ClCompile Include="peeholeMatching.cpp" />
     <ClCompile Include="registerAllocator.cpp" />
     <ClCompile Include="RISCVassembly.cpp" />
     <ClCompile Include="RISCVcodegen.cpp" />

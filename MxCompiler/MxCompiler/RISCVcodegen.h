@@ -13,5 +13,7 @@ public:
 private:
 	std::shared_ptr<IR> ir;
 	std::shared_ptr<RISCVProgram> riscv_program;
-	// Data structures that hold the RISCV assembly
+
+	void emitFunction(std::shared_ptr<RISCVFunction> f);
+	void emitBlock(std::shared_ptr<RISCVBasicBlock> b);
 };

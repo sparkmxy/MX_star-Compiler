@@ -34,6 +34,9 @@ public:
 	virtual std::string toString() = 0;
 	virtual std::vector<std::shared_ptr<Register> > getUseReg() { return {}; }
 	virtual std::shared_ptr<Register> getDefReg() { return nullptr; }
+	
+	virtual void updateUseReg(std::shared_ptr<Register> reg, std::shared_ptr<Register> new_reg){}
+	virtual void updateDefReg(std::shared_ptr<Register> new_reg){}
 
 private:
 	Category c;
@@ -65,6 +68,8 @@ public:
 	std::string toString() override;
 	std::vector<std::shared_ptr<Register> > getUseReg() override;
 
+	void updateUseReg(std::shared_ptr<Register> reg, std::shared_ptr<Register> new_reg) override;
+
 private:
 
 	std::shared_ptr<Register> rs1, rs2; 
@@ -94,6 +99,9 @@ public:
 	std::string toString() override;
 	std::vector<std::shared_ptr<Register> > getUseReg() override;
 	std::shared_ptr<Register> getDefReg() override;
+
+	void updateUseReg(std::shared_ptr<Register> reg, std::shared_ptr<Register> new_reg)override;
+	void updateDefReg(std::shared_ptr<Register> new_reg)override;
 private:
 	std::shared_ptr<Register> rd, rs1;
 	std::shared_ptr<Immediate> imm;
@@ -123,6 +131,10 @@ public:
 	std::string toString() override;
 	std::vector<std::shared_ptr<Register> > getUseReg() override;
 	std::shared_ptr<Register> getDefReg() override;
+
+	void updateUseReg(std::shared_ptr<Register> reg, std::shared_ptr<Register> new_reg)override;
+	void updateDefReg(std::shared_ptr<Register> new_reg)override;
+
 private:
 	std::shared_ptr<Register> rs1, rs2, rd;
 	Operator op;
@@ -151,6 +163,9 @@ public:
 	std::string toString() override;
 	std::vector<std::shared_ptr<Register> > getUseReg() override;
 	std::shared_ptr<Register> getDefReg() override;
+
+	void updateUseReg(std::shared_ptr<Register> reg, std::shared_ptr<Register> new_reg)override;
+	void updateDefReg(std::shared_ptr<Register> new_reg)override;
 private:
 	std::shared_ptr<Register> rs1, rd;
 };
@@ -183,6 +198,8 @@ public:
 
 	std::string toString() override;
 	std::shared_ptr<Register> getDefReg() override;
+
+	void updateDefReg(std::shared_ptr<Register> new_reg)override;
 private:
 	std::shared_ptr<Register> rd;
 	std::shared_ptr<Immediate> imm;
@@ -200,6 +217,8 @@ public:
 
 	std::string toString() override;
 	std::shared_ptr<Register> getDefReg() override;
+
+	void updateDefReg(std::shared_ptr<Register> new_reg)override;
 private:
 	std::shared_ptr<Register> rd;
 	std::shared_ptr<StaticString> symbol;
@@ -217,6 +236,9 @@ public:
 	std::string toString() override;
 	std::vector<std::shared_ptr<Register> > getUseReg() override;  
 	std::shared_ptr<Register> getDefReg() override;
+
+	void updateUseReg(std::shared_ptr<Register> reg, std::shared_ptr<Register> new_reg)override;
+	void updateDefReg(std::shared_ptr<Register> new_reg)override;
 private:
 	std::shared_ptr<Register> rd;
 	std::shared_ptr<Operand> addr; // This can be a register or a stackLocation
@@ -236,7 +258,8 @@ public:
 
 	std::string toString() override;
 	std::vector<std::shared_ptr<Register> > getUseReg() override;
-	std::shared_ptr<Register> getDefReg() override;
+
+	void updateUseReg(std::shared_ptr<Register> reg, std::shared_ptr<Register> new_reg)override;
 private:
 	std::shared_ptr<Register> rs;
 	std::shared_ptr<Operand> addr;  // This can be a register or a stackLocation

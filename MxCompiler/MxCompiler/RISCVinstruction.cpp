@@ -10,6 +10,12 @@ std::vector<std::shared_ptr<Register>> B_type::getUseReg()
 	return { rs1, rs2};
 }
 
+void B_type::updateUseReg(std::shared_ptr<Register> reg, std::shared_ptr<Register> new_reg)
+{
+	if (rs1 == reg) rs1 = new_reg;
+	if (rs2 == reg) rs2 = new_reg;
+}
+
 std::string I_type::toString()
 {
 	return op_to_string[op];
@@ -23,6 +29,16 @@ std::vector<std::shared_ptr<Register>> I_type::getUseReg()
 std::shared_ptr<Register> I_type::getDefReg()
 {
 	return rd;
+}
+
+void I_type::updateUseReg(std::shared_ptr<Register> reg, std::shared_ptr<Register> new_reg)
+{
+	if (rs1 == reg) rs1 = reg;
+}
+
+void I_type::updateDefReg(std::shared_ptr<Register> new_reg)
+{
+	rd = new_reg;
 }
 
 std::string R_type::toString()
@@ -40,6 +56,17 @@ std::shared_ptr<Register> R_type::getDefReg()
 	return rd;
 }
 
+void R_type::updateUseReg(std::shared_ptr<Register> reg, std::shared_ptr<Register> new_reg)
+{
+	if (reg == rs1) rs1 = new_reg;
+	if (reg == rs2) rs2 = new_reg;
+}
+
+void R_type::updateDefReg(std::shared_ptr<Register> new_reg)
+{
+	rd == new_reg;
+}
+
 std::string MoveAssembly::toString()
 {
 	return "mov";
@@ -53,6 +80,16 @@ std::vector<std::shared_ptr<Register>> MoveAssembly::getUseReg()
 std::shared_ptr<Register> MoveAssembly::getDefReg()
 {
 	return rd;
+}
+
+void MoveAssembly::updateUseReg(std::shared_ptr<Register> reg, std::shared_ptr<Register> new_reg)
+{
+	if (rs1 == reg) rs1 = new_reg;
+}
+
+void MoveAssembly::updateDefReg(std::shared_ptr<Register> new_reg)
+{
+	rd = new_reg;
 }
 
 std::string JumpAssembly::toString()
@@ -70,6 +107,11 @@ std::shared_ptr<Register> LoadImm::getDefReg()
 	return rd;
 }
 
+void LoadImm::updateDefReg(std::shared_ptr<Register> new_reg)
+{
+	rd = new_reg;
+}
+
 std::string LoadAddr::toString()
 {
 	return "la";
@@ -78,6 +120,11 @@ std::string LoadAddr::toString()
 std::shared_ptr<Register> LoadAddr::getDefReg()
 {
 	return rd;
+}
+
+void LoadAddr::updateDefReg(std::shared_ptr<Register> new_reg)
+{
+	rd = new_reg;
 }
 
 std::string Load::toString()
@@ -102,6 +149,16 @@ std::shared_ptr<Register> Load::getDefReg()
 	return rd;
 }
 
+void Load::updateUseReg(std::shared_ptr<Register> reg, std::shared_ptr<Register> new_reg)
+{
+	if (reg == addr) addr = reg;
+}
+
+void Load::updateDefReg(std::shared_ptr<Register> new_reg)
+{
+	rd = new_reg;
+}
+
 std::string Store::toString()
 {
 	return "store";
@@ -119,3 +176,9 @@ std::vector<std::shared_ptr<Register>> Store::getUseReg()
 		ret.push_back(std::static_pointer_cast<StackLocation>(addr)->getBase());
 	return ret;
 }
+
+void Store::updateUseReg(std::shared_ptr<Register> reg, std::shared_ptr<Register> new_reg)
+{
+	if (addr == reg) addr = new_reg;
+	if (rs == reg) rs = new_reg;
+} 
