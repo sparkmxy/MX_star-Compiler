@@ -7,12 +7,14 @@ class BasicBlock;
 class Register;
 class MoveAssembly;
 class StackLocation;
+class PhysicalRegister;
 /*
 This struct is for register allocation information
 */
 struct RAinfo {
-	std::unordered_set<std::weak_ptr<Register> > adjList;
-	std::unordered_set<std::weak_ptr<MoveAssembly> > moveList;
+	// This might causes memory leak, remember to destruct these unordered_set
+	std::unordered_set<std::shared_ptr<Register> > adjList;
+	std::unordered_set<std::shared_ptr<MoveAssembly> > moveList;
 	int degree;
 	std::weak_ptr<Register> alias;
 	std::weak_ptr<PhysicalRegister> color;
@@ -37,7 +39,7 @@ public:
 	enum Category
 	{
 		REG_REF, IMM, REG_VAL, STATICSTR,
-		PHISICAL, STACK
+		PHISICAL, STACK, ADDR
 	};
 	virtual Category category() = 0;
 	static bool isRegister(Category tag) { return tag == REG_REF || tag == REG_VAL || tag == PHISICAL; }

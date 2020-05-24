@@ -53,7 +53,7 @@ public:
 		:func(_func), tag(_tag), endFlag(false){}
 	
 	Tag getTag() { return tag; }
-	std::shared_ptr<Function> getFunction() { return func.lock; }
+	std::shared_ptr<Function> getFunction() { return func.lock(); }
 
 	void append_front(std::shared_ptr<IRInstruction> instr);
 	void append_back(std::shared_ptr<IRInstruction> instr);

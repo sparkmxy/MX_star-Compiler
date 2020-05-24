@@ -14,10 +14,13 @@ public:
 		K = RISCVConfig::allocatableRegNames.size();
 	}
 
+	~RegisterAllocator();
+
 	struct Edge
 	{
 		std::shared_ptr<Register> x, y;
 
+		Edge() {}
 		Edge(std::shared_ptr<Register> _x, std::shared_ptr<Register> _y) : x(_x), y(_y) {}
 	};
 	
@@ -35,7 +38,7 @@ private:
 	std::unordered_set<std::shared_ptr<MoveAssembly> >
 		coalescedMoves, constrainedMoves, frozenMoves, activeMoves, moveSet;
 
-	std::unordered_map<std::weak_ptr<RISCVBasicBlock>,
+	std::unordered_map<std::shared_ptr<RISCVBasicBlock>,
 		std::unordered_set<std::shared_ptr<Register> > > livein, liveout, def, use;
 
 	// spill
@@ -80,7 +83,7 @@ private:
 
 	bool check(std::shared_ptr<Register> t, std::shared_ptr<Register> r);
 
-	bool isConservative(std::unordered_set<std::weak_ptr<Register> > regs);
+	bool isConservative(std::unordered_set<std::shared_ptr<Register> > regs);
 
 	void union_nodes(std::shared_ptr<Register> x, std::shared_ptr<Register> y);
 

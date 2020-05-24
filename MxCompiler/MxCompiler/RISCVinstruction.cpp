@@ -1,8 +1,11 @@
 #include "RISCVinstruction.h"
 
+
+const std::string B_type::op_to_string[] = {"beq", "bne", "ble", "bge", "blt", "bgt"};
+
 std::string B_type::toString()
 {
-	return op_to_string[op];
+	return op_to_string[op] + rs1->getName() + ", " + rs2->getName(); // no target Name
 }
 
 std::vector<std::shared_ptr<Register>> B_type::getUseReg()
@@ -16,9 +19,11 @@ void B_type::updateUseReg(std::shared_ptr<Register> reg, std::shared_ptr<Registe
 	if (rs2 == reg) rs2 = new_reg;
 }
 
+const std::string I_type::op_to_string[] = {"addi","xori","ori","andi","slti","sltiu","slli","srai"};
+
 std::string I_type::toString()
 {
-	return op_to_string[op];
+	return op_to_string[op] + "\t" + rd->getName() + ", " + rs1->getName() + ", " + std::to_string(imm->getValue());
 }
 
 std::vector<std::shared_ptr<Register>> I_type::getUseReg()
@@ -41,9 +46,14 @@ void I_type::updateDefReg(std::shared_ptr<Register> new_reg)
 	rd = new_reg;
 }
 
+const std::string R_type::op_to_string[] = {
+	"add", "sub", "mul", "div", "mod", "sll", "sra", "slt", "sltu", 
+	"and", "or", "xor"
+};
+
 std::string R_type::toString()
 {
-	return op_to_string[op];
+	return op_to_string[op] + '\t' + rd->getName() + ", " + rs1->getName() + ", " + rs2->getName();
 }
 
 std::vector<std::shared_ptr<Register>> R_type::getUseReg()
@@ -69,7 +79,7 @@ void R_type::updateDefReg(std::shared_ptr<Register> new_reg)
 
 std::string MoveAssembly::toString()
 {
-	return "mov";
+	return "mv" + '\t' + rd->getName() + ", " + rs1->getName();
 }
 
 std::vector<std::shared_ptr<Register>> MoveAssembly::getUseReg()
@@ -94,12 +104,12 @@ void MoveAssembly::updateDefReg(std::shared_ptr<Register> new_reg)
 
 std::string JumpAssembly::toString()
 {
-	return "jump";
+	return "j";  // need to add targetblock
 }
 
 std::string LoadImm::toString()
 {
-	return "li";
+	return "li" + '\t' + rd->getName() + "," + std::to_string(imm->getValue());
 }
 
 std::shared_ptr<Register> LoadImm::getDefReg()
@@ -114,7 +124,7 @@ void LoadImm::updateDefReg(std::shared_ptr<Register> new_reg)
 
 std::string LoadAddr::toString()
 {
-	return "la";
+	return "la" + '\t' + rd->getName() + ", "; // what should I do here?
 }
 
 std::shared_ptr<Register> LoadAddr::getDefReg()
@@ -129,7 +139,10 @@ void LoadAddr::updateDefReg(std::shared_ptr<Register> new_reg)
 
 std::string Load::toString()
 {
-	return "load";
+	std::string op = "lw";
+	if (size == 2) op = "lh";
+	if (size == 1) op = "lb";
+	return op + '\t' + rd->getName(); // need to print the addr;
 }
 
 std::vector<std::shared_ptr<Register>> Load::getUseReg()
@@ -140,7 +153,12 @@ std::vector<std::shared_ptr<Register>> Load::getUseReg()
 		return { reg };
 	}
 	if (addr->category() == Operand::STACK)
-		return { std::static_pointer_cast<StackLocation>(addr)->getBase() };
+		return { std::static_pointer_cast<StackLocation>(addr)->getSp()};
+	if(addr->category() == Operand::ADDR){
+		auto reg = std::static_pointer_cast<BaseOffsetAddr>(addr)->getBase();
+		if (reg->isGlobal()) return {};
+		return { reg };
+	}
 	throw Error("Nobody knows exception better than me.");
 }
 
@@ -161,7 +179,11 @@ void Load::updateDefReg(std::shared_ptr<Register> new_reg)
 
 std::string Store::toString()
 {
-	return "store";
+	std::string op = "sw";
+	if (size == 2) op = "sh";
+	if (size == 1) op = "sb";
+
+	return op + rs->getName(); // need to add addr
 }
 
 std::vector<std::shared_ptr<Register>> Store::getUseReg()
@@ -173,7 +195,7 @@ std::vector<std::shared_ptr<Register>> Store::getUseReg()
 			ret.push_back(std::static_pointer_cast<Register>(addr));
 	}
 	else if (addr->category() == Operand::STACK)
-		ret.push_back(std::static_pointer_cast<StackLocation>(addr)->getBase());
+		ret.push_back(std::static_pointer_cast<StackLocation>(addr)->getSp());
 	return ret;
 }
 

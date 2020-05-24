@@ -31,7 +31,7 @@ public:
 	Category category() { return c; }
 
 	// virtual functions
-	virtual std::string toString() = 0;
+	virtual std::string toString() { return "fuck you"; }
 	virtual std::vector<std::shared_ptr<Register> > getUseReg() { return {}; }
 	virtual std::shared_ptr<Register> getDefReg() { return nullptr; }
 	
@@ -231,7 +231,7 @@ public:
 		:RISCVinstruction(b, LOAD), rd(_rd), size(_size){}
 
 	std::shared_ptr<Register> getRd() { return rd; }
-	std::shared_ptr<Operand> getAddr() { return addr; }
+	std::shared_ptr<Address> getAddr() { return addr; }
 
 	std::string toString() override;
 	std::vector<std::shared_ptr<Register> > getUseReg() override;  
@@ -241,7 +241,7 @@ public:
 	void updateDefReg(std::shared_ptr<Register> new_reg)override;
 private:
 	std::shared_ptr<Register> rd;
-	std::shared_ptr<Operand> addr; // This can be a register or a stackLocation
+	std::shared_ptr<Address> addr; // This can be a register or a stackLocation
 	int size;
 };
 
@@ -249,11 +249,12 @@ private:
 class Store : public RISCVinstruction {
 public:
 	Store(std::weak_ptr<RISCVBasicBlock> b,
-		std::shared_ptr<Operand> addr, std::shared_ptr<Register> _rs, int _size)
-		:RISCVinstruction(b, STORE), rs(_rs), size(_size){}
+		std::shared_ptr<Operand> addr, std::shared_ptr<Register> _rs, int _size, std::shared_ptr<Register> _rt = nullptr)
+		:RISCVinstruction(b, STORE), rs(_rs), size(_size), rt(_rt){}
 
 	std::shared_ptr<Register> getRs() { return rs; }
-	std::shared_ptr<Operand> getAddr() { return addr; }
+	std::shared_ptr<Register> getRt() { return rt; }
+	std::shared_ptr<Address> getAddr() { return addr; }
 	int getSize() { return size; }
 
 	std::string toString() override;
@@ -261,7 +262,7 @@ public:
 
 	void updateUseReg(std::shared_ptr<Register> reg, std::shared_ptr<Register> new_reg)override;
 private:
-	std::shared_ptr<Register> rs;
-	std::shared_ptr<Operand> addr;  // This can be a register or a stackLocation
+	std::shared_ptr<Register> rs, rt;
+	std::shared_ptr<Address> addr;  // This can be a register or a stackLocation
 	int size;
 }; 

@@ -34,7 +34,7 @@ public:
 	InstrTag getTag() { return tag; }
 
 
-	std::weak_ptr<BasicBlock> getBlock() { return residingBlock.lock(); }
+	std::shared_ptr<BasicBlock> getBlock() { return residingBlock.lock(); }
 
 	std::shared_ptr<IRInstruction> getNextInstr() { return next;}
 	void setNextInstr(const std::shared_ptr<IRInstruction> &_next) { next = _next; }

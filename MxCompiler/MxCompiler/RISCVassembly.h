@@ -23,18 +23,18 @@ public:
 	std::string getLabel() { return label; }
 
 	std::shared_ptr<RISCVinstruction> getFront() { return front; }
-	void setFront(std::weak_ptr<RISCVinstruction> i) { front = i.lock; }
+	void setFront(std::weak_ptr<RISCVinstruction> i) { front = i.lock(); }
 
 	std::shared_ptr<RISCVinstruction> getBack() { return back.lock(); }
 	void setBack(std::weak_ptr<RISCVinstruction> i) { back = i; }
 
 	std::shared_ptr<RISCVFunction> getResidingFunction() { return func.lock(); }
 
-	std::unordered_set<std::weak_ptr<RISCVBasicBlock> > &getToBlocks() { return to; }
-	std::unordered_set<std::weak_ptr<RISCVBasicBlock> > &getFromBlocks() { return from; }
+	std::unordered_set<std::shared_ptr<RISCVBasicBlock> > &getToBlocks() { return to; }
+	std::unordered_set<std::shared_ptr<RISCVBasicBlock> > &getFromBlocks() { return from; }
 
-	void insertToBlock(std::weak_ptr<RISCVBasicBlock> b) { to.insert(b); }
-	void insertFromBlock(std::weak_ptr<RISCVBasicBlock> b) { from.insert(b); }
+	void insertToBlock(std::shared_ptr<RISCVBasicBlock> b) { to.insert(b); }
+	void insertFromBlock(std::shared_ptr<RISCVBasicBlock> b) { from.insert(b); }
 
 private:
 	std::string label;
@@ -42,12 +42,12 @@ private:
 	std::weak_ptr<RISCVinstruction> back;
 	std::weak_ptr<RISCVFunction> func;
 
-	std::unordered_set<std::weak_ptr<RISCVBasicBlock> > from, to;
+	std::unordered_set<std::shared_ptr<RISCVBasicBlock> > from, to;
 };
 
 class RISCVFunction {
 public:
-	RISCVFunction(const std::string &_name) :name(_name), fromBottom(0){}
+	RISCVFunction(const std::string &_name) :name(_name), stackSizeFromBottom(0), stackSizeFromTop(0){}
 
 	void setEntry(const std::shared_ptr<RISCVBasicBlock> &_entry) { entry = _entry; }
 	std::shared_ptr<RISCVBasicBlock> getEntry() { return entry; }
@@ -61,13 +61,17 @@ public:
 	std::string getName() { return name; }
 
 	int stackLocationFromBottom(int size);
+
+	int getStackSize() {
+		return (stackSizeFromBottom + stackSizeFromTop + 15) / 16 * 16;
+	}
 private:
 	std::string name;
 	std::vector<std::shared_ptr<RISCVBasicBlock> > blocks;
 
 	std::shared_ptr<RISCVBasicBlock> entry, exit;
 
-	int fromBottom;
+	int stackSizeFromBottom, stackSizeFromTop;
 };
 
 

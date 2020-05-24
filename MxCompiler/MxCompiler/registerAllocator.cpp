@@ -1,5 +1,15 @@
 #include "registerAllocator.h"
 
+RegisterAllocator::~RegisterAllocator()
+{
+	for(auto f : program->getFunctions())
+		for(auto b : f->getBlockList())
+			for (auto i = b->getFront(); i != nullptr; i = i->getNextInstr()) {
+				for (auto r : i->getUseReg()) r->info().clear();
+				if (i->getDefReg() != nullptr) i->getDefReg()->info().clear();
+			}
+}
+
 void RegisterAllocator::run()
 {
 	auto functions = program->getFunctions();
@@ -59,6 +69,10 @@ void RegisterAllocator::buildInferenceGraph()
 					defs.push_back((*program)[regName]);
 			}
 
+			if (i->category() == RISCVinstruction::STORE) {
+				auto s = std::static_pointer_cast<Store>(i);
+				if (s->getRt() != nullptr) addEdge(s->getRs(), s->getRt());
+			}
 			for (auto def : defs) {
 				for (auto reg : live) addEdge(def, reg);
 				live.erase(def);
@@ -194,7 +208,7 @@ void RegisterAllocator::assignColor()
 		auto availableColors = program->getAllocatableRegs();
 
 		for (auto r : reg->info().adjList) {
-			auto r_alias = getAlias(r.lock());
+			auto r_alias = getAlias(r);
 			if (colored.find(r_alias) != colored.end() || preColored.find(r_alias) != preColored.end())
 				availableColors.erase(r_alias->info().color.lock());
 		}
@@ -292,7 +306,7 @@ bool RegisterAllocator::isMoveRelated(std::shared_ptr<Register> reg)
 std::unordered_set<std::shared_ptr<MoveAssembly> > RegisterAllocator::nodeMoves(std::shared_ptr<Register> reg)
 {
 	std::unordered_set<std::shared_ptr<MoveAssembly> > ret;
-	for (auto r : reg->info().moveList) ret.insert(r.lock());
+	for (auto r : reg->info().moveList) ret.insert(r);
 	for (auto move : moveSet) ret.insert(move);
 	for (auto move : ret)
 		if (activeMoves.find(move) == activeMoves.end()) ret.erase(move);
@@ -303,7 +317,7 @@ std::unordered_set<std::shared_ptr<Register>> RegisterAllocator::getNeighbors(st
 {
 	std::unordered_set<std::shared_ptr<Register>> ret;
 	for (auto r : reg->info().adjList)
-		if (coalesced.find(r.lock()) == coalesced.end()) ret.insert(r.lock());
+		if (coalesced.find(r) == coalesced.end()) ret.insert(r);
 	for (auto r : selectStack) ret.erase(r);
 	return ret;
 }
@@ -352,11 +366,11 @@ bool RegisterAllocator::check(std::shared_ptr<Register> t, std::shared_ptr<Regis
 	return t->info().degree < K || preColored.find(t) != preColored.end() || edges.find(Edge(t, r)) != edges.end();
 }
 
-bool RegisterAllocator::isConservative(std::unordered_set<std::weak_ptr<Register>> regs)
+bool RegisterAllocator::isConservative(std::unordered_set<std::shared_ptr<Register>> regs)
 {
 	int cnt = 0;
 	for (auto reg : regs)
-		if (reg.lock()->info().degree >= K) cnt++;
+		if (reg->info().degree >= K) cnt++;
 
 	return cnt < K;
 }

@@ -50,9 +50,14 @@ void InstructionSelector::visit(Quadruple * q)
 {
 	auto op = q->getOp();
 	if (op == Quadruple::STORE) {
-		currentBlock->append(std::make_shared<Store>(currentBlock,
-			std::static_pointer_cast<Register>(q->getDst()), 
-			toRegister(q->getSrc1()), Configuration::SIZE_OF_PTR));
+		auto addr = std::static_pointer_cast<Register>(q->getDst());
+		if (addr->isGlobal()) {
+			auto reg = std::make_shared<VirtualReg>(Operand::REG_VAL, "store_glb");
+			currentBlock->append(std::make_shared<Store>(currentBlock, addr,
+				toRegister(q->getSrc1()), Configuration::SIZE_OF_INT, reg));
+		}
+		else currentBlock->append(std::make_shared<Store>(currentBlock,addr, 
+				toRegister(q->getSrc1()), Configuration::SIZE_OF_INT));
 	}
 	else if (op == Quadruple::LOAD) {
 		currentBlock->append(std::make_shared<Load>(currentBlock,
@@ -67,7 +72,7 @@ void InstructionSelector::visit(Quadruple * q)
 		auto rs1 = toRegister(q->getSrc1());
 		auto rd = std::static_pointer_cast<Register>(q->getDst());
 		currentBlock->append(std::make_shared<R_type>(currentBlock,
-			R_type::SUB, rd, (*P)["zeor"], rs1));
+			R_type::SUB, rd, (*P)["zero"], rs1));
 	}
 	else if (op == Quadruple::INV) {
 		auto rs1 = toRegister(q->getSrc1());
@@ -99,7 +104,7 @@ void InstructionSelector::visit(Call * c)
 			toRegister(args[i]), (*P)["a" + std::to_string(i)]));
 
 	for (int i = 8; i < args.size(); i++) {
-		auto pos = std::make_shared<StackLocation>((*P)["sp"], (i - 8)*Configuration::SIZE_OF_INT);
+		auto pos = std::make_shared<StackLocation>(currentFunction, (*P)["sp"], (i - 8)*Configuration::SIZE_OF_INT);
 		currentBlock->append(std::make_shared<Store>(currentBlock, pos, toRegister(args[i]), Configuration::SIZE_OF_INT));
 	}
 
@@ -158,7 +163,7 @@ void InstructionSelector::functionEntryBlockInit(Function *f, std::shared_ptr<RI
 	for (int i = 0; i < std::min(8, (int)args.size()); i++)
 		currentBlock->append(std::make_shared<MoveAssembly>(currentBlock, args[i], (*P)["a" + std::to_string(i)]));
 	for (int i = 8; i < args.size(); i++) {
-		auto addr = std::make_shared<StackLocation>((*P)["sp"], (i - 8)*Configuration::SIZE_OF_INT, false);
+		auto addr = std::make_shared<StackLocation>(currentFunction, (*P)["sp"], (i - 8)*Configuration::SIZE_OF_INT, false);
 		currentBlock->append(std::make_shared<Store>(currentBlock, addr, args[i], Configuration::SIZE_OF_INT));
 	}
 }
@@ -323,7 +328,7 @@ bool InstructionSelector::isRtype(std::shared_ptr<Operand> lhs, Quadruple::Opera
 	static const std::unordered_set<Quadruple::Operator> ops = 
 	{ Quadruple::MOD, Quadruple::MINUS, Quadruple::TIMES, Quadruple::DIVIDE };
 	if (ops.find(op) != ops.end()) return true;
-	if (Operand::isRegister(lhs->category()) && Operand::isRegister(rhs->isRegister)) return true;
+	if (Operand::isRegister(lhs->category()) && Operand::isRegister(rhs->category())) return true;
 	if (lhs->category() == Operand::IMM && !isInRange(std::static_pointer_cast<Immediate>(lhs))) return true;
 	if (rhs->category() == Operand::IMM && !isInRange(std::static_pointer_cast<Immediate>(rhs))) return true;
 	return (op == Quadruple::LSHIFT || op == Quadruple::RSHIFT) && lhs->category() == Operand::IMM;
