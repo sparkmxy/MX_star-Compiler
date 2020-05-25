@@ -3,6 +3,8 @@
 #include "pch.h"
 #include "RISCVassembly.h"
 #include "configuration.h"
+#include <assert.h>
+#include <set>
 
 class RegisterAllocator {
 public:
@@ -16,13 +18,7 @@ public:
 
 	~RegisterAllocator();
 
-	struct Edge
-	{
-		std::shared_ptr<Register> x, y;
-
-		Edge() {}
-		Edge(std::shared_ptr<Register> _x, std::shared_ptr<Register> _y) : x(_x), y(_y) {}
-	};
+	using Edge = std::pair<std::shared_ptr<Register>, std::shared_ptr<Register> >;
 	
 	void run();
 private:
@@ -42,12 +38,12 @@ private:
 		std::unordered_set<std::shared_ptr<Register> > > livein, liveout, def, use;
 
 	// spill
-	std::unordered_map<std::weak_ptr<Register>, bool> isForSpill;
-	std::unordered_map<std::weak_ptr<Register>, int> spillPriority;
+	std::unordered_map<std::shared_ptr<Register>, bool> isForSpill;
+	std::unordered_map<std::shared_ptr<Register>, int> spillPriority;
 
 	std::vector<std::shared_ptr<Register> > selectStack;
 
-	std::unordered_set<Edge> edges;
+	std::set<Edge> edges;
 	
 	void init();
 	void buildInferenceGraph();
@@ -83,7 +79,7 @@ private:
 
 	bool check(std::shared_ptr<Register> t, std::shared_ptr<Register> r);
 
-	bool isConservative(std::unordered_set<std::shared_ptr<Register> > regs);
+	bool isConservative(std::set<std::shared_ptr<Register> > regs);
 
 	void union_nodes(std::shared_ptr<Register> x, std::shared_ptr<Register> y);
 

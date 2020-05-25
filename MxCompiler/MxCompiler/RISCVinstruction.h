@@ -227,8 +227,8 @@ private:
 class Load : public RISCVinstruction {
 public:
 	Load(std::weak_ptr<RISCVBasicBlock> b,
-		std::shared_ptr<Operand> addr, std::shared_ptr<Register> _rd, int _size)
-		:RISCVinstruction(b, LOAD), rd(_rd), size(_size){}
+		std::shared_ptr<Address> _addr, std::shared_ptr<Register> _rd, int _size)
+		:RISCVinstruction(b, LOAD), rd(_rd), size(_size), addr(_addr){}
 
 	std::shared_ptr<Register> getRd() { return rd; }
 	std::shared_ptr<Address> getAddr() { return addr; }
@@ -249,8 +249,8 @@ private:
 class Store : public RISCVinstruction {
 public:
 	Store(std::weak_ptr<RISCVBasicBlock> b,
-		std::shared_ptr<Operand> addr, std::shared_ptr<Register> _rs, int _size, std::shared_ptr<Register> _rt = nullptr)
-		:RISCVinstruction(b, STORE), rs(_rs), size(_size), rt(_rt){}
+		std::shared_ptr<Address> _addr, std::shared_ptr<Register> _rs, int _size, std::shared_ptr<Register> _rt = nullptr)
+		:RISCVinstruction(b, STORE), addr(_addr), rs(_rs), size(_size), rt(_rt){}
 
 	std::shared_ptr<Register> getRs() { return rs; }
 	std::shared_ptr<Register> getRt() { return rt; }

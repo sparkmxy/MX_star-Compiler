@@ -4,12 +4,16 @@
 #include "cfg_visitor.h"
 #include "instructionSelector.h"
 #include "RISCVassembly.h"
+#include "registerAllocator.h"
+
 /*
 This class is an interface class for the toplevel MxCompiler class.
 */
 class RISCVCodeGenerator : public CFG_Visitor {
 public:
-	RISCVCodeGenerator(std::shared_ptr<IR> _ir, std::ostream &_os) :os(_os), ir(_ir){}
+	RISCVCodeGenerator(std::shared_ptr<IR> _ir, std::ostream &_os = std::cerr) 
+		:os(_os), ir(_ir){}
+
 	void generate();
 	void emit();
 private:

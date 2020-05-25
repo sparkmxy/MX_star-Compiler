@@ -27,6 +27,7 @@ public:
 
 	Category category() override { return ADDR; }
 	std::shared_ptr<Register> getBase() { return base; }
+	void setBase(std::shared_ptr<Register> r) { base = r; }
 private:
 	std::shared_ptr<Register> base;
 };

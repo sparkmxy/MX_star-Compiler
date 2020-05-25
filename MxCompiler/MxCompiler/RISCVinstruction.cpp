@@ -74,7 +74,7 @@ void R_type::updateUseReg(std::shared_ptr<Register> reg, std::shared_ptr<Registe
 
 void R_type::updateDefReg(std::shared_ptr<Register> new_reg)
 {
-	rd == new_reg;
+	rd = new_reg;
 }
 
 std::string MoveAssembly::toString()
@@ -147,11 +147,6 @@ std::string Load::toString()
 
 std::vector<std::shared_ptr<Register>> Load::getUseReg()
 {
-	if (Operand::isRegister(addr->category())) {
-		auto reg = std::static_pointer_cast<Register>(addr);
-		if (reg->isGlobal()) return {};
-		return { reg };
-	}
 	if (addr->category() == Operand::STACK)
 		return { std::static_pointer_cast<StackLocation>(addr)->getSp()};
 	if(addr->category() == Operand::ADDR){
@@ -169,7 +164,10 @@ std::shared_ptr<Register> Load::getDefReg()
 
 void Load::updateUseReg(std::shared_ptr<Register> reg, std::shared_ptr<Register> new_reg)
 {
-	if (reg == addr) addr = reg;
+	if (addr->category() == Operand::ADDR) {
+		auto a = std::static_pointer_cast<BaseOffsetAddr>(addr);
+		if (a->getBase() == reg) a->setBase(new_reg);
+	}
 }
 
 void Load::updateDefReg(std::shared_ptr<Register> new_reg)
@@ -190,9 +188,9 @@ std::vector<std::shared_ptr<Register>> Store::getUseReg()
 {
 	std::vector<std::shared_ptr<Register>> ret = { rs };
 
-	if (Operand::isRegister(addr->category())) {
-		if (!std::static_pointer_cast<Register>(addr)->isGlobal())
-			ret.push_back(std::static_pointer_cast<Register>(addr));
+	if (addr->category() == Operand::ADDR) {
+		auto a = std::static_pointer_cast<BaseOffsetAddr>(addr);
+		if (!a->getBase()->isGlobal()) ret.push_back(a->getBase());
 	}
 	else if (addr->category() == Operand::STACK)
 		ret.push_back(std::static_pointer_cast<StackLocation>(addr)->getSp());
@@ -201,6 +199,9 @@ std::vector<std::shared_ptr<Register>> Store::getUseReg()
 
 void Store::updateUseReg(std::shared_ptr<Register> reg, std::shared_ptr<Register> new_reg)
 {
-	if (addr == reg) addr = new_reg;
 	if (rs == reg) rs = new_reg;
+	if (addr->category() == Operand::ADDR) {
+		auto a = std::static_pointer_cast<BaseOffsetAddr>(addr);
+		if (a->getBase() == reg) a->setBase(new_reg);
+	}
 } 

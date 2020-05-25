@@ -9,7 +9,7 @@ const std::vector<std::string> RISCVConfig::physicalRegNames = {
 };
 
 const std::vector<std::string>  RISCVConfig::calleeSaveRegNames = {
-	"s0", "s1", "s2", "s3", "s4", "s5"," s6", "s7", "s8", "s9", "s10", "s11" 
+	"s0", "s1", "s2", "s3", "s4", "s5", "s6", "s7", "s8", "s9", "s10", "s11" 
 };
 
 const std::vector<std::string>  RISCVConfig::callerSaveRegNames = {
@@ -58,9 +58,6 @@ RISCVProgram::RISCVProgram()
 	mallocFunc = std::make_shared<RISCVFunction>("malloc");
 }
 
-void RISCVProgram::print(std::ostream & os)
-{
-}
 
 void RISCVProgram::resetPrecoloredRegs()
 {
@@ -105,4 +102,20 @@ int RISCVFunction::stackLocationFromBottom(int size)
 {
 	stackSizeFromBottom += size;
 	return stackSizeFromBottom;
+}
+
+void RISCVFunction::computePreOrderList()
+{
+	blocks.clear();
+	std::unordered_set<std::shared_ptr<RISCVBasicBlock> > visited;
+	std::unordered_map<std::shared_ptr<RISCVBasicBlock>, std::shared_ptr<RISCVBasicBlock> > father;
+	DFS(entry, visited);
+}
+
+void RISCVFunction::DFS(std::shared_ptr<RISCVBasicBlock> b, std::unordered_set<std::shared_ptr<RISCVBasicBlock>> visited)
+{
+	if (visited.find(b) != visited.end()) return;
+	blocks.push_back(b);
+	visited.insert(b);
+	for (auto bb : b->getToBlocks()) DFS(bb, visited);
 }

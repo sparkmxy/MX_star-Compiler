@@ -2,6 +2,7 @@
 
 #include "pch.h"
 #include "cfg_visitor.h"
+#include <set>
 
 class BasicBlock;
 class Register;
@@ -13,20 +14,21 @@ This struct is for register allocation information
 */
 struct RAinfo {
 	// This might causes memory leak, remember to destruct these unordered_set
-	std::unordered_set<std::shared_ptr<Register> > adjList;
-	std::unordered_set<std::shared_ptr<MoveAssembly> > moveList;
+	std::set<std::shared_ptr<Register> > adjList;
+	std::set<std::shared_ptr<MoveAssembly> > moveList;
 	int degree;
-	std::weak_ptr<Register> alias;
-	std::weak_ptr<PhysicalRegister> color;
+	std::shared_ptr<Register> alias;
+	std::shared_ptr<PhysicalRegister> color;
 	std::shared_ptr<StackLocation> spilladdr;
 
+	RAinfo() { clear(); }
 	void clear() {
-		color.reset();
+		color = nullptr;
 		degree = 0;
 
 		adjList.clear();
 		moveList.clear();
-		alias.reset();
+		alias = nullptr;
 		spilladdr = nullptr;
 	}
 };
@@ -56,7 +58,9 @@ it is just a temperory value in the register.
 class Register : public Operand {
 public:
 	Register(): global(false){}
-	Register(Category _tag, std::string _name) : name(_name),tag(_tag),global(false){}
+	Register(Category _tag, std::string _name) : name(_name),tag(_tag),global(false){
+		if (!isRegister(_tag)) throw Error("creating illeagal register.");
+	}
 	std::string getName() { return name; }
 
 	Category category() override { return tag; }

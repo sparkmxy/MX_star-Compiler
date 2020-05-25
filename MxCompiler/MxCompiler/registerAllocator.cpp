@@ -13,10 +13,12 @@ RegisterAllocator::~RegisterAllocator()
 void RegisterAllocator::run()
 {
 	auto functions = program->getFunctions();
+	int numOfIter = 0;
 	for (auto &function : functions) {
 		f = function;
 		while (true)
 		{
+			numOfIter++;
 			init();
 			livenessAnalysis();
 			buildInferenceGraph();
@@ -42,10 +44,14 @@ void RegisterAllocator::init()
 
 	for(auto b : f->getBlockList())
 		for (auto i = b->getFront(); i != nullptr; i = i->getNextInstr()) {
-			for (auto reg : i->getUseReg()) initial.insert(reg);
-			if (i->getDefReg() != nullptr) initial.insert(i->getDefReg());
+			for (auto reg : i->getUseReg()) {
+				initial.insert(reg);
+			}
+			if (i->getDefReg() != nullptr) {
+				initial.insert(i->getDefReg());
+			}
 		}
-	for (auto reg : initial)  reg->info().clear();
+	for (std::shared_ptr<Register> reg : initial)  reg->info().clear();
 }
 
 void RegisterAllocator::buildInferenceGraph()
@@ -94,8 +100,7 @@ void RegisterAllocator::livenessAnalysis()
 		liveout[b].clear();
 		for (auto i = b->getFront(); i != nullptr; i = i->getNextInstr()) {
 			for (auto reg : i->getUseReg())
-				if (def[b].find(reg) == def[b].end())
-					use[b].insert(reg);
+				if (def[b].find(reg) == def[b].end()) use[b].insert(reg);
 
 			if (i->getDefReg() != nullptr) def[b].insert(i->getDefReg());
 
@@ -111,8 +116,7 @@ void RegisterAllocator::livenessAnalysis()
 		for (int i = blocks.size() - 1; i >= 0; i--) {
 			auto &b = blocks[i];
 
-			std::unordered_set<std::shared_ptr<Register> > new_out;
-			auto new_in = liveout[b];
+			std::unordered_set<std::shared_ptr<Register> > new_out, new_in = liveout[b];
 			for (auto reg : def[b]) new_in.erase(reg);
 			for (auto reg : use[b]) new_in.insert(reg);
 			for (auto bb : b->getToBlocks())
@@ -189,7 +193,8 @@ void RegisterAllocator::freeze()
 
 void RegisterAllocator::select()
 {
-	auto reg = std::static_pointer_cast<VirtualReg>(*spillSet.begin());
+	auto reg = std::static_pointer_cast<Register>(*spillSet.begin());
+
 	for (auto r : spillSet)
 		if (isForSpill[reg] ||
 			(!isForSpill[r] && spillPriority[r] / r->info().degree < spillPriority[reg] / reg->info().degree))
@@ -210,7 +215,7 @@ void RegisterAllocator::assignColor()
 		for (auto r : reg->info().adjList) {
 			auto r_alias = getAlias(r);
 			if (colored.find(r_alias) != colored.end() || preColored.find(r_alias) != preColored.end())
-				availableColors.erase(r_alias->info().color.lock());
+				availableColors.erase(r_alias->info().color);
 		}
 
 		if (availableColors.empty()) spilled.insert(reg);
@@ -240,7 +245,7 @@ void RegisterAllocator::assignColor()
 void RegisterAllocator::rewrite()
 {
 	for (auto reg : spilled)
-		reg->info().spilladdr = std::make_shared<StackLocation>(
+		reg->info().spilladdr = std::make_shared<StackLocation>(f,
 		(*program)["sp"], f->stackLocationFromBottom(Configuration::SIZE_OF_INT), false);
 
 	for (auto b : f->getBlockList()) {
@@ -251,7 +256,7 @@ void RegisterAllocator::rewrite()
 				if (reg->info().spilladdr != nullptr) {
 					auto temp = std::make_shared<VirtualReg>(Operand::REG_VAL,"spillUse");
 					isForSpill[temp] = true;
-					auto load = std::make_shared<Load>(reg->info().spilladdr, temp, Configuration::SIZE_OF_INT);
+					auto load = std::make_shared<Load>(i->getBlock(), reg->info().spilladdr, temp, Configuration::SIZE_OF_INT);
 					appendBefore(i, load);
 					i->updateUseReg(reg, temp);
 				}
@@ -261,7 +266,7 @@ void RegisterAllocator::rewrite()
 				isForSpill[temp] = true;
 
 				auto reg = i->getDefReg();
-				auto store = std::make_shared<Store>(reg->info().spilladdr, temp, Configuration::SIZE_OF_INT);
+				auto store = std::make_shared<Store>(i->getBlock(), reg->info().spilladdr, temp, Configuration::SIZE_OF_INT);
 				appendBefore(i, store);
 				i->updateDefReg(temp);
 			}
@@ -349,7 +354,7 @@ void RegisterAllocator::enableMove(std::unordered_set<std::shared_ptr<Register>>
 std::shared_ptr<Register> RegisterAllocator::getAlias(std::shared_ptr<Register> reg)
 {
 	auto r = reg;
-	while (coalesced.find(r) != coalesced.end()) r = r->info().alias.lock();
+	while (coalesced.find(r) != coalesced.end()) r = r->info().alias;
 	return r;
 }
 
@@ -366,7 +371,7 @@ bool RegisterAllocator::check(std::shared_ptr<Register> t, std::shared_ptr<Regis
 	return t->info().degree < K || preColored.find(t) != preColored.end() || edges.find(Edge(t, r)) != edges.end();
 }
 
-bool RegisterAllocator::isConservative(std::unordered_set<std::shared_ptr<Register>> regs)
+bool RegisterAllocator::isConservative(std::set<std::shared_ptr<Register>> regs)
 {
 	int cnt = 0;
 	for (auto reg : regs)

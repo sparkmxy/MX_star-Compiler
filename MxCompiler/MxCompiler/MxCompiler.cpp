@@ -87,4 +87,5 @@ void MxCompiler::codegen()
 {
 	codeGenerator = std::make_shared<RISCVCodeGenerator>(ir);
 	codeGenerator->generate();
+	codeGenerator->emit();
 }

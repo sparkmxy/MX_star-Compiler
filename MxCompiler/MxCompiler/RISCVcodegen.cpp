@@ -5,6 +5,10 @@ void RISCVCodeGenerator::generate()
 {
 	auto instructionSelector = InstructionSelector(ir);
 	riscv_program = instructionSelector.getRISCVProgram();
+	std::cout << "assembly code generation is completed.\n";
+	auto regalloc = RegisterAllocator(riscv_program);
+	regalloc.run();
+	std::cout << "register allocation is completed\n";
 }
 
 void RISCVCodeGenerator::emit()

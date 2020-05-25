@@ -65,6 +65,10 @@ public:
 	int getStackSize() {
 		return (stackSizeFromBottom + stackSizeFromTop + 15) / 16 * 16;
 	}
+
+	void computePreOrderList();
+	void DFS(std::shared_ptr<RISCVBasicBlock> b, 
+		std::unordered_set<std::shared_ptr<RISCVBasicBlock> > visited);
 private:
 	std::string name;
 	std::vector<std::shared_ptr<RISCVBasicBlock> > blocks;
@@ -78,15 +82,15 @@ private:
 class RISCVProgram {
 public:
 	RISCVProgram();
-	void print(std::ostream &os);
 
 	void appendFunction(std::shared_ptr<RISCVFunction> f) { functions.push_back(f); }
 	
 	std::vector<std::shared_ptr<RISCVFunction> > &getFunctions() { return functions; }
 
-	std::shared_ptr<PhysicalRegister> operator [](const std::string &name){
+	std::shared_ptr<PhysicalRegister> operator [](std::string name){
 		auto it = physicalRegs.find(name);
-		if (it == physicalRegs.end()) throw Error("invalid physical register name.");
+		if (it == physicalRegs.end()) 
+			throw Error("invalid physical register name.");
 		return it->second;
 	}
 
