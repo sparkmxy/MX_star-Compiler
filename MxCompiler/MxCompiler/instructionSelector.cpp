@@ -15,28 +15,36 @@ std::string InstructionSelector::getLabel(const std::string & label)
 
 void InstructionSelector::visit(IR * ir)
 {
+	for (auto &f : ir->getBuiltInFunctions()) {
+		auto name = f->getName();
+		for (int i = 0; i < name.size(); i++)
+			if (name[i] == '.') name[i] = '_';
+		irFunc2RISCV[f.get()] = std::make_shared<RISCVFunction>(name);
+	}
+
 	auto functions = ir->getFunctions();
+	for (auto &f : functions) {
+		auto ff = std::make_shared<RISCVFunction>(f->getName());
+		irFunc2RISCV[f.get()] = ff;
+		P->appendFunction(ff);
+	}
 	for (auto &f : functions) f->accept(*this);
 }
 
 void InstructionSelector::visit(Function * f)
 {
-	auto ff = std::make_shared<RISCVFunction>(f->getName());
-	irFunc2RISCV[f] = ff;
-	P->appendFunction(ff);
-
-	currentFunction = ff;
+	currentFunction = irFunc2RISCV[f];
 	auto blocks = f->getBlockList();
 	for (auto &b : blocks) {
 		auto bb = std::make_shared<RISCVBasicBlock>(currentFunction,
 			getLabel(currentFunction->getName() + "_" + b->toString()));
 		irBlock2RISCV[b.get()] = bb;
-		ff->appendBlock(bb);
+		currentFunction->appendBlock(bb);
 	}
-	ff->setEntry(irBlock2RISCV[f->getEntry().get()]);
-	ff->setExit(irBlock2RISCV[f->getExit().get()]);
+	currentFunction->setEntry(irBlock2RISCV[f->getEntry().get()]);
+	currentFunction->setExit(irBlock2RISCV[f->getExit().get()]);
 
-	functionEntryBlockInit(f, ff->getEntry());
+	functionEntryBlockInit(f, currentFunction->getEntry());
 	for (auto &b : blocks) b->accept(*this);
 }
 
@@ -111,6 +119,8 @@ void InstructionSelector::visit(Call * c)
 		currentBlock->append(std::make_shared<Store>(currentBlock, pos, toRegister(args[i]), Configuration::SIZE_OF_INT));
 	}
 
+	currentFunction->setLowerBoundForStackSizeFromTop(Configuration::SIZE_OF_INT * (args.size() - 8));
+
 	currentBlock->append(std::make_shared<CallAssembly>(currentBlock, irFunc2RISCV[c->getFunction().get()]));
 
 	// return value
@@ -136,6 +146,8 @@ void InstructionSelector::visit(Return * r)
 			toRegister(r->getValue()), (*P)["a0"]));
 	
 	// need somethiing else?
+	for (auto it : calleeSaveRegbuckup)
+		currentBlock->append(std::make_shared<MoveAssembly>(currentBlock, it.second, (*P)[it.first]));
 	currentBlock->append(std::make_shared<RetAssembly>(currentBlock));
 }
 
@@ -149,6 +161,7 @@ void InstructionSelector::visit(Jump * j)
 
 void InstructionSelector::functionEntryBlockInit(Function *f, std::shared_ptr<RISCVBasicBlock> newEntry)
 {
+	currentBlock = newEntry;
 	// 1. save callee-save registers to somewhere else (recorded by <backup>)
 	calleeSaveRegbuckup.clear();
 	auto workList = RISCVConfig::calleeSaveRegNames;

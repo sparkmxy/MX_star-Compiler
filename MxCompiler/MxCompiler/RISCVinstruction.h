@@ -31,7 +31,7 @@ public:
 	Category category() { return c; }
 
 	// virtual functions
-	virtual std::string toString() { return "fuck you"; }
+	virtual std::string toString() = 0;
 	virtual std::vector<std::shared_ptr<Register> > getUseReg() { return {}; }
 	virtual std::shared_ptr<Register> getDefReg() { return nullptr; }
 	
@@ -146,6 +146,7 @@ public:
 		:RISCVinstruction(b, CALL), func(f) {}
 
 	std::shared_ptr<RISCVFunction> getFunction() { return func; }
+	std::string toString() override;
 private:
 	std::shared_ptr<RISCVFunction> func;
 };
@@ -173,6 +174,7 @@ private:
 class RetAssembly : public RISCVinstruction {
 public:
 	RetAssembly(std::weak_ptr<RISCVBasicBlock> b) :RISCVinstruction(b, RET) {}
+	std::string toString() override { return "ret"; }
 };
 
 class JumpAssembly :public RISCVinstruction {

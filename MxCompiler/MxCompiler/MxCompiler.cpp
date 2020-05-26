@@ -81,11 +81,14 @@ void MxCompiler::optimize()
 {
 	opt = std::make_shared<Optimizer>(ir);
 	opt->optimize();
+	std::make_shared<IR_Printer>(ir, std::cout)->print();
 }
 
 void MxCompiler::codegen()
 {
-	codeGenerator = std::make_shared<RISCVCodeGenerator>(ir);
+	std::ofstream asmfile("test.s");
+	codeGenerator = std::make_shared<RISCVCodeGenerator>(ir, asmfile);
 	codeGenerator->generate();
 	codeGenerator->emit();
+	asmfile.close();
 }

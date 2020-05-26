@@ -16,10 +16,10 @@ IR::IR()
 	stringAdd = newBuiltInFunc("string.add", stringType);
 	stringNEQ = newBuiltInFunc("string.neq", boolType);
 	stringEQ = newBuiltInFunc("string.eq", boolType);
-	stringLESS = newBuiltInFunc("string.less", boolType);
-	stringLEQ = newBuiltInFunc("string.leq", boolType);
-	stringGREATER = newBuiltInFunc("string.greater", boolType);
-	stringGEQ = newBuiltInFunc("string.geq", boolType);
+	stringLESS = newBuiltInFunc("string.lt", boolType);
+	stringLEQ = newBuiltInFunc("string.le", boolType);
+	stringGREATER = newBuiltInFunc("string.gt", boolType);
+	stringGEQ = newBuiltInFunc("string.ge", boolType);
 	
 	getInt = newBuiltInFunc("getInt", intType);
 	getString = newBuiltInFunc("getString", stringType);
@@ -54,7 +54,9 @@ void IR::addStringConst(std::shared_ptr<StaticString> str)
 
 std::shared_ptr<Function> IR::newBuiltInFunc(const std::string & name, std::shared_ptr<Type> retType)
 {
-	return newFunction(name, retType);
+	auto f = newFunction(name, retType);
+	builtInFunctions.push_back(f);
+	return f;
 }
 
 std::shared_ptr<Function> newFunction(const std::string & _name, std::shared_ptr<Type> retType)

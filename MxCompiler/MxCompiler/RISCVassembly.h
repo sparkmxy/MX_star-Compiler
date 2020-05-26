@@ -59,8 +59,10 @@ public:
 	void appendBlock(std::shared_ptr<RISCVBasicBlock> b) { blocks.push_back(b); }
 
 	std::string getName() { return name; }
+	void setName(const std::string &new_name) { name = new_name; }
 
 	int stackLocationFromBottom(int size);
+	void setLowerBoundForStackSizeFromTop(int x) { stackSizeFromTop = std::max(stackSizeFromTop, x); }
 
 	int getStackSize() {
 		return (stackSizeFromBottom + stackSizeFromTop + 15) / 16 * 16;
@@ -68,7 +70,7 @@ public:
 
 	void computePreOrderList();
 	void DFS(std::shared_ptr<RISCVBasicBlock> b, 
-		std::unordered_set<std::shared_ptr<RISCVBasicBlock> > visited);
+		std::unordered_set<std::shared_ptr<RISCVBasicBlock> > &visited);
 private:
 	std::string name;
 	std::vector<std::shared_ptr<RISCVBasicBlock> > blocks;

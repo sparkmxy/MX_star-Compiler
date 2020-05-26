@@ -5,7 +5,7 @@ const std::string B_type::op_to_string[] = {"beq", "bne", "ble", "bge", "blt", "
 
 std::string B_type::toString()
 {
-	return op_to_string[op] + rs1->getName() + ", " + rs2->getName(); // no target Name
+	return op_to_string[op] + "\t" + rs1->getName() + ", " + rs2->getName(); // no target Name
 }
 
 std::vector<std::shared_ptr<Register>> B_type::getUseReg()
@@ -23,6 +23,8 @@ const std::string I_type::op_to_string[] = {"addi","xori","ori","andi","slti","s
 
 std::string I_type::toString()
 {
+	//if (rs1->getName() == "")
+	//	throw Error("holy shit");
 	return op_to_string[op] + "\t" + rd->getName() + ", " + rs1->getName() + ", " + std::to_string(imm->getValue());
 }
 
@@ -38,7 +40,7 @@ std::shared_ptr<Register> I_type::getDefReg()
 
 void I_type::updateUseReg(std::shared_ptr<Register> reg, std::shared_ptr<Register> new_reg)
 {
-	if (rs1 == reg) rs1 = reg;
+	if (rs1 == reg) rs1 = new_reg;
 }
 
 void I_type::updateDefReg(std::shared_ptr<Register> new_reg)
@@ -53,7 +55,7 @@ const std::string R_type::op_to_string[] = {
 
 std::string R_type::toString()
 {
-	return op_to_string[op] + '\t' + rd->getName() + ", " + rs1->getName() + ", " + rs2->getName();
+	return op_to_string[op] + "\t" + rd->getName() + ", " + rs1->getName() + ", " + rs2->getName();
 }
 
 std::vector<std::shared_ptr<Register>> R_type::getUseReg()
@@ -79,7 +81,7 @@ void R_type::updateDefReg(std::shared_ptr<Register> new_reg)
 
 std::string MoveAssembly::toString()
 {
-	return "mv" + '\t' + rd->getName() + ", " + rs1->getName();
+	return "mv\t" + rd->getName() + ", " + rs1->getName();
 }
 
 std::vector<std::shared_ptr<Register>> MoveAssembly::getUseReg()
@@ -104,12 +106,12 @@ void MoveAssembly::updateDefReg(std::shared_ptr<Register> new_reg)
 
 std::string JumpAssembly::toString()
 {
-	return "j";  // need to add targetblock
+	return "j\t";  // need to add targetblock
 }
 
 std::string LoadImm::toString()
 {
-	return "li" + '\t' + rd->getName() + "," + std::to_string(imm->getValue());
+	return "li\t" + rd->getName() + ", " + std::to_string(imm->getValue());
 }
 
 std::shared_ptr<Register> LoadImm::getDefReg()
@@ -124,7 +126,7 @@ void LoadImm::updateDefReg(std::shared_ptr<Register> new_reg)
 
 std::string LoadAddr::toString()
 {
-	return "la" + '\t' + rd->getName() + ", "; // what should I do here?
+	return "la\t" + rd->getName() + ", "; // what should I do here?
 }
 
 std::shared_ptr<Register> LoadAddr::getDefReg()
@@ -142,7 +144,7 @@ std::string Load::toString()
 	std::string op = "lw";
 	if (size == 2) op = "lh";
 	if (size == 1) op = "lb";
-	return op + '\t' + rd->getName(); // need to print the addr;
+	return op + "\t" + rd->getName(); // need to print the addr;
 }
 
 std::vector<std::shared_ptr<Register>> Load::getUseReg()
@@ -181,7 +183,7 @@ std::string Store::toString()
 	if (size == 2) op = "sh";
 	if (size == 1) op = "sb";
 
-	return op + rs->getName(); // need to add addr
+	return op + "\t" + rs->getName(); // need to add addr
 }
 
 std::vector<std::shared_ptr<Register>> Store::getUseReg()
@@ -205,3 +207,8 @@ void Store::updateUseReg(std::shared_ptr<Register> reg, std::shared_ptr<Register
 		if (a->getBase() == reg) a->setBase(new_reg);
 	}
 } 
+
+std::string CallAssembly::toString()
+{
+	return "call\t"; // need to print function name
+}

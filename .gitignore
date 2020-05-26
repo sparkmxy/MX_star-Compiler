@@ -5,7 +5,9 @@
 
 *.mxx
 *.txt
-
+*.s
+*.in
+*.out
 # User-specific files
 *.rsuser
 *.suo

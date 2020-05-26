@@ -106,6 +106,8 @@ void IR_Generator::visit(FunctionDecl * node)   // Function module is linked to 
 		else
 			currentBlock->endWith(std::make_shared<Return>(currentBlock, std::make_shared<Immediate>(0)));
 	}
+	mergeReturnIntoExit(node, currentFunction);
+
 	currentFunction = nullptr;
 	ir->addFunction(funcModule);
 
@@ -658,6 +660,26 @@ IR_Generator::allocateMemory(std::shared_ptr<Operand> addrReg, std::shared_ptr<O
 		currentBlock->append_back(std::make_shared<Quadruple>(currentBlock, Quadruple::STORE, addrReg, size));
 		return addrReg;
 	}
+}
+
+void IR_Generator::mergeReturnIntoExit(FunctionDecl *node, std::shared_ptr<Function> f)
+{
+	auto rets = f->getReturnIntrs();
+	if (rets.size() > 1) {
+		auto exit = f->getExit();
+		auto result = node->getRetType() == nullptr ? nullptr : std::make_shared<VirtualReg>();
+
+		for (auto &ret : rets) {
+			removeInstruction(ret);
+			if (ret->getValue() != nullptr)
+				ret->getBlock()->append_back(std::make_shared<Quadruple>(
+					ret->getBlock(), Quadruple::MOVE, result, ret->getValue()));
+			ret->getBlock()->endWith(std::make_shared<Jump>(ret->getBlock(), exit));
+		}
+
+		exit->endWith(std::make_shared<Return>(exit, result));
+	}
+	else f->setExit(rets[0]->getBlock());
 }
 
 

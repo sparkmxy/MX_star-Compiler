@@ -13,17 +13,16 @@ RegisterAllocator::~RegisterAllocator()
 void RegisterAllocator::run()
 {
 	auto functions = program->getFunctions();
-	int numOfIter = 0;
 	for (auto &function : functions) {
 		f = function;
+		f->computePreOrderList();
 		while (true)
 		{
-			numOfIter++;
 			init();
 			livenessAnalysis();
 			buildInferenceGraph();
 			collect();
-			while (!simplifySet.empty() || !moveSet.empty() || freezeSet.empty() || spillSet.empty()) {
+			while (!simplifySet.empty() || !moveSet.empty() || !freezeSet.empty() || !spillSet.empty()) {
 				if (!simplifySet.empty()) simplify();
 				else if (!moveSet.empty()) coalesce();
 				else if (!freezeSet.empty()) freeze();
@@ -33,6 +32,7 @@ void RegisterAllocator::run()
 			if (spilled.empty()) break;
 			rewrite();
 		}
+		apply();
 	}
 }
 
@@ -58,7 +58,7 @@ void RegisterAllocator::buildInferenceGraph()
 {
 	for (auto b : f->getBlockList()) {
 		auto live = liveout[b];
-		for (auto i = b->getFront(); i = nullptr; i = i->getNextInstr()) {
+		for (auto i = b->getFront(); i != nullptr; i = i->getNextInstr()) {
 			if (i->category() == RISCVinstruction::MOV) {
 				for (auto reg : i->getUseReg()) live.erase(reg);
 				
@@ -79,13 +79,13 @@ void RegisterAllocator::buildInferenceGraph()
 				auto s = std::static_pointer_cast<Store>(i);
 				if (s->getRt() != nullptr) addEdge(s->getRs(), s->getRt());
 			}
-			for (auto def : defs) {
+			for (auto def : defs) 
 				for (auto reg : live) addEdge(def, reg);
-				live.erase(def);
-			}
-
+			
+			for (auto reg : defs) live.erase(reg);
 			for (auto reg : i->getUseReg()) live.insert(reg);
 			// update liveout
+
 		}
 	}
 }
@@ -111,7 +111,9 @@ void RegisterAllocator::livenessAnalysis()
 		}
 	}
 
-	while(true){
+	bool changed;
+	do{
+		changed = false;
 		auto blocks = f->getBlockList();
 		for (int i = blocks.size() - 1; i >= 0; i--) {
 			auto &b = blocks[i];
@@ -122,11 +124,13 @@ void RegisterAllocator::livenessAnalysis()
 			for (auto bb : b->getToBlocks())
 				for (auto reg : livein[bb]) new_out.insert(reg);
 			
-			if (new_in == livein[b] && new_out == liveout[b]) break;  // nothing changes
-			livein[b] = new_in;
-			liveout[b] = new_out;
+			if (new_in != livein[b] || new_out != liveout[b]) {
+				changed = true;  
+				livein[b] = new_in;
+				liveout[b] = new_out;
+			}
 		}
-	} 
+	} while (changed);
 }
 
 void RegisterAllocator::collect()
@@ -235,6 +239,8 @@ void RegisterAllocator::assignColor()
 						break;
 					}
 
+			if (color == nullptr)
+				throw Error("unblievable");
 			reg->info().color = color;
 		}
 	}
@@ -274,16 +280,36 @@ void RegisterAllocator::rewrite()
 	}
 }
 
+void RegisterAllocator::apply()   // apply the current coloring
+{
+	for(auto b : f->getBlockList())
+		for (auto i = b->getFront(); i != nullptr; i = i->getNextInstr()) {
+			for(auto reg : i->getUseReg())
+				if (reg->category() != Operand::PHISICAL) {
+					if(reg->info().color != nullptr)
+						i->updateUseReg(reg, reg->info().color);
+					else throw Error("what fucking coloring are you doing?");
+				}
+			auto def = i->getDefReg();
+			if (def != nullptr && def->category() != Operand::PHISICAL && def->info().color != nullptr)
+				i->updateDefReg(def->info().color);
+		}
+}
+
 void RegisterAllocator::clear()
 {
 	initial.clear();
+	spilled.clear();
 	coalesced.clear();
 	colored.clear();
+	selectStack.clear();
 	
 	coalescedMoves.clear();
 	constrainedMoves.clear();
 	frozenMoves.clear();
 	activeMoves.clear();
+
+	edges.clear();
 }
 
 void RegisterAllocator::addEdge(std::shared_ptr<Register> x, std::shared_ptr<Register> y)
@@ -308,13 +334,11 @@ bool RegisterAllocator::isMoveRelated(std::shared_ptr<Register> reg)
 	return !nodeMoves(reg).empty();
 }
 
-std::unordered_set<std::shared_ptr<MoveAssembly> > RegisterAllocator::nodeMoves(std::shared_ptr<Register> reg)
+std::set<std::shared_ptr<MoveAssembly> > RegisterAllocator::nodeMoves(std::shared_ptr<Register> reg)
 {
-	std::unordered_set<std::shared_ptr<MoveAssembly> > ret;
-	for (auto r : reg->info().moveList) ret.insert(r);
-	for (auto move : moveSet) ret.insert(move);
-	for (auto move : ret)
-		if (activeMoves.find(move) == activeMoves.end()) ret.erase(move);
+	auto ret = reg->info().moveList, temp = ret;
+	for (auto move : temp)
+		if (activeMoves.find(move) == activeMoves.end() && moveSet.find(move) == moveSet.end()) ret.erase(move);
 	return ret;
 }
 
@@ -330,7 +354,7 @@ std::unordered_set<std::shared_ptr<Register>> RegisterAllocator::getNeighbors(st
 void RegisterAllocator::decreaseDegreeBy1(std::shared_ptr<Register> reg)
 {
 	reg->info().degree--;
-	if (reg->info().degree == K){
+	if (reg->info().degree == K - 1){
 		auto regs = getNeighbors(reg);
 		regs.insert(reg);
 		enableMove(regs);

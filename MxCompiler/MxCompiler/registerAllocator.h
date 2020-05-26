@@ -55,6 +55,7 @@ private:
 	void select();
 	void assignColor();
 	void rewrite();
+	void apply();
 
 	std::shared_ptr<RISCVFunction> f;
 
@@ -65,7 +66,7 @@ private:
 
 	bool isMoveRelated(std::shared_ptr<Register> reg);
 
-	std::unordered_set<std::shared_ptr<MoveAssembly> > nodeMoves(std::shared_ptr<Register> reg);
+	std::set<std::shared_ptr<MoveAssembly> > nodeMoves(std::shared_ptr<Register> reg);
 
 	std::unordered_set<std::shared_ptr<Register> > getNeighbors(std::shared_ptr<Register> reg);
 

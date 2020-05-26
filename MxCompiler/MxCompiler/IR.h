@@ -21,6 +21,7 @@ public:
 	std::shared_ptr<Function> toString, printInt, printlnInt;
 
 	std::vector<std::shared_ptr<Function> > & getFunctions() { return functions; }
+	std::vector<std::shared_ptr<Function> > & getBuiltInFunctions() { return builtInFunctions; }
 	std::vector<std::shared_ptr<Register> > & getGlbVars() { return glbVars; }
 	std::vector<std::shared_ptr<StaticString> > & getStringConstants() { return stringConstants; }
 
@@ -33,7 +34,7 @@ public:
 
 private:
 	std::vector<std::shared_ptr<Register> > glbVars;
-	std::vector<std::shared_ptr<Function> > functions;
+	std::vector<std::shared_ptr<Function> > functions, builtInFunctions;
 	std::vector<std::shared_ptr<StaticString> > stringConstants;
 	
 	std::shared_ptr<Function> 

@@ -77,6 +77,8 @@ private:
 	std::shared_ptr<Operand>
 		allocateMemory(std::shared_ptr<Operand> addrReg, std::shared_ptr<Operand> size);
 
+	void mergeReturnIntoExit(FunctionDecl *node, std::shared_ptr<Function> f);
+
 	// for binary exprssions
 	void arraySize(MemberFuncCallExpr *node);
 

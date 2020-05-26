@@ -8,6 +8,8 @@ void RISCVCodeGenerator::generate()
 	std::cout << "assembly code generation is completed.\n";
 	auto regalloc = RegisterAllocator(riscv_program);
 	regalloc.run();
+	setSP();
+	renameMainFunction();
 	std::cout << "register allocation is completed\n";
 }
 
@@ -32,12 +34,35 @@ void RISCVCodeGenerator::emit()
 	for (auto f : riscv_program->getFunctions()) emitFunction(f);
 }
 
+void RISCVCodeGenerator::setSP()
+{
+	for (auto &f : riscv_program->getFunctions()) {
+		int stackSize = f->getStackSize();
+		if (stackSize > 0) {
+			auto sp = (*riscv_program)["sp"];
+			appendBefore(f->getEntry()->getFront(), std::make_shared<I_type>(
+				f->getEntry(), I_type::ADDI, sp, sp, std::make_shared<Immediate>(stackSize)));
+			appendBefore(f->getExit()->getBack(), std::make_shared<I_type>(
+				f->getExit(), I_type::ADDI, sp, sp, std::make_shared<Immediate>(-stackSize)));
+		}
+	}
+}
+
+void RISCVCodeGenerator::renameMainFunction()
+{
+	for (auto &f : riscv_program->getFunctions())
+		if (f->getName() == "main") f->setName("_main");
+		else if (f->getName() == "__bootstrap") f->setName("main");
+}
+
 void RISCVCodeGenerator::emitFunction(std::shared_ptr<RISCVFunction> f)
 {
+	os << "\t.globl\t" << f->getName() << '\n';
+	os << f->getName() << ":\n";
 	int cnt = 0;
-	for (auto b : f->getBlockList()) label[b] = f->getName() + "_" + std::to_string(cnt++);
+	for (auto b : f->getBlockList()) label[b] = "." + f->getName() + "_" + std::to_string(cnt++);
 	for (auto b : f->getBlockList()) {
-		os <<  label[b] << ":\n";
+		os << label[b] << ":\n";
 		emitBlock(b);
 	}
 }
@@ -55,15 +80,18 @@ void RISCVCodeGenerator::emitInstruction(std::shared_ptr<RISCVinstruction> i)
 	auto c = i->category();
 	auto str = i->toString();
 	if (c == RISCVinstruction::JUMP) 
-		str = str + ", " + label[std::static_pointer_cast<JumpAssembly>(i)->getTarget()];
+		str += label[std::static_pointer_cast<JumpAssembly>(i)->getTarget()];
 	else if (c == RISCVinstruction::BTYPE) 
-		str = str + "," + label[std::static_pointer_cast<B_type>(i)->getTargetBlock()];
+		str = str + ", " + label[std::static_pointer_cast<B_type>(i)->getTargetBlock()];
 	else if (c == RISCVinstruction::LOAD) 
 		str = str + ", " + addr2String(std::static_pointer_cast<Load>(i)->getAddr());
 	else if (c == RISCVinstruction::STORE) {
 		auto s = std::static_pointer_cast<Store>(i);
 		str = str + ", " + addr2String(s->getAddr());
 		if (s->getRt() != nullptr) str = str + ", " + s->getRt()->getName();
+	}
+	else if (c == RISCVinstruction::CALL) {
+		str += std::static_pointer_cast<CallAssembly>(i)->getFunction()->getName();
 	}
 	os << '\t' << str;
 }

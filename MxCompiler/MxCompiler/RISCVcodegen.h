@@ -23,6 +23,9 @@ private:
 
 	std::unordered_map<std::shared_ptr<RISCVBasicBlock>, std::string> label;
 	
+	void setSP();
+	void renameMainFunction();
+
 	void emitFunction(std::shared_ptr<RISCVFunction> f);
 	void emitBlock(std::shared_ptr<RISCVBasicBlock> b);
 	void emitInstruction(std::shared_ptr<RISCVinstruction> i);

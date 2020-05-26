@@ -20,7 +20,7 @@ const std::vector<std::string>  RISCVConfig::callerSaveRegNames = {
 };
 
 const std::vector<std::string> RISCVConfig::allocatableRegNames = {
-		"ra", "sp", 
+		"ra", 
 		"t0", "t1", "t2", "s0", "s1",
 		"a0", "a1", "a2", "a3", "a4", "a5", "a6", "a7",
 		"s2", "s3", "s4", "s5", "s6", "s7", "s8", "s9", "s10", "s11",
@@ -108,11 +108,10 @@ void RISCVFunction::computePreOrderList()
 {
 	blocks.clear();
 	std::unordered_set<std::shared_ptr<RISCVBasicBlock> > visited;
-	std::unordered_map<std::shared_ptr<RISCVBasicBlock>, std::shared_ptr<RISCVBasicBlock> > father;
 	DFS(entry, visited);
 }
 
-void RISCVFunction::DFS(std::shared_ptr<RISCVBasicBlock> b, std::unordered_set<std::shared_ptr<RISCVBasicBlock>> visited)
+void RISCVFunction::DFS(std::shared_ptr<RISCVBasicBlock> b, std::unordered_set<std::shared_ptr<RISCVBasicBlock>> &visited)
 {
 	if (visited.find(b) != visited.end()) return;
 	blocks.push_back(b);
