@@ -45,7 +45,9 @@ void IR_Interpreter::parse()
 				std::memcpy(ptr + Configuration::SIZE_OF_INT, str.c_str(), str.length());
 				M.setRegValue(reg, reinterpret_cast<int>(ptr));
 			}
-			// do we need to do anything for global variables?
+			else { // global variables 
+				M.setRegValue(token, (int)M.allocate_memory(Configuration::SIZE_OF_PTR));
+			}
 		}
 		else if (token == "def") parseFunction();
 		else throw Error("Invaild IR definition.");

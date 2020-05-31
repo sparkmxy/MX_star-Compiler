@@ -7,6 +7,7 @@
 #include "environment.h"
 #include "IR.h"
 #include "IR_Generator.h"
+#include "globalvarResolver.h"
 #include "ir_printer.h"
 #include "SSAConstructor.h"
 #include "ir_printer.h"

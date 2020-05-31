@@ -154,12 +154,13 @@ void updateRegister(std::shared_ptr<Operand>& reg, std::unordered_map<std::share
 void IRInstruction::replaceBy(std::shared_ptr<IRInstruction> i)
 {
 	i->prev = prev;
-	if(prev.lock() != nullptr) prev.lock()->next = i;
 	i->next = next;
+	if (next != nullptr) next->prev = i;
+	if(prev.lock() != nullptr) prev.lock()->next = i;
 }
 
 void IRInstruction::removeThis()
 {
-	if (prev.lock() != nullptr) prev.lock()->next = next;
 	if (next != nullptr) next->prev = prev;
+	if (prev.lock() != nullptr) prev.lock()->next = next;
 }

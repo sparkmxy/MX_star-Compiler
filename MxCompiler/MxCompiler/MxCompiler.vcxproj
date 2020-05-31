@@ -129,6 +129,7 @@
     <ClInclude Include="error.h" />
     <ClInclude Include="exprHelper.h" />
     <ClInclude Include="GlobalFuncAndClsDecl.h" />
+    <ClInclude Include="globalvarResolver.h" />
     <ClInclude Include="instructionSelector.h" />
     <ClInclude Include="interpreter.h" />
     <ClInclude Include="IR.h" />
@@ -171,6 +172,7 @@
     <ClCompile Include="environment.cpp" />
     <ClCompile Include="Function.cpp" />
     <ClCompile Include="GlobalFuncDeclVistor.cpp" />
+    <ClCompile Include="globalvarResolver.cpp" />
     <ClCompile Include="instructionSelector.cpp" />
     <ClCompile Include="interpreter.cpp" />
     <ClCompile Include="IR.cpp" />

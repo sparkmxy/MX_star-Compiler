@@ -5,6 +5,7 @@
 #include "Function.h"
 #include "cfg_visitor.h"
 #include "basicblock.h"
+#include <set>
 
 class IR {
 public:
@@ -14,7 +15,7 @@ public:
 	void addGlobalVar(std::shared_ptr<Register> var);
 	void addFunction(std::shared_ptr<Function> func);
 	void addStringConst(std::shared_ptr<StaticString> str);
-	
+
 	std::shared_ptr<Function> stringLength, substring, parseInt, ord, print, println;
 	std::shared_ptr<Function> stringAdd, stringNEQ, stringEQ, stringLESS, stringLEQ, stringGREATER, stringGEQ;
 	std::shared_ptr<Function> getInt, getString;

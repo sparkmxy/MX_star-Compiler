@@ -67,9 +67,7 @@ void IR_Generator::visit(VarDeclStmt * node)
 {
 	auto varSymbol = node->getVarSymbol();
 	std::shared_ptr<VirtualReg> reg;
-	if(varSymbol->getType()->isArrayType())
-		reg = std::make_shared<VirtualReg>(Operand::REG_VAL,node->getIdentifier()->name);
-	else reg = std::make_shared<VirtualReg>();
+	reg = std::make_shared<VirtualReg>(Operand::REG_VAL,node->getIdentifier()->name);
 	varSymbol->setReg(reg);
 	if (scanGlobalVar) {  // record global variable so that we can print it later 
 		ir->addGlobalVar(reg);

@@ -201,6 +201,9 @@
     <ClInclude Include="RISCVassembly.h">
       <Filter>头文件\backend\codegen</Filter>
     </ClInclude>
+    <ClInclude Include="globalvarResolver.h">
+      <Filter>头文件\IR</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="lexer.cpp">
@@ -304,6 +307,9 @@
     </ClCompile>
     <ClCompile Include="peeholeMatching.cpp">
       <Filter>源文件\backend\codegen</Filter>
+    </ClCompile>
+    <ClCompile Include="globalvarResolver.cpp">
+      <Filter>源文件\IR</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -115,3 +115,23 @@ void removeInstruction(std::shared_ptr<IRInstruction> i)
 	if (i->getNextInstr() == nullptr) i->getBlock()->setBack(i->getPreviousInstr());
 	i->removeThis();
 }
+
+void appendInstrBefore(std::shared_ptr<IRInstruction> i, std::shared_ptr<IRInstruction> new_i)
+{
+	auto b = i->getBlock();
+	new_i->setNextInstr(i);
+	new_i->setPreviousInstr(i->getPreviousInstr());
+	if (i->getPreviousInstr() != nullptr) i->getPreviousInstr()->setNextInstr(new_i);
+	i->setPreviousInstr(new_i);
+	if (i == b->getFront()) b->setFront(new_i);
+}
+
+void appendInstrAfter(std::shared_ptr<IRInstruction> i, std::shared_ptr<IRInstruction> new_i)
+{
+	auto b = i->getBlock();
+	new_i->setPreviousInstr(i);
+	new_i->setNextInstr(i->getNextInstr());
+	if (i->getNextInstr() != nullptr) i->getNextInstr()->setPreviousInstr(new_i);
+	i->setNextInstr(new_i);
+	if (i == b->getBack()) b->setBack(new_i);
+}

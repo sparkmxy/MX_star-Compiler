@@ -107,3 +107,5 @@ private:
 
 void replaceInstruction(std::shared_ptr<IRInstruction> old, std::shared_ptr<IRInstruction> _new);
 void removeInstruction(std::shared_ptr<IRInstruction> i);
+void appendInstrBefore(std::shared_ptr<IRInstruction> i, std::shared_ptr<IRInstruction> new_i);
+void appendInstrAfter(std::shared_ptr<IRInstruction> i, std::shared_ptr<IRInstruction> new_i);

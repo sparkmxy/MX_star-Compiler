@@ -80,12 +80,10 @@ void removeRISCVinstruction(std::shared_ptr<RISCVinstruction> i)
 {
 	auto b = i->getBlock();
 
-	if (b->getBack() == i)
-		b->setBack(i->getPrevInstr());
-	else i->getNextInstr()->setPrevInstr(i->getNextInstr());
+	if (b->getBack() == i) b->setBack(i->getPrevInstr());
+	else i->getNextInstr()->setPrevInstr(i->getPrevInstr());
 
-	if (b->getFront() == i) 
-		b->setFront(i->getNextInstr());
+	if (b->getFront() == i) b->setFront(i->getNextInstr());
 	else i->getPrevInstr()->setNextInstr(i->getNextInstr());
 }
 
@@ -94,6 +92,7 @@ void appendBefore(std::shared_ptr<RISCVinstruction> i, std::shared_ptr<RISCVinst
 	auto b = i->getBlock();
 	new_i->setNextInstr(i);
 	new_i->setPrevInstr(i->getPrevInstr());
+	if (i->getPrevInstr() != nullptr) i->getPrevInstr()->setNextInstr(new_i);
 	i->setPrevInstr(new_i);
 	if (i == b->getFront()) b->setFront(new_i);
 }
