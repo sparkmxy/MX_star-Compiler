@@ -35,7 +35,7 @@ private:
 		coalescedMoves, constrainedMoves, frozenMoves, activeMoves, moveSet;
 
 	std::unordered_map<std::shared_ptr<RISCVBasicBlock>,
-		std::unordered_set<std::shared_ptr<Register> > > livein, liveout, def, use;
+		std::set<std::shared_ptr<Register> > > livein, liveout, def, use;
 
 	// spill
 	std::unordered_map<std::shared_ptr<Register>, bool> isForSpill;
@@ -68,11 +68,11 @@ private:
 
 	std::set<std::shared_ptr<MoveAssembly> > nodeMoves(std::shared_ptr<Register> reg);
 
-	std::unordered_set<std::shared_ptr<Register> > getNeighbors(std::shared_ptr<Register> reg);
+	std::set<std::shared_ptr<Register> > getNeighbors(std::shared_ptr<Register> reg);
 
 	void decreaseDegreeBy1(std::shared_ptr<Register> reg);
 
-	void enableMove(std::unordered_set<std::shared_ptr<Register> > regs);
+	void enableMove(std::set<std::shared_ptr<Register> > regs);
 
 	std::shared_ptr<Register> getAlias(std::shared_ptr<Register> reg);
 

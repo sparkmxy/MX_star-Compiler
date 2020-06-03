@@ -97,6 +97,16 @@ void appendBefore(std::shared_ptr<RISCVinstruction> i, std::shared_ptr<RISCVinst
 	if (i == b->getFront()) b->setFront(new_i);
 }
 
+void appendAfter(std::shared_ptr<RISCVinstruction> i, std::shared_ptr<RISCVinstruction> new_i)
+{
+	auto b = i->getBlock();
+	new_i->setPrevInstr(i);
+	new_i->setNextInstr(i->getNextInstr());
+	if (i->getNextInstr() != nullptr) i->getNextInstr()->setPrevInstr(new_i);
+	i->setNextInstr(new_i);
+	if (i == b->getBack()) b->setBack(new_i);
+}
+
 int RISCVFunction::stackLocationFromBottom(int size)
 {
 	stackSizeFromBottom += size;

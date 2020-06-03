@@ -385,7 +385,10 @@ void IR_Generator::visit(UnaryExpr * node)
 			operand->setFalseBlock(node->getTrueBlock());
 			operand->accept(*this);
 		}
-		else {} // is this necessary ? 
+		else {
+			operand->setResultOprand(std::make_shared<VirtualReg>());
+			assign(operand->getResultOprand(), node);
+		} 
 		return;
 	}
 	Quadruple::Operator instOp;

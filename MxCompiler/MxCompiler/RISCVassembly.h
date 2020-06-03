@@ -112,3 +112,4 @@ private:
 
 void removeRISCVinstruction(std::shared_ptr<RISCVinstruction> i);
 void appendBefore(std::shared_ptr<RISCVinstruction> i, std::shared_ptr<RISCVinstruction> new_i);
+void appendAfter(std::shared_ptr<RISCVinstruction> i, std::shared_ptr<RISCVinstruction> new_i);

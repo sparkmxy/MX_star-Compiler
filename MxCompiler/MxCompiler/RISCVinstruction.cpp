@@ -199,6 +199,11 @@ std::vector<std::shared_ptr<Register>> Store::getUseReg()
 	return ret;
 }
 
+std::shared_ptr<Register> Store::getDefReg()
+{
+	return rt;
+}
+
 void Store::updateUseReg(std::shared_ptr<Register> reg, std::shared_ptr<Register> new_reg)
 {
 	if (rs == reg) rs = new_reg;
@@ -206,7 +211,13 @@ void Store::updateUseReg(std::shared_ptr<Register> reg, std::shared_ptr<Register
 		auto a = std::static_pointer_cast<BaseOffsetAddr>(addr);
 		if (a->getBase() == reg) a->setBase(new_reg);
 	}
-} 
+}
+void Store::updateDefReg(std::shared_ptr<Register> new_reg)
+{
+	if (rt != nullptr) rt = new_reg;
+	else throw Error("what the fuck are you doing here?");
+}
+
 
 std::string CallAssembly::toString()
 {

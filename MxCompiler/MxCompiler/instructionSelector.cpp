@@ -69,7 +69,7 @@ void InstructionSelector::visit(Quadruple * q)
 				toRegister(q->getSrc1()), Configuration::SIZE_OF_INT));
 	}
 	else if (op == Quadruple::LOAD) {
-		auto addr = std::make_shared<BaseOffsetAddr>(std::static_pointer_cast<Register>(q->getSrc1()),0);
+		auto addr = std::make_shared<BaseOffsetAddr>(toRegister(q->getSrc1()),0);
 		currentBlock->append(std::make_shared<Load>(currentBlock,
 			addr,
 			std::static_pointer_cast<Register>(q->getDst()), Configuration::SIZE_OF_INT));
@@ -112,7 +112,7 @@ void InstructionSelector::visit(Call * c)
 
 	for (int i = 0; i < std::min(8, (int)args.size()); i++)
 		currentBlock->append(std::make_shared<MoveAssembly>(currentBlock,
-			toRegister(args[i]), (*P)["a" + std::to_string(i)]));
+			(*P)["a" + std::to_string(i)], toRegister(args[i])));
 
 	for (int i = 8; i < args.size(); i++) {
 		auto pos = std::make_shared<StackLocation>(currentFunction, (*P)["sp"], (i - 8)*Configuration::SIZE_OF_INT);
@@ -135,7 +135,7 @@ void InstructionSelector::visit(Malloc * m)
 	currentBlock->append(std::make_shared<CallAssembly>(currentBlock, P->getMallocFunction()));
 	if (m->getPtr() != nullptr)
 		currentBlock->append(std::make_shared<MoveAssembly>(currentBlock,
-		(*P)["a0"], std::static_pointer_cast<Register>(m->getPtr())));
+		std::static_pointer_cast<Register>(m->getPtr()), (*P)["a0"]));
 }
 
 
@@ -143,11 +143,11 @@ void InstructionSelector::visit(Return * r)
 {
 	if (r->getValue() != nullptr) 
 		currentBlock->append(std::make_shared<MoveAssembly>(currentBlock,
-			toRegister(r->getValue()), (*P)["a0"]));
+			(*P)["a0"], toRegister(r->getValue())));
 	
 	// need somethiing else?
 	for (auto it : calleeSaveRegbuckup)
-		currentBlock->append(std::make_shared<MoveAssembly>(currentBlock, it.second, (*P)[it.first]));
+		currentBlock->append(std::make_shared<MoveAssembly>(currentBlock, (*P)[it.first], it.second));
 	currentBlock->append(std::make_shared<RetAssembly>(currentBlock));
 }
 
@@ -168,7 +168,7 @@ void InstructionSelector::functionEntryBlockInit(Function *f, std::shared_ptr<RI
 	workList.push_back("ra");
 	for (auto &regName : workList) {
 		auto reg = std::make_shared<VirtualReg>(VirtualReg::REG_VAL, "buckup_" + regName);
-		newEntry->append(std::make_shared<MoveAssembly>(currentBlock, (*P)[regName], reg));
+		newEntry->append(std::make_shared<MoveAssembly>(currentBlock, reg, (*P)[regName]));
 		calleeSaveRegbuckup[regName] = reg;
 	}
 
@@ -180,7 +180,7 @@ void InstructionSelector::functionEntryBlockInit(Function *f, std::shared_ptr<RI
 		currentBlock->append(std::make_shared<MoveAssembly>(currentBlock, args[i], (*P)["a" + std::to_string(i)]));
 	for (int i = 8; i < args.size(); i++) {
 		auto addr = std::make_shared<StackLocation>(currentFunction, (*P)["sp"], (i - 8)*Configuration::SIZE_OF_INT, false);
-		currentBlock->append(std::make_shared<Store>(currentBlock, addr, args[i], Configuration::SIZE_OF_INT));
+		currentBlock->append(std::make_shared<Load>(currentBlock, addr, args[i], Configuration::SIZE_OF_INT));
 	}
 }
 
@@ -213,7 +213,7 @@ void InstructionSelector::resolveRtype(Quadruple * q)
 	case Quadruple::LEQ:
 	{
 		auto temp = std::make_shared<VirtualReg>();
-		currentBlock->append(std::make_shared<R_type>(currentBlock, R_type::SLT, rd, rs2, rs1));
+		currentBlock->append(std::make_shared<R_type>(currentBlock, R_type::SLT, temp, rs2, rs1));
 		currentBlock->append(std::make_shared<I_type>(currentBlock, I_type::XORI, rd, temp,
 			std::make_shared<Immediate>(1)));
 		break;
@@ -224,7 +224,7 @@ void InstructionSelector::resolveRtype(Quadruple * q)
 	case Quadruple::GEQ:
 	{
 		auto temp = std::make_shared<VirtualReg>();
-		currentBlock->append(std::make_shared<R_type>(currentBlock, R_type::SLT, rd, rs1, rs2));
+		currentBlock->append(std::make_shared<R_type>(currentBlock, R_type::SLT, temp, rs1, rs2));
 		currentBlock->append(std::make_shared<I_type>(currentBlock, I_type::XORI, rd, temp,
 			std::make_shared<Immediate>(1)));
 		break;
@@ -308,14 +308,14 @@ void InstructionSelector::resolveItype(Quadruple * q)
 	{
 		auto temp = std::make_shared<VirtualReg>();
 		currentBlock->append(std::make_shared<R_type>(currentBlock, R_type::SUB, temp, toRegister(imm), rs1));
-		currentBlock->append(std::make_shared<R_type>(currentBlock, R_type::SLTU, rd,(*P)["zero"], rs1));
+		currentBlock->append(std::make_shared<R_type>(currentBlock, R_type::SLTU, rd,(*P)["zero"], temp));
 		break;
 	}
 	case Quadruple::EQ:
 	{
 		auto temp = std::make_shared<VirtualReg>();
 		currentBlock->append(std::make_shared<R_type>(currentBlock, R_type::SUB, temp, toRegister(imm), rs1));
-		currentBlock->append(std::make_shared<I_type>(currentBlock, I_type::SLTIU, rd, rs1, 
+		currentBlock->append(std::make_shared<I_type>(currentBlock, I_type::SLTIU, rd, temp, 
 			std::make_shared<Immediate>(1)));
 		break;
 	}
@@ -353,7 +353,7 @@ bool InstructionSelector::isRtype(std::shared_ptr<Operand> lhs, Quadruple::Opera
 std::shared_ptr<Register> InstructionSelector::toRegister(std::shared_ptr<Operand> x)
 {
 	auto c = x->category();
-	if (c == Operand::REG_REF || c == Operand::REG_VAL) return std::static_pointer_cast<Register>(x);
+	if (Operand::isRegister(c)) return std::static_pointer_cast<Register>(x);
 	if (c == Operand::STATICSTR) {
 		auto reg = std::make_shared<VirtualReg>();
 		currentBlock->append(std::make_shared<LoadAddr>(currentBlock, 

@@ -41,9 +41,9 @@ void RISCVCodeGenerator::setSP()
 		if (stackSize > 0) {
 			auto sp = (*riscv_program)["sp"];
 			appendBefore(f->getEntry()->getFront(), std::make_shared<I_type>(
-				f->getEntry(), I_type::ADDI, sp, sp, std::make_shared<Immediate>(stackSize)));
+				f->getEntry(), I_type::ADDI, sp, sp, std::make_shared<Immediate>(-stackSize)));
 			appendBefore(f->getExit()->getBack(), std::make_shared<I_type>(
-				f->getExit(), I_type::ADDI, sp, sp, std::make_shared<Immediate>(-stackSize)));
+				f->getExit(), I_type::ADDI, sp, sp, std::make_shared<Immediate>(stackSize)));
 		}
 	}
 }
@@ -65,6 +65,7 @@ void RISCVCodeGenerator::emitFunction(std::shared_ptr<RISCVFunction> f)
 		os << label[b] << ":\n";
 		emitBlock(b);
 	}
+	os << '\n';
 }
 
 void RISCVCodeGenerator::emitBlock(std::shared_ptr<RISCVBasicBlock> b)
@@ -100,13 +101,14 @@ std::string RISCVCodeGenerator::addr2String(std::shared_ptr<Address> addr)
 {
 	if (addr->category() == Operand::STACK) {
 		auto a = std::static_pointer_cast<StackLocation>(addr);
-		int offset;
-		if (a->isTopdown()) offset = a->getOffset();
-		else offset = a->getFunction()->getStackSize() - a->getOffset();
-		return std::to_string(offset) + "(sp)";
+		return std::to_string(a->getOffset()) + "(sp)";
 	}
 	else {
 		auto a = std::static_pointer_cast<BaseOffsetAddr>(addr);
-		return std::to_string(a->getOffset()) + '(' + a->getBase()->getName() + ')';
+		if(a->getBase()->category() == Operand::PHISICAL)
+			return std::to_string(a->getOffset()) + '(' + a->getBase()->getName() + ')';
+		else {  // global
+			return a->getBase()->getName();
+		}
 	}
 }

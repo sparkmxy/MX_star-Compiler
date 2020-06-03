@@ -6,7 +6,7 @@
 int main() {
 	freopen("log.txt", "w", stderr);
 	Test test;
-	test.runWithInterpreter("codegen/e2.mx");
+	test.runWithInterpreter("codegen/e4.mx");
 	system("pause");
 	return 0;
 }

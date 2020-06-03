@@ -104,8 +104,8 @@ void GlobalVarResolver::computeRecursiveCalleeSet()
 			for (auto callee : calleeSet[f])
 				for (auto ff : recursiveCalleeSet[callee]) new_calleeSet.insert(ff);
 			
-			if (new_calleeSet != calleeSet[f]) {
-				calleeSet[f] = new_calleeSet;
+			if (new_calleeSet != recursiveCalleeSet[f]) {
+				recursiveCalleeSet[f] = new_calleeSet;
 				changed = true;
 			}
 		}

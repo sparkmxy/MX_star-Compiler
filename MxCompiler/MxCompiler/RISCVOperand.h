@@ -36,7 +36,10 @@ class StackLocation : public Address {
 public:
 	StackLocation(std::weak_ptr<RISCVFunction> _f, std::shared_ptr<PhysicalRegister> _sp,
 		int _offset, bool _topdown = true)
-		:Address(_offset), sp(_sp), f(_f), topdown(_topdown) {}
+		:Address(_offset), sp(_sp), f(_f), topdown(_topdown) {
+		if (!_topdown) 
+			offset = -offset;
+	}
 	
 	Category category() override { return STACK; }
 

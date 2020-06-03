@@ -261,8 +261,10 @@ public:
 
 	std::string toString() override;
 	std::vector<std::shared_ptr<Register> > getUseReg() override;
+	std::shared_ptr<Register> getDefReg() override;
 
 	void updateUseReg(std::shared_ptr<Register> reg, std::shared_ptr<Register> new_reg)override;
+	void updateDefReg(std::shared_ptr<Register> new_reg)override;
 private:
 	std::shared_ptr<Register> rs, rt;
 	std::shared_ptr<Address> addr;  // This can be a register or a stackLocation
