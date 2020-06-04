@@ -14,7 +14,8 @@ public:
 		boolSymbol = std::make_shared<BuiltInTypeSymbol>("bool");
 		voidSymbol = std::make_shared<BuiltInTypeSymbol>("void");
 		stringSymbol = std::make_shared<ClassSymbol>("string", nullptr, global);
-		
+		stringSymbol->setSize(4);
+
 		builtinTypeInit();
 		builtinFuncInit();
 		bootstrapFuncInit();

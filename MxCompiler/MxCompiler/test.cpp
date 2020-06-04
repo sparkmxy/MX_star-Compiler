@@ -31,7 +31,7 @@ void Test::runAndPrintIRCode(std::string src)
 	MxCompiler compiler("test/" + src);
 	try
 	{
-		compiler.complie();
+		compiler.compile();
 	}
 	catch (Error & err)
 	{
@@ -48,7 +48,7 @@ void Test::runWithInterpreter(std::string src)
 	MxCompiler compiler("test/" + src);
 	try
 	{
-		compiler.complie();
+		compiler.compile();
 	}
 	catch (Error & err)
 	{
@@ -70,7 +70,7 @@ bool Test::compile(std::string src) {
 	MxCompiler compiler(src);
 	try
 	{
-		compiler.complie();
+		compiler.compile();
 	}
 	catch (Error & err)
 	{

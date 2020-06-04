@@ -150,6 +150,7 @@ public:
 	void setConstructor(std::shared_ptr<FunctionSymbol> _constructor);
 
 	int getSize() override { return size; }
+	void setSize(int _size) { size = _size; }
 
 	bool isBuiltInType() override { return getSymbolName() == "string"; }
 private:

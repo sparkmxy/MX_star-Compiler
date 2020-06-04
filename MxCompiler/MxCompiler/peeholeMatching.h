@@ -11,4 +11,6 @@ public:
 private:
 	std::shared_ptr<RISCVProgram> program;
 
+	void omitTrivialMoves();
+
 };

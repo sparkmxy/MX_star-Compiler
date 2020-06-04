@@ -29,6 +29,7 @@ void DominatorTree::workOutIdoms()
 		auto x = idfn[i];
 		auto &from_blocks = x->getBlocksFrom();
 		for (auto &y : from_blocks) {
+			if (y->getBlocksFrom().empty()) continue;  // non-reachable
 			int j = y->getDTInfo().dfn;
 			find(j);
 			auto z = idfn[val[j]]->getDTInfo().sdom;

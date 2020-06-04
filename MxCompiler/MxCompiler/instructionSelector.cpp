@@ -179,7 +179,7 @@ void InstructionSelector::functionEntryBlockInit(Function *f, std::shared_ptr<RI
 	for (int i = 0; i < std::min(8, (int)args.size()); i++)
 		currentBlock->append(std::make_shared<MoveAssembly>(currentBlock, args[i], (*P)["a" + std::to_string(i)]));
 	for (int i = 8; i < args.size(); i++) {
-		auto addr = std::make_shared<StackLocation>(currentFunction, (*P)["sp"], (i - 8)*Configuration::SIZE_OF_INT, false);
+		auto addr = std::make_shared<StackLocation>(currentFunction, (*P)["sp"], (i - 8)*Configuration::SIZE_OF_INT);
 		currentBlock->append(std::make_shared<Load>(currentBlock, addr, args[i], Configuration::SIZE_OF_INT));
 	}
 }

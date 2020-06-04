@@ -18,7 +18,7 @@ class MxCompiler {
 public:
 	MxCompiler(std::string _fileName):fileName(_fileName){}
 	
-	void complie();
+	void compile();
 	void semantic();
 	void printIR(std::ostream &os = std::cerr);
 	void emitCode(std::ostream &os = std::cerr);

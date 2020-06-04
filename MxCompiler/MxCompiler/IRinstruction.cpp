@@ -99,7 +99,7 @@ void Return::renameUseRegs(std::unordered_map<std::shared_ptr<Register>, std::sh
 void Return::updateUseRegs()
 {
 	useRegs.clear();
-	if (Operand::isRegister(value->category())) 
+	if (value != nullptr && Operand::isRegister(value->category())) 
 		useRegs.push_back(std::static_pointer_cast<Register>(value));
 }
 

@@ -77,7 +77,7 @@ void GlobalVarResolver::resolveCallInstr()
 
 					if (f->getName() != "__bootstrap" && !varDefRecursively[callee].empty()) {  // reload after call
 						for (auto var : varDefRecursively[callee])
-							if (varUsed.find(var) == varUsed.end())
+							if (varUsed.find(var) != varUsed.end())
 								appendInstrAfter(i, std::make_shared<Quadruple>(
 									b, Quadruple::LOAD, getTempReg(var, f), var));
 					}

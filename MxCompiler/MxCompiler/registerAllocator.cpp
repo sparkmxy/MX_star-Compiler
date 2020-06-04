@@ -258,7 +258,7 @@ void RegisterAllocator::rewrite()
 {
 	for (auto reg : spilled)
 		reg->info().spilladdr = std::make_shared<StackLocation>(f,
-		(*program)["sp"], f->stackLocationFromBottom(Configuration::SIZE_OF_INT), false);
+		(*program)["sp"], f->stackLocationFromBottom(Configuration::SIZE_OF_INT));
 
 	for (auto b : f->getBlockList()) {
 

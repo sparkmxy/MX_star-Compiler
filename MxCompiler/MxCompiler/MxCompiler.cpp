@@ -2,7 +2,7 @@
 
 //#define SHOW_TOKENS
 
-void MxCompiler::complie()
+void MxCompiler::compile()
 {
 	getCode();
 	parse();
@@ -83,7 +83,7 @@ void MxCompiler::optimize()
 {
 	opt = std::make_shared<Optimizer>(ir);
 	opt->optimize();
-	std::make_shared<IR_Printer>(ir, std::cout)->print();
+	// std::make_shared<IR_Printer>(ir, std::cout)->print();
 }
 
 void MxCompiler::codegen()

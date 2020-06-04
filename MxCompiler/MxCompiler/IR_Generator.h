@@ -75,7 +75,7 @@ private:
 	/*Helper Functions*/ 
 	void newArray(NewExpr *node, std::shared_ptr<Operand> addrReg, int dimension = 0);
 	std::shared_ptr<Operand>
-		allocateMemory(std::shared_ptr<Operand> addrReg, std::shared_ptr<Operand> size);
+		allocateMemory(std::shared_ptr<Operand> addrReg, std::shared_ptr<Operand> size, std::shared_ptr<Operand> numOfObj);
 
 	void mergeReturnIntoExit(FunctionDecl *node, std::shared_ptr<Function> f);
 

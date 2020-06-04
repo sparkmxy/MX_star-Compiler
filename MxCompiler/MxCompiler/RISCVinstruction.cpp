@@ -49,7 +49,7 @@ void I_type::updateDefReg(std::shared_ptr<Register> new_reg)
 }
 
 const std::string R_type::op_to_string[] = {
-	"add", "sub", "mul", "div", "mod", "sll", "sra", "slt", "sltu", 
+	"add", "sub", "mul", "div", "rem", "sll", "sra", "slt", "sltu", 
 	"and", "or", "xor"
 };
 

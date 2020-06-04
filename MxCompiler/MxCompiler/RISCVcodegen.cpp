@@ -1,5 +1,5 @@
 #include "RISCVcodegen.h"
-
+#include "peeholeMatching.h"
 
 void RISCVCodeGenerator::generate()
 {
@@ -8,6 +8,8 @@ void RISCVCodeGenerator::generate()
 	std::cout << "assembly code generation is completed.\n";
 	auto regalloc = RegisterAllocator(riscv_program);
 	regalloc.run();
+
+	std::make_shared<PeeholeMatchingOptimizer>(riscv_program)->run();
 	setSP();
 	renameMainFunction();
 	std::cout << "register allocation is completed\n";
@@ -23,10 +25,13 @@ void RISCVCodeGenerator::emit()
 		os << '\t' << ".zero\t4\n\n";
 	}
 
+	int cnt = 0;
 	for (auto str : ir->getStringConstants()) {
-		os << '\t' << ".globl\t" << str->getReg()->getName() << '\n';
-		os << str->getReg()->getName() << ":\n";
-		os << ".string\t" + str->getText() << "\n\n";
+		stringLabel[str->getReg()] = cnt++;
+		auto name = "str" + std::to_string(stringLabel[str->getReg()]);
+		os << '\t' << ".globl\t" << name << '\n';
+		os << name << ":\n";
+		os << "\t.string\t" + str->getText() << "\n\n";
 	}
 
 	os << '\t' << ".text\n";
@@ -37,7 +42,7 @@ void RISCVCodeGenerator::emit()
 void RISCVCodeGenerator::setSP()
 {
 	for (auto &f : riscv_program->getFunctions()) {
-		int stackSize = f->getStackSize();
+		int stackSize = f->getStackSize() + 4;
 		if (stackSize > 0) {
 			auto sp = (*riscv_program)["sp"];
 			appendBefore(f->getEntry()->getFront(), std::make_shared<I_type>(
@@ -80,11 +85,11 @@ void RISCVCodeGenerator::emitInstruction(std::shared_ptr<RISCVinstruction> i)
 {
 	auto c = i->category();
 	auto str = i->toString();
-	if (c == RISCVinstruction::JUMP) 
+	if (c == RISCVinstruction::JUMP)
 		str += label[std::static_pointer_cast<JumpAssembly>(i)->getTarget()];
-	else if (c == RISCVinstruction::BTYPE) 
+	else if (c == RISCVinstruction::BTYPE)
 		str = str + ", " + label[std::static_pointer_cast<B_type>(i)->getTargetBlock()];
-	else if (c == RISCVinstruction::LOAD) 
+	else if (c == RISCVinstruction::LOAD)
 		str = str + ", " + addr2String(std::static_pointer_cast<Load>(i)->getAddr());
 	else if (c == RISCVinstruction::STORE) {
 		auto s = std::static_pointer_cast<Store>(i);
@@ -94,6 +99,8 @@ void RISCVCodeGenerator::emitInstruction(std::shared_ptr<RISCVinstruction> i)
 	else if (c == RISCVinstruction::CALL) {
 		str += std::static_pointer_cast<CallAssembly>(i)->getFunction()->getName();
 	}
+	else if (c == RISCVinstruction::LA)
+		str += "str" + std::to_string(stringLabel[std::static_pointer_cast<LoadAddr>(i)->getSymbol()->getReg()]);
 	os << '\t' << str;
 }
 
