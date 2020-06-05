@@ -60,7 +60,7 @@ void IR_Interpreter::parseFunction()
 	is >> name;
 	name = name.substr(1, name.length() - 1);
 	std::vector<std::string> args;
-;
+
 	while (nextchar() != '{') {
 		std::string arg;
 		is >> arg;
@@ -91,7 +91,7 @@ std::shared_ptr<VMBasicBlock> IR_Interpreter::parseBlock()
 		char ch = nextchar();
 		if (ch == '}' || ch == '$') break;
 		auto inst = parseInstruction();
-	//	std::cout << "parsing: " << inst->toString() << '\n';
+		std::cout << "parsing: " << inst->toString() << '\n';
 		b->appendInst(inst);
 	}
 	return b;
@@ -104,19 +104,28 @@ std::shared_ptr<VMInstruction> IR_Interpreter::parseInstruction()
 	is >> op;
 	if (op == "call") {
 		std::vector<std::string> args;
-		is >> src1 >> dst;  // function name and reg for return  value; note that src1 could be "null"
+		std::string arg;
+		is >> src1  >> dst;  
 
 		while (true) {
 			char ch = nextchar();
 			if (ch != '%' && ch != '@' && ch != '#') break;
-			is >> src2;
-			args.push_back(src2);
+			is >> arg;
+			args.push_back(arg);
 		}
-		return std::make_shared<VMInstruction>(op, dst, src1, "", args);
+		return std::make_shared<VMInstruction>(op, dst, src1,"", args);
 	}
-	if (op == "ret" || op == "jmp") {
+	if (op == "jmp") {
 		is >> dst;
 		return std::make_shared<VMInstruction>(op, dst);
+	}
+	else if (op == "ret") {
+		char ch = nextchar();
+		if (ch != '%' && ch != '@' && ch != '#') return std::make_shared<VMInstruction>(op, "");
+		else {
+			is >> dst;
+			return std::make_shared<VMInstruction>(op, dst);
+		}
 	}
 	else if(op == "inv" || op == "neg" || op == "mov" || op == "load" || op == "store" || op == "malloc") {
 		is >> dst >> src1;
@@ -165,6 +174,7 @@ int IR_Interpreter::executeFunction(std::shared_ptr<VMFunction> f, std::vector<i
 			if (inst->op == "ret") {
 				curblockName.pop();
 				lastBlockName.pop();
+				if (inst->dst == "") return 2333;
 				return getRegVal(inst->dst, argMap);
 			}
 			else if (inst->op == "jmp") {

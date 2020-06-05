@@ -91,7 +91,7 @@ void Call::replaceUseReg(std::shared_ptr<Operand> old, std::shared_ptr<Operand> 
 
 void Return::renameUseRegs(std::unordered_map<std::shared_ptr<Register>, std::shared_ptr<Register>>& table)
 {
-	if (Operand::isRegister(value->category()))
+	if (value != nullptr && Operand::isRegister(value->category()))
 		updateRegister(value, table);
 	updateUseRegs();
 }

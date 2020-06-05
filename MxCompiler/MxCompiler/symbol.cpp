@@ -51,8 +51,9 @@ void ClassSymbol::define(std::shared_ptr<Symbol> symbol)
 		throw SemanticError("Duplicated identifier", symbol->getDecl()->Where());
 	if (symbol->category() == VAR) {
 		memberVars[id] = std::static_pointer_cast<VarSymbol>(symbol);
-		size += symbol->getType()->getSize();
 		symbol->setScope(shared_from_this());
+		std::static_pointer_cast<VarSymbol>(symbol)->setOffset(size);
+		size += symbol->getType()->getSize();
 	}
 	else if (symbol->category() == FUNCTION) {
 		memberFuncs[id] = std::static_pointer_cast<FunctionSymbol>(symbol);

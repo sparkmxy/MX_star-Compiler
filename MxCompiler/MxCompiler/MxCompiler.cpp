@@ -77,6 +77,7 @@ void MxCompiler::generateIR()
 	std::make_shared<GlobalVarResolver>(ir)->run();
 
 	std::cout << "IR generation completed." << std::endl;
+
 }
 
 void MxCompiler::optimize()
@@ -84,6 +85,10 @@ void MxCompiler::optimize()
 	opt = std::make_shared<Optimizer>(ir);
 	opt->optimize();
 	// std::make_shared<IR_Printer>(ir, std::cout)->print();
+
+	std::ofstream fout("ir.mxx");
+	printIR(fout);
+	fout.close();
 }
 
 void MxCompiler::codegen()

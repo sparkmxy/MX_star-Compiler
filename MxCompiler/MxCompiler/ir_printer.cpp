@@ -30,6 +30,10 @@ void IR_Printer::visit(Function * f)
 	os << "def @" << f->getName() << ' ';  // Do we need to care about return type?
 
 	auto args = f->getArgs();
+
+	if (f->getObjRef() != nullptr)
+		args.insert(args.begin(), std::static_pointer_cast<Register>(f->getObjRef()));
+
 	for (auto &arg : args) {
 		arg->accept(*this);
 		os << ' ';
@@ -119,10 +123,11 @@ void IR_Printer::visit(Branch * b)
 	os << " " << getLabel(b->getTrueBlock().get()) << " " << getLabel(b->getFalseBlock().get());
 }
 
-// call return_type args
+// call obj return_type args
 void IR_Printer::visit(Call * c)
 {
 	os << "call ";
+
 	if (c->getResult() != nullptr) {   // call with a return value
 		c->getResult()->accept(*this);
 		os << " ";

@@ -57,9 +57,9 @@ void Test::runWithInterpreter(std::string src)
 		return;
 	}
 	std::cout << "COMPILE FINISHED\n";
-	std::ofstream fout("ir.mxx");
-	compiler.printIR(fout);
-	fout.close();
+
+
+
 	std::ifstream fin("ir.mxx");
 	IR_Interpreter I(fin);
 	I.run();

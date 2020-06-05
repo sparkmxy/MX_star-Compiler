@@ -88,11 +88,12 @@ void IR_Generator::visit(VarDeclStmt * node)
 void IR_Generator::visit(FunctionDecl * node)   // Function module is linked to function symbol here
 {
 	auto symbol = node->getFuncSymbol();
-	auto funcModule = newFunction(symbol->getSymbolName(), node->getRetType());    
-	if (currentClsSymbol != nullptr)
-		funcModule->setObjRef(std::make_shared<VirtualReg>(Operand::REG_VAL, "this"));
-	symbol->setModule(funcModule);
-	currentFunction = funcModule;
+	if (currentClsSymbol != nullptr) {
+		symbol->getModule()->setObjRef(std::make_shared<VirtualReg>(Operand::REG_VAL, "this"));
+	}
+	else symbol->setModule(newFunction(symbol->getSymbolName(), node->getRetType()));
+
+	currentFunction = symbol->getModule();
 	currentBlock = currentFunction->getEntry();
 	auto args = node->getArgs();
 	for (auto &arg : args) arg->accept(*this);
@@ -106,11 +107,11 @@ void IR_Generator::visit(FunctionDecl * node)   // Function module is linked to 
 	}
 	mergeReturnIntoExit(node, currentFunction);
 
-	currentFunction = nullptr;
-	ir->addFunction(funcModule);
-
+	ir->addFunction(currentFunction);
 	//build dominance tree
-	funcModule->setDT(std::make_shared<DominatorTree>(funcModule));
+	currentFunction->setDT(std::make_shared<DominatorTree>(currentFunction));
+	
+	currentFunction = nullptr;
 }
 
 /*
@@ -127,9 +128,10 @@ void IR_Generator::visit(ClassDecl * node)
 		if(!member->isVarDecl()){
 			auto symbol = std::static_pointer_cast<FunctionDecl>(member)->getFuncSymbol();
 			auto retType = std::static_pointer_cast<FunctionDecl>(member)->getRetType();
-			auto funcName = node->getClsSymbol()->getSymbolName() 
-				+ "::" + symbol->getScopeName();
+			auto funcName = "_" + node->getClsSymbol()->getSymbolName() 
+				+ "_" + symbol->getScopeName();
 			symbol->setModule(newFunction(funcName, retType));
+			member->accept(*this);
 		}
 	currentClsSymbol = nullptr;
 }
@@ -521,6 +523,10 @@ void IR_Generator::visit(ClassMemberExpr * node)
 	node->setResultOprand(ref);
 	currentBlock->append_back(std::make_shared<Quadruple>(
 		currentBlock, Quadruple::ADD, ref, base, offset));
+
+	if (node->isControl())
+		currentBlock->endWith(std::make_shared<Branch>(
+			currentBlock, getValueReg(ref), node->getTrueBlock(), node->getFalseBlock()));
 }
 
 void IR_Generator::visit(ThisExpr * node)
