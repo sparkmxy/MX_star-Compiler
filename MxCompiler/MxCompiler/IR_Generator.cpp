@@ -6,15 +6,34 @@ void IR_Generator::visit(ProgramAST * node)
 	scanGlobalVar = true;
 	for (auto &decl : decls)
 		if(decl->isVarDecl())decl->accept(*this);
-	scanGlobalVar = false;
-
-	// function moduel must be initialized here, since declaration might come after usage.
-	for (auto &decl : decls)
-		if (decl->isFuncDecl()) {
+		else if (decl->isFuncDecl()) {
 			auto funcDeclNode = std::static_pointer_cast<FunctionDecl>(decl);
 			funcDeclNode->getFuncSymbol()->setModule(newFunction(
 				funcDeclNode->getFuncSymbol()->getSymbolName(), funcDeclNode->getRetType()));
 		}
+		else {
+			auto clsNode = std::static_pointer_cast<ClassDecl>(decl);
+			for (auto &member : clsNode->getMembers())
+				if (!member->isVarDecl()) {
+					auto symbol = std::static_pointer_cast<FunctionDecl>(member)->getFuncSymbol();
+					auto retType = std::static_pointer_cast<FunctionDecl>(member)->getRetType();
+					auto oldName = symbol->getSymbolName();
+
+					auto funcName = "_" + clsNode->getClsSymbol()->getSymbolName()
+						+ "_" + oldName;
+
+					for (int i = 0; i < oldName.length(); i++)
+						if (oldName[i] == ':') {  // constructor;
+							funcName = "__ctor_" + clsNode->getClsSymbol()->getSymbolName(); 
+							break;
+						}
+
+					symbol->setModule(newFunction(funcName, retType));
+				}
+		}
+	scanGlobalVar = false;
+
+	// function moduel must be initialized here, since declaration might come after usage.
 	for (auto &decl : decls)
 		if (!decl->isVarDecl()) decl->accept(*this);
 }
@@ -129,18 +148,8 @@ Note :
 */
 void IR_Generator::visit(ClassDecl * node)
 {
-	currentClsSymbol = node->getClsSymbol();
-	auto members = node->getMembers();
-	for (auto &member : members) 
-		if(!member->isVarDecl()){
-			auto symbol = std::static_pointer_cast<FunctionDecl>(member)->getFuncSymbol();
-			auto retType = std::static_pointer_cast<FunctionDecl>(member)->getRetType();
-			auto funcName = "_" + node->getClsSymbol()->getSymbolName() 
-				+ "_" + symbol->getScopeName();
-			symbol->setModule(newFunction(funcName, retType));
-		}
-	
-	for (auto &member : members)
+	currentClsSymbol = node->getClsSymbol();	
+	for (auto &member : node->getMembers())
 		if (!member->isVarDecl()) member->accept(*this);
 	currentClsSymbol = nullptr;
 }
@@ -489,6 +498,7 @@ void IR_Generator::visit(FuncCallExpr * node)
 	if(currentClsSymbol ==  func->getEnclosingScope()) 
 		call->setObjRef(currentFunction->getObjRef()); // a class function
 	currentBlock->append_back(call);
+	lastCall = call;
 	if (node->isControl())
 		currentBlock->endWith(std::make_shared<Branch>(
 			currentBlock, result, node->getTrueBlock(), node->getFalseBlock()));
@@ -558,11 +568,18 @@ void IR_Generator::visit(NewExpr * node)
 		auto clsSymbol = std::static_pointer_cast<ClassSymbol>(node->getSymbolType());
 		auto objSize = std::make_shared<Immediate>(clsSymbol->getSize());
 		currentBlock->append_back(std::make_shared<Malloc>(currentBlock, objSize, result));
-		if (clsSymbol->getConstructor() != nullptr) {
+
+		if (node->getCtorCall() != nullptr) {
+			node->getCtorCall()->accept(*this);
+			lastCall->setObjRef(result);
+		}
+		else if (clsSymbol->getConstructor() != nullptr) {
 			//2. call constructor
-			auto call = std::make_shared<Call>(currentBlock,clsSymbol->getConstructor()->getModule());
-			call->setObjRef(node->getResultOprand());
-			currentBlock->append_back(call);
+			if (clsSymbol->getConstructor()->getFormalArgs().empty()) {
+				auto call = std::make_shared<Call>(currentBlock, clsSymbol->getConstructor()->getModule());
+				call->setObjRef(node->getResultOprand());
+				currentBlock->append_back(call);
+			}
 		}
 	}
 }

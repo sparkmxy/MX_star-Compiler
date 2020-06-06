@@ -50,6 +50,6 @@ private:
 	void checkMainFunc();
 	bool isConstructor(const std::string &str) {
 		auto l = str.length();
-		return l >= 6 && str.substr(l - 6, 6) == "::ctor";
+		return l >= 5 && str.substr(l - 5, 5) == ":ctor";
 	}
 };

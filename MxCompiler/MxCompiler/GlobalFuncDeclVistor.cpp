@@ -20,7 +20,7 @@ void GlobalFuncAndClsVisitor::visit(FunctionDecl * node)
 	// it can be a constructor
 	bool isConstructor = false;
 	if (currentClassSymbol != nullptr 
-		&& node->getIdentifier()->name == currentClassSymbol->getSymbolName() + "::ctor") {
+		&& node->getIdentifier()->name == currentClassSymbol->getSymbolName() + ":ctor") {
 		if (currentClassSymbol->getConstructor() != nullptr)
 			throw SemanticError("Duplicated constructor.", node->Where());
 		isConstructor = true;

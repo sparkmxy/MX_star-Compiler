@@ -297,7 +297,7 @@ class NewExpr : public Expression {
 public:
 	NewExpr(std::shared_ptr<Type> _type, std::vector<std::shared_ptr<Expression> > ctor_args)
 		:type(std::move(_type)){
-		auto fName = std::make_shared<Identifier>(type->getIdentifier() + "::ctor");
+		auto fName = std::make_shared<Identifier>(type->getIdentifier() + ":ctor");
 		ctorCall = std::make_shared<FuncCallExpr>(
 			std::make_shared<IdentifierExpr>(fName),ctor_args);
 	}
@@ -536,7 +536,7 @@ public:
 		std::shared_ptr<StmtBlock> _body)
 		:retType(std::move(_retType)),name(std::move(_name)), 
 		args(std::move(_args)), body(std::move(_body)) {
-		if (name->name.length() >= 6 && name->name.substr(name->name.length() - 6, 6) == "::ctor")
+		if (name->name.length() >= 5 && name->name.substr(name->name.length() - 5, 5) == ":ctor")
 			isCtor = true;
 		else isCtor = false;
 	}

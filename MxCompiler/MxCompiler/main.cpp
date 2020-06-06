@@ -6,7 +6,7 @@
 int main() {
 	freopen("log.txt", "w", stderr);
 	Test test;
-	test.runWithInterpreter("codegen/t55.mx");
+	test.runWithInterpreter("sema/scope-package/scope-6.mx");
 	system("pause");
 	return 0;
 }

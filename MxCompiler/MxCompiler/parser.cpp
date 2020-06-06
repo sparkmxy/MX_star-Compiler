@@ -714,7 +714,7 @@ std::shared_ptr<FunctionDecl> Parser::constructor(const std::string & className)
 
 	return newNode<FunctionDecl>(st, body->endPos(),
 		std::shared_ptr<Type>(nullptr),
-		newNode<Identifier>(POS.first, POS.second, className + "__ctor"),
+		newNode<Identifier>(POS.first, POS.second, className + ":ctor"),
 		std::vector< std::shared_ptr<VarDeclStmt> >(),
 		body
 		);
