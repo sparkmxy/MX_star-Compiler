@@ -45,8 +45,6 @@ public:
 	// Warning: do no use this directly, use replaceInstruction() instead
 	void replaceBy(std::shared_ptr<IRInstruction> i);
 	// Warning: do no use this directly, use removeInstruction() instead
-	void removeThis();
-
 	std::vector<std::shared_ptr<Register> > &getUseRegs() { return useRegs; }
 
 	// virtual functions (do nothing by default)
@@ -179,7 +177,7 @@ public:
 	void setResult(const std::shared_ptr<Operand> &_res) { result = _res; }
 
 	std::shared_ptr<Operand> getObjRef() { return object; }
-	void setObjRef(const std::shared_ptr<Operand> &obj) { object = obj; }
+	void setObjRef(const std::shared_ptr<Operand> &obj) { object = obj; updateUseRegs(); }
 
 	// override functions
 	virtual void renameUseRegs(std::unordered_map<std::shared_ptr<Register>,

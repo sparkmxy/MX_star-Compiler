@@ -351,6 +351,7 @@ and hence we have the method <isVarDecl>
 class Declaration : public virtual astNode {
 public:
 	virtual bool isVarDecl() { return false; }
+	virtual bool isFuncDecl() { return false; }
 	ACCEPT_VISITOR_VIRTUAL
 };
 
@@ -550,6 +551,8 @@ public:
 	void setFuncSymbol(std::shared_ptr<FunctionSymbol> _funcSymbol) { funcSymbol = _funcSymbol; }
 	
 	bool isConstructor() { return isCtor; }
+
+	bool isFuncDecl() override { return true; }
 
 	ACCEPT_VISITOR
 private:

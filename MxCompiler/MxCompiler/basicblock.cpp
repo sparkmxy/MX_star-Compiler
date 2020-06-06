@@ -111,9 +111,13 @@ void replaceInstruction(std::shared_ptr<IRInstruction> old, std::shared_ptr<IRIn
 
 void removeInstruction(std::shared_ptr<IRInstruction> i)
 {
-	if (i->getPreviousInstr() == nullptr) i->getBlock()->setFront(i->getNextInstr());
-	if (i->getNextInstr() == nullptr) i->getBlock()->setBack(i->getPreviousInstr());
-	i->removeThis();
+	auto b = i->getBlock();
+
+	if (b->getBack() == i) b->setBack(i->getPreviousInstr());
+	else i->getNextInstr()->setPreviousInstr(i->getPreviousInstr());
+
+	if (b->getFront() == i) b->setFront(i->getNextInstr());
+	else i->getPreviousInstr()->setNextInstr(i->getNextInstr());
 }
 
 void appendInstrBefore(std::shared_ptr<IRInstruction> i, std::shared_ptr<IRInstruction> new_i)

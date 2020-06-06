@@ -1,4 +1,5 @@
 #include "registerAllocator.h"
+#include <cmath>
 
 RegisterAllocator::~RegisterAllocator()
 {
@@ -41,16 +42,19 @@ void RegisterAllocator::init()
 	clear();
 	for(auto b : f->getBlockList())
 		for (auto i = b->getFront(); i != nullptr; i = i->getNextInstr()) {
-			for (auto reg : i->getUseReg()) initial.insert(reg);
-			if (i->getDefReg() != nullptr) initial.insert(i->getDefReg());
+			for (auto reg : i->getUseReg())
+				initial.insert(reg);
+			if (i->getDefReg() != nullptr) 
+				initial.insert(i->getDefReg());
 		}
-	for (auto reg : initial)  reg->info().clear();
+	for (auto reg : initial) reg->info().clear();
 	
 	// reset the precolored registers
 	program->resetPrecoloredRegs();
 
+	// compute priority
 	for (auto &b : f->getBlockList()) {
-		int w = (1 << std::min(b->getToBlocks().size(), b->getFromBlocks().size()));
+		int w = (int)std::pow(10,std::min(b->getToBlocks().size(), b->getFromBlocks().size()));
 		for (auto i = b->getFront(); i != nullptr; i = i->getNextInstr()) {
 			for (auto reg : i->getUseReg()) spillPriority[reg] += w;
 			if (i->getDefReg() != nullptr) spillPriority[i->getDefReg()] += w;
@@ -258,7 +262,7 @@ void RegisterAllocator::rewrite()
 {
 	for (auto reg : spilled)
 		reg->info().spilladdr = std::make_shared<StackLocation>(f,
-		(*program)["sp"], f->stackLocationFromBottom(Configuration::SIZE_OF_INT));
+		(*program)["sp"], f->stackLocationFromBottom(Configuration::SIZE_OF_INT), false);
 
 	for (auto b : f->getBlockList()) {
 

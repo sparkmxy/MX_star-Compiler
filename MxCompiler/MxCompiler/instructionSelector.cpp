@@ -59,7 +59,7 @@ void InstructionSelector::visit(Quadruple * q)
 {
 	auto op = q->getOp();
 	if (op == Quadruple::STORE) {
-		auto addr = std::make_shared<BaseOffsetAddr>(std::static_pointer_cast<Register>(q->getDst()), 0);
+		auto addr = std::make_shared<BaseOffsetAddr>(toRegister(q->getDst()), 0);
 		if (addr->getBase()->isGlobal()) {
 			auto reg = std::make_shared<VirtualReg>(Operand::REG_VAL, "store_glb");
 			currentBlock->append(std::make_shared<Store>(currentBlock, addr,
@@ -179,7 +179,7 @@ void InstructionSelector::functionEntryBlockInit(Function *f, std::shared_ptr<RI
 	for (int i = 0; i < std::min(8, (int)args.size()); i++)
 		currentBlock->append(std::make_shared<MoveAssembly>(currentBlock, args[i], (*P)["a" + std::to_string(i)]));
 	for (int i = 8; i < args.size(); i++) {
-		auto addr = std::make_shared<StackLocation>(currentFunction, (*P)["sp"], (i - 8)*Configuration::SIZE_OF_INT);
+		auto addr = std::make_shared<StackLocation>(currentFunction, (*P)["sp"], (i - 8)*Configuration::SIZE_OF_INT, false);
 		currentBlock->append(std::make_shared<Load>(currentBlock, addr, args[i], Configuration::SIZE_OF_INT));
 	}
 }
@@ -269,7 +269,7 @@ void InstructionSelector::resolveItype(Quadruple * q)
 	bool swap = q->getSrc1()->category() == Operand::IMM;
 
 	auto rd = std::static_pointer_cast<Register>(q->getDst());
-	auto rs1 = std::static_pointer_cast<Register>(swap ? q->getSrc2() : q->getSrc1());
+	auto rs1 = toRegister(swap ? q->getSrc2() : q->getSrc1());
 	auto imm = std::static_pointer_cast<Immediate>(swap ? q->getSrc1() : q->getSrc2());
 	if (swap) op = reverseOp(op);
 	switch (op)

@@ -7,6 +7,14 @@ void IR_Generator::visit(ProgramAST * node)
 	for (auto &decl : decls)
 		if(decl->isVarDecl())decl->accept(*this);
 	scanGlobalVar = false;
+
+	// function moduel must be initialized here, since declaration might come after usage.
+	for (auto &decl : decls)
+		if (decl->isFuncDecl()) {
+			auto funcDeclNode = std::static_pointer_cast<FunctionDecl>(decl);
+			funcDeclNode->getFuncSymbol()->setModule(newFunction(
+				funcDeclNode->getFuncSymbol()->getSymbolName(), funcDeclNode->getRetType()));
+		}
 	for (auto &decl : decls)
 		if (!decl->isVarDecl()) decl->accept(*this);
 }
@@ -91,7 +99,6 @@ void IR_Generator::visit(FunctionDecl * node)   // Function module is linked to 
 	if (currentClsSymbol != nullptr) {
 		symbol->getModule()->setObjRef(std::make_shared<VirtualReg>(Operand::REG_VAL, "this"));
 	}
-	else symbol->setModule(newFunction(symbol->getSymbolName(), node->getRetType()));
 
 	currentFunction = symbol->getModule();
 	currentBlock = currentFunction->getEntry();
@@ -131,8 +138,10 @@ void IR_Generator::visit(ClassDecl * node)
 			auto funcName = "_" + node->getClsSymbol()->getSymbolName() 
 				+ "_" + symbol->getScopeName();
 			symbol->setModule(newFunction(funcName, retType));
-			member->accept(*this);
 		}
+	
+	for (auto &member : members)
+		if (!member->isVarDecl()) member->accept(*this);
 	currentClsSymbol = nullptr;
 }
 
@@ -476,6 +485,9 @@ void IR_Generator::visit(FuncCallExpr * node)
 		arg->accept(*this);
 		call->addArg(getValueReg(arg->getResultOprand()));
 	}
+
+	if(currentClsSymbol ==  func->getEnclosingScope()) 
+		call->setObjRef(currentFunction->getObjRef()); // a class function
 	currentBlock->append_back(call);
 	if (node->isControl())
 		currentBlock->endWith(std::make_shared<Branch>(
@@ -500,8 +512,7 @@ void IR_Generator::visit(MemberFuncCallExpr * node)
 		arg->accept(*this);
 		call->addArg(getValueReg(arg->getResultOprand()));
 	}
-	auto base = getValueReg(node->getInstance()->getResultOprand());
-	call->setObjRef(base);
+	call->setObjRef(node->getInstance()->getResultOprand());
 	currentBlock->append_back(call);
 	if (node->isControl())
 		currentBlock->endWith(std::make_shared<Branch>(
@@ -685,7 +696,10 @@ void IR_Generator::mergeReturnIntoExit(FunctionDecl *node, std::shared_ptr<Funct
 			ret->getBlock()->endWith(std::make_shared<Jump>(ret->getBlock(), exit));
 		}
 
-		exit->endWith(std::make_shared<Return>(exit, result));
+		auto new_ret = std::make_shared<Return>(exit, result);
+		exit->endWith(new_ret);
+		f->getReturnIntrs().clear();
+		f->getReturnIntrs().push_back(new_ret);   // remember renewing this!!
 	}
 	else f->setExit(rets[0]->getBlock());
 }

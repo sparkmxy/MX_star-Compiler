@@ -41,8 +41,8 @@ void SymbolTable::visit(VarDeclStmt *node) {
 	node->setVarSymbol(var);
 	currentScope->define(var); //need to check whether currentScope == globalScope ?
 
-	std::clog << "define variable " << var->getSymbolName()
-		<< " in scopce " << currentScope->getScopeName() << '\n';
+	//std::clog << "define variable " << var->getSymbolName()
+	//	<< " in scopce " << currentScope->getScopeName() << '\n';
 }
 
 void SymbolTable::visit(ExprStmt * node)

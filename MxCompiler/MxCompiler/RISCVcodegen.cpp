@@ -108,7 +108,8 @@ std::string RISCVCodeGenerator::addr2String(std::shared_ptr<Address> addr)
 {
 	if (addr->category() == Operand::STACK) {
 		auto a = std::static_pointer_cast<StackLocation>(addr);
-		return std::to_string(a->getOffset()) + "(sp)";
+		auto offset = a->isTopDown() ? a->getOffset() : a->getFunction()->getStackSize() - a->getOffset(); 
+		return std::to_string(offset) + "(sp)";
 	}
 	else {
 		auto a = std::static_pointer_cast<BaseOffsetAddr>(addr);

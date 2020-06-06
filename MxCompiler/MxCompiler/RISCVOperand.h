@@ -17,6 +17,7 @@ public:
 	Address(int o) : offset(o) {}
 	int getOffset() { return offset; }
 	virtual void accept(CFG_Visitor &vis) {/*do nothing*/}
+
 protected:
 	int offset;
 };
@@ -28,6 +29,7 @@ public:
 	Category category() override { return ADDR; }
 	std::shared_ptr<Register> getBase() { return base; }
 	void setBase(std::shared_ptr<Register> r) { base = r; }
+
 private:
 	std::shared_ptr<Register> base;
 };
@@ -36,15 +38,12 @@ class StackLocation : public Address {
 public:
 	StackLocation(std::weak_ptr<RISCVFunction> _f, std::shared_ptr<PhysicalRegister> _sp,
 		int _offset, bool _topdown = true)
-		:Address(_offset), sp(_sp), f(_f), topdown(_topdown) {
-		if (!_topdown) 
-			offset = -offset;
-	}
+		:Address(_offset), sp(_sp), f(_f), topdown(_topdown) {}
 	
 	Category category() override { return STACK; }
 
-	bool isTopdown() { return topdown; }
-	
+	bool isTopDown() { return topdown; }
+
 	std::shared_ptr<PhysicalRegister> getSp() { return sp; }
 	std::shared_ptr<RISCVFunction> getFunction() { return f.lock(); }
 private:
