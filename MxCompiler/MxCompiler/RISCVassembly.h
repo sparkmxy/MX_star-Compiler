@@ -30,8 +30,8 @@ public:
 
 	std::shared_ptr<RISCVFunction> getResidingFunction() { return func.lock(); }
 
-	std::unordered_set<std::shared_ptr<RISCVBasicBlock> > &getToBlocks() { return to; }
-	std::unordered_set<std::shared_ptr<RISCVBasicBlock> > &getFromBlocks() { return from; }
+	std::set<std::shared_ptr<RISCVBasicBlock> > &getToBlocks() { return to; }
+	std::set<std::shared_ptr<RISCVBasicBlock> > &getFromBlocks() { return from; }
 
 	void insertToBlock(std::shared_ptr<RISCVBasicBlock> b) { to.insert(b); }
 	void insertFromBlock(std::shared_ptr<RISCVBasicBlock> b) { from.insert(b); }
@@ -42,7 +42,7 @@ private:
 	std::weak_ptr<RISCVinstruction> back;
 	std::weak_ptr<RISCVFunction> func;
 
-	std::unordered_set<std::shared_ptr<RISCVBasicBlock> > from, to;
+	std::set<std::shared_ptr<RISCVBasicBlock> > from, to;
 };
 
 class RISCVFunction {
@@ -70,7 +70,7 @@ public:
 
 	void computePreOrderList();
 	void DFS(std::shared_ptr<RISCVBasicBlock> b, 
-		std::unordered_set<std::shared_ptr<RISCVBasicBlock> > &visited);
+		std::set<std::shared_ptr<RISCVBasicBlock> > &visited);
 private:
 	std::string name;
 	std::vector<std::shared_ptr<RISCVBasicBlock> > blocks;
@@ -100,12 +100,12 @@ public:
 
 	void resetPrecoloredRegs();
 
-	std::unordered_set<std::shared_ptr<PhysicalRegister> > getAllocatableRegs();
+	std::set<std::shared_ptr<PhysicalRegister> > getAllocatableRegs();
 
 private:
 	std::vector<std::shared_ptr<RISCVFunction> > functions, builtinFunctions;
 
-	std::unordered_map<std::string, std::shared_ptr<PhysicalRegister> > physicalRegs;
+	std::map<std::string, std::shared_ptr<PhysicalRegister> > physicalRegs;
 
 	std::shared_ptr<RISCVFunction> mallocFunc;
 };

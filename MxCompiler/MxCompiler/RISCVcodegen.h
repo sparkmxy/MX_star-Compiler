@@ -21,8 +21,8 @@ private:
 	std::shared_ptr<RISCVProgram> riscv_program;
 	std::ostream &os;
 
-	std::unordered_map<std::shared_ptr<RISCVBasicBlock>, std::string> label;
-	std::unordered_map<std::shared_ptr<Register>, int> stringLabel;
+	std::map<std::shared_ptr<RISCVBasicBlock>, std::string> label;
+	std::map<std::shared_ptr<Register>, int> stringLabel;
 	
 	void setSP();
 	void renameMainFunction();

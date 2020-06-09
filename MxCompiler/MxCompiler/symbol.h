@@ -154,8 +154,8 @@ public:
 
 	bool isBuiltInType() override { return getSymbolName() == "string"; }
 private:
-	std::unordered_map<std::string, std::shared_ptr<VarSymbol> >  memberVars;
-	std::unordered_map<std::string, std::shared_ptr<FunctionSymbol> >  memberFuncs;
+	std::map<std::string, std::shared_ptr<VarSymbol> >  memberVars;
+	std::map<std::string, std::shared_ptr<FunctionSymbol> >  memberFuncs;
 	std::shared_ptr<FunctionSymbol> constructor;
 	int size;
 };
@@ -179,7 +179,7 @@ public:
 	void setModule(const std::shared_ptr<Function> &f) { _module = f; }
 
 private:
-	std::unordered_map<std::string, std::shared_ptr<VarSymbol> >  args;
+	std::map<std::string, std::shared_ptr<VarSymbol> >  args;
 	std::vector<std::shared_ptr<VarSymbol> > formalArgs;
 
 	//IR

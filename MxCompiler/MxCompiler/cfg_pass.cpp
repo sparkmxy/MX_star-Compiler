@@ -21,3 +21,12 @@ void CFG_Pass::resolveDefineUseChain(std::shared_ptr<Function> f)
 		}
 	}
 }
+
+void CFG_Pass::updateDTinfo(std::shared_ptr<Function> f)
+{
+	if (f == nullptr)
+		for (auto &ff : ir->getFunctions())
+			f->setDT(std::make_shared<DominatorTree>(f));
+	else
+		f->setDT(std::make_shared<DominatorTree>(f));
+}

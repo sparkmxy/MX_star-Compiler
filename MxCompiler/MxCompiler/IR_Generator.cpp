@@ -303,8 +303,7 @@ void IR_Generator::visit(IdentifierExpr * node)
 	}
 	else if (symbol->category() == Symbol::VAR) { 
 		// for normal variable, return its reference directly
-		auto ref = std::static_pointer_cast<VarSymbol>(symbol)->getReg();
-		auto result = getValueReg(ref);
+		auto result = std::static_pointer_cast<VarSymbol>(symbol)->getReg();
 		node->setResultOprand(result);
 		if (node->isControl())
 			currentBlock->endWith(std::make_shared<Branch>(
@@ -569,7 +568,7 @@ void IR_Generator::visit(NewExpr * node)
 		auto objSize = std::make_shared<Immediate>(clsSymbol->getSize());
 		currentBlock->append_back(std::make_shared<Malloc>(currentBlock, objSize, result));
 
-		if (node->getCtorCall() != nullptr) {
+		if (node->getCtorCall() != nullptr && clsSymbol->getConstructor() != nullptr) {
 			node->getCtorCall()->accept(*this);
 			lastCall->setObjRef(result);
 		}
@@ -604,9 +603,9 @@ void IR_Generator::visit(BoolValue * node)
 void IR_Generator::visit(StringValue * node)
 {
 	auto reg = std::make_shared<VirtualReg>(Operand::REG_VAL, "__str");  // 
-	auto str = std::make_shared<StaticString>(reg, node->getText());
-	node->setResultOprand(str);  // reg or str?
-	reg->markAsGlobal();
+	auto str = std::make_shared<StaticString>(reg, node->getText().substr(1, node->getText().length() - 2)); //get rid of ''
+	node->setResultOprand(reg);  // reg or str?
+	reg->markAsStaticString();
 	ir->addStringConst(str);
 }
 
@@ -655,12 +654,13 @@ void IR_Generator::newArray(NewExpr * node, std::shared_ptr<Operand> addrReg, in
 		auto condBlk = std::make_shared<BasicBlock>(currentFunction, BasicBlock::FOR_COND);
 		auto iterBlk = std::make_shared<BasicBlock>(currentFunction, BasicBlock::FOR_ITER);
 		// 3. Calaulate the begining address and upperbound.
-		auto curAddr = std::make_shared<VirtualReg>();
+		auto curAddr = std::make_shared<VirtualReg>(Operand::REG_REF);
+
 		auto upperBound = std::make_shared<VirtualReg>();
 		currentBlock->append_back(std::make_shared<Quadruple>(
 			currentBlock, Quadruple::ADD, curAddr, arrayAddr,size_of_int));
 		currentBlock->append_back(std::make_shared<Quadruple>(
-			currentBlock, Quadruple::ADD, upperBound, curAddr, size));
+			currentBlock, Quadruple::ADD, upperBound, arrayAddr, size));
 		currentBlock->endWith(std::make_shared<Jump>(currentBlock, condBlk));
 		// 4. condtion : curAddr < upperBound
 		auto cmp = std::make_shared<VirtualReg>();
@@ -711,6 +711,7 @@ void IR_Generator::mergeReturnIntoExit(FunctionDecl *node, std::shared_ptr<Funct
 				ret->getBlock()->append_back(std::make_shared<Quadruple>(
 					ret->getBlock(), Quadruple::MOVE, result, ret->getValue()));
 			ret->getBlock()->endWith(std::make_shared<Jump>(ret->getBlock(), exit));
+			ret->getBlock()->link_to_block(exit);
 		}
 
 		auto new_ret = std::make_shared<Return>(exit, result);

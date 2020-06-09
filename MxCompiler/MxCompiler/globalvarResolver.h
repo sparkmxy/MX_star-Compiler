@@ -16,15 +16,15 @@ public:
 private:
 	std::shared_ptr<IR> ir;
 
-	std::unordered_map<std::shared_ptr<Function>, std::set<std::shared_ptr<Function> > >
+	std::map<std::shared_ptr<Function>, std::set<std::shared_ptr<Function> > >
 		calleeSet, recursiveCalleeSet;
 
 
-	std::unordered_map<std::shared_ptr<Function>, std::set<std::shared_ptr<VirtualReg> > > 
+	std::map<std::shared_ptr<Function>, std::set<std::shared_ptr<VirtualReg> > > 
 		varDef, varUsedRecursively, varDefRecursively;
 
-	std::unordered_map<std::shared_ptr<Function>,
-		std::unordered_map<std::shared_ptr<VirtualReg>, std::shared_ptr<VirtualReg> > > func2varMap;
+	std::map<std::shared_ptr<Function>,
+		std::map<std::shared_ptr<VirtualReg>, std::shared_ptr<VirtualReg> > > func2varMap;
 
 	void prepare();
 	void loadWhenEntering();

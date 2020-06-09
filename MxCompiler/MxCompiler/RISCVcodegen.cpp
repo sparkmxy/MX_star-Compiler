@@ -6,10 +6,13 @@ void RISCVCodeGenerator::generate()
 	auto instructionSelector = InstructionSelector(ir);
 	riscv_program = instructionSelector.getRISCVProgram();
 	std::cout << "assembly code generation is completed.\n";
+
 	auto regalloc = RegisterAllocator(riscv_program);
 	regalloc.run();
 
-	std::make_shared<PeeholeMatchingOptimizer>(riscv_program)->run();
+	auto peeholeOpt = PeeholeMatchingOptimizer(riscv_program);
+	peeholeOpt.run();
+
 	setSP();
 	renameMainFunction();
 	std::cout << "register allocation is completed\n";
@@ -31,7 +34,7 @@ void RISCVCodeGenerator::emit()
 		auto name = "str" + std::to_string(stringLabel[str->getReg()]);
 		os << '\t' << ".globl\t" << name << '\n';
 		os << name << ":\n";
-		os << "\t.string\t" + str->getText() << "\n\n";
+		os << "\t.string\t\"" + str->getText() << "\"\n\n";
 	}
 
 	os << '\t' << ".text\n";

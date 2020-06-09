@@ -18,13 +18,18 @@ void GlobalVarResolver::prepare()
 			for (auto i = b->getFront(); i != nullptr; i = i->getNextInstr()) {
 				auto uses = i->getUseRegs();
 				for (auto reg : uses)
-					if (reg->isGlobal() && Operand::isRegister(reg->category()))
-						i->replaceUseReg(reg, getTempReg(std::static_pointer_cast<VirtualReg>(reg), f));
-
+					if (reg->isGlobal() && Operand::isRegister(reg->category())) {
+						auto r = std::static_pointer_cast<VirtualReg>(reg);
+						if(!r->isForStaticString()) i->replaceUseReg(reg, getTempReg(r, f));
+					}
+						
 				auto def = i->getDefReg();
 				if (def != nullptr && def->isGlobal() && Operand::isRegister(def->category())) {
-					i->setDefReg(getTempReg(std::static_pointer_cast<VirtualReg>(def), f));
-					varDef[f].insert(std::static_pointer_cast<VirtualReg>(def));
+					auto r = std::static_pointer_cast<VirtualReg>(def);
+					if (!r->isForStaticString()) {
+						i->setDefReg(getTempReg(r, f));
+						varDef[f].insert(std::static_pointer_cast<VirtualReg>(r));
+					}
 				}
 			}
 		}

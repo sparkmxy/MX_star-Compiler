@@ -164,7 +164,7 @@ private:
 
 	template <class TermParser>
 	std::shared_ptr<Expression> expressionHelper(TermParser term,
-		const std::unordered_map<Tag, BinaryExpr::Operator> &ops) {
+		const std::map<Tag, BinaryExpr::Operator> &ops) {
 		auto st = (*cur)->pos().first;
 		auto ret = term();
 		if (ret == nullptr) return nullptr;

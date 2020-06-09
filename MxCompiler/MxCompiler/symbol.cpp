@@ -14,7 +14,7 @@ symbolTypeOfNode(Type *node, std::shared_ptr<GlobalScope> globalScope) {
 
 bool isLeagalName(const std::string & id)
 {
-	static std::unordered_set<std::string> ignore = { "__bootstrap" };
+	static std::set<std::string> ignore = { "__bootstrap" };
 	return ignore.find(id) != ignore.end() || id[0] != '_';
 }
 

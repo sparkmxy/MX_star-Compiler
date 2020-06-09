@@ -32,13 +32,13 @@ private:
 	void visit(Immediate *i) override;
 
 	
-	std::unordered_map<std::string, int> nameCounter;
+	std::map<std::string, int> nameCounter;
 
-	std::unordered_map<Register *, std::string> nameForReg;
+	std::map<Register *, std::string> nameForReg;
 	std::string getName(Register *reg);
 	std::string newRegName(Register *reg);
 
-	std::unordered_map<BasicBlock *, std::string> label;
+	std::map<BasicBlock *, std::string> label;
 	std::string getLabel(BasicBlock *block);
 	std::string newLabel(BasicBlock *block);
 };

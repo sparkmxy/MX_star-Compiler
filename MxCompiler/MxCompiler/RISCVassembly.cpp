@@ -68,9 +68,9 @@ void RISCVProgram::resetPrecoloredRegs()
 	}
 }
 
-std::unordered_set<std::shared_ptr<PhysicalRegister>> RISCVProgram::getAllocatableRegs()
+std::set<std::shared_ptr<PhysicalRegister>> RISCVProgram::getAllocatableRegs()
 {
-	std::unordered_set<std::shared_ptr<PhysicalRegister>> ret;
+	std::set<std::shared_ptr<PhysicalRegister>> ret;
 	for (auto regName : RISCVConfig::allocatableRegNames)
 		ret.insert(physicalRegs[regName]);
 	return ret;
@@ -116,11 +116,11 @@ int RISCVFunction::stackLocationFromBottom(int size)
 void RISCVFunction::computePreOrderList()
 {
 	blocks.clear();
-	std::unordered_set<std::shared_ptr<RISCVBasicBlock> > visited;
+	std::set<std::shared_ptr<RISCVBasicBlock> > visited;
 	DFS(entry, visited);
 }
 
-void RISCVFunction::DFS(std::shared_ptr<RISCVBasicBlock> b, std::unordered_set<std::shared_ptr<RISCVBasicBlock>> &visited)
+void RISCVFunction::DFS(std::shared_ptr<RISCVBasicBlock> b, std::set<std::shared_ptr<RISCVBasicBlock>> &visited)
 {
 	if (visited.find(b) != visited.end()) return;
 	blocks.push_back(b);

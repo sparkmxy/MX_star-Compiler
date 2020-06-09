@@ -9,7 +9,7 @@ void IR_Interpreter::run()
 }
 
 
-int IR_Interpreter::getRegVal(const std::string & name, std::unordered_map<std::string, int>& local)
+int IR_Interpreter::getRegVal(const std::string & name, std::map<std::string, int>& local)
 {
 	if(name[0] == '#'){ // immediate
 		std::stringstream ss(name.substr(1, name.length() - 1));
@@ -22,7 +22,7 @@ int IR_Interpreter::getRegVal(const std::string & name, std::unordered_map<std::
 	return M.getRegValue(name);
 }
 
-void IR_Interpreter::setRegVal(const std::string & name, std::unordered_map<std::string, int>& local, int v)
+void IR_Interpreter::setRegVal(const std::string & name, std::map<std::string, int>& local, int v)
 {
 	auto it = local.find(name);
 	if (it != local.end()) it->second = v;
@@ -193,7 +193,7 @@ int IR_Interpreter::executeFunction(std::shared_ptr<VMFunction> f, std::vector<i
 	return 0;
 }
 
-void IR_Interpreter::executeInstruction(std::shared_ptr<VMInstruction> inst, std::unordered_map<std::string, int> &localRegs)
+void IR_Interpreter::executeInstruction(std::shared_ptr<VMInstruction> inst, std::map<std::string, int> &localRegs)
 {
 #ifdef SHOW_LOG
 	std::clog << inst->toString() << '\n';
@@ -257,7 +257,7 @@ void IR_Interpreter::executeInstruction(std::shared_ptr<VMInstruction> inst, std
 	else throw Error("What the fuck are you doing here!");
 }
 
-int IR_Interpreter::getPhiVal(std::vector<std::string>& V, std::unordered_map<std::string,int> &local)
+int IR_Interpreter::getPhiVal(std::vector<std::string>& V, std::map<std::string,int> &local)
 {
 	for (int i = 0; i < V.size(); i += 2) {
 		if (V[i + 1] == lastBlockName.top())

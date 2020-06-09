@@ -36,14 +36,14 @@ private:
 	void updateReachingDef
 	(std::shared_ptr<VirtualReg> v, std::shared_ptr<IRInstruction> i, std::shared_ptr<Function> f);
 
-	std::unordered_set<std::shared_ptr<BasicBlock> >
+	std::set<std::shared_ptr<BasicBlock> >
 		computeIteratedDF(const std::vector<std::shared_ptr<BasicBlock> > &S);
 
 	void visit(std::shared_ptr<BasicBlock> y, const std::shared_ptr<BasicBlock> &current_x,
-		std::unordered_set<std::shared_ptr<BasicBlock> > &DFplus);
+		std::set<std::shared_ptr<BasicBlock> > &DFplus);
 	void insertNode(std::shared_ptr<BasicBlock> x);
 
-	std::unordered_set<std::shared_ptr<BasicBlock>> visited, onceInQueue;
+	std::set<std::shared_ptr<BasicBlock>> visited, onceInQueue;
 	std::priority_queue<std::shared_ptr<BasicBlock>,
 		std::vector<std::shared_ptr<BasicBlock> >, CompareByDepth> workQueue;
 };

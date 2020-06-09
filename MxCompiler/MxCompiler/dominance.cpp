@@ -29,7 +29,7 @@ void DominatorTree::workOutIdoms()
 		auto x = idfn[i];
 		auto &from_blocks = x->getBlocksFrom();
 		for (auto &y : from_blocks) {
-			if (y->getBlocksFrom().empty()) continue;  // non-reachable
+			if (visited.find(y) == visited.end()) continue;  // non-reachable
 			int j = y->getDTInfo().dfn;
 			find(j);
 			auto z = idfn[val[j]]->getDTInfo().sdom;
@@ -63,7 +63,7 @@ void DominatorTree::buildDJGraph(std::shared_ptr<BasicBlock> x)
 	f->appendBlocktoList(x);
 	auto Dedges = x->getDTInfo().DEdges;
 	for (auto &y : Dedges) buildDJGraph(y);
-	x->getDTInfo().dt_dfn_r = dfs_clock;
+	x->getDTInfo().dt_dfn_r = dfs_clock - 1;
 
 	// find out J-edges
 	auto &edges = x->getBlocksTo();

@@ -2,6 +2,8 @@
 
 IR::IR()
 {
+	_isSSA = false;
+
 	auto intType = std::make_shared<BuiltinType>(BuiltinType::INT);
 	auto stringType = std::make_shared<BuiltinType>(BuiltinType::STRING);
 	auto boolType = std::make_shared<BuiltinType>(BuiltinType::BOOL);
@@ -50,6 +52,7 @@ void IR::addFunction(std::shared_ptr<Function> func)
 void IR::addStringConst(std::shared_ptr<StaticString> str)
 {
 	stringConstants.push_back(str);
+	reg2str[str->getReg()] = str;
 }
 
 std::shared_ptr<Function> IR::newBuiltInFunc(const std::string & name, std::shared_ptr<Type> retType)

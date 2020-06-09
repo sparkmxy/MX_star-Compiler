@@ -204,6 +204,12 @@
     <ClInclude Include="globalvarResolver.h">
       <Filter>头文件\IR</Filter>
     </ClInclude>
+    <ClInclude Include="functionInliner.h">
+      <Filter>头文件\IR</Filter>
+    </ClInclude>
+    <ClInclude Include="CSE.h">
+      <Filter>头文件\backend\optimize</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="lexer.cpp">
@@ -309,6 +315,12 @@
       <Filter>源文件\backend\codegen</Filter>
     </ClCompile>
     <ClCompile Include="globalvarResolver.cpp">
+      <Filter>源文件\IR</Filter>
+    </ClCompile>
+    <ClCompile Include="CSE.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="functionInliner.cpp">
       <Filter>源文件\IR</Filter>
     </ClCompile>
   </ItemGroup>

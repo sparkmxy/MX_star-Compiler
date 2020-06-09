@@ -341,7 +341,7 @@ void InstructionSelector::resolveItype(Quadruple * q)
 
 bool InstructionSelector::isRtype(std::shared_ptr<Operand> lhs, Quadruple::Operator op, std::shared_ptr<Operand> rhs)
 {
-	static const std::unordered_set<Quadruple::Operator> ops = 
+	static const std::set<Quadruple::Operator> ops = 
 	{ Quadruple::MOD, Quadruple::MINUS, Quadruple::TIMES, Quadruple::DIVIDE };
 	if (ops.find(op) != ops.end()) return true;
 	if (Operand::isRegister(lhs->category()) && Operand::isRegister(rhs->category())) return true;
@@ -353,11 +353,14 @@ bool InstructionSelector::isRtype(std::shared_ptr<Operand> lhs, Quadruple::Opera
 std::shared_ptr<Register> InstructionSelector::toRegister(std::shared_ptr<Operand> x)
 {
 	auto c = x->category();
-	if (Operand::isRegister(c)) return std::static_pointer_cast<Register>(x);
-	if (c == Operand::STATICSTR) {
-		auto reg = std::make_shared<VirtualReg>();
-		currentBlock->append(std::make_shared<LoadAddr>(currentBlock, 
-			reg,std::static_pointer_cast<StaticString>(x)));
+	if (Operand::isRegister(c)){
+		auto reg = std::static_pointer_cast<Register>(x);
+		if (reg->isForStaticString()) {
+			auto new_reg = std::make_shared<VirtualReg>();
+			currentBlock->append(std::make_shared<LoadAddr>(currentBlock,
+				new_reg, ir->reg2str[reg]));
+			return new_reg;
+		}
 		return reg;
 	}
 	if (c == Operand::IMM) {
@@ -377,7 +380,7 @@ bool InstructionSelector::isInRange(std::shared_ptr<Immediate> i)
 
 Quadruple::Operator InstructionSelector::reverseOp(Quadruple::Operator op)
 {
-	static const std::unordered_map<Quadruple::Operator, Quadruple::Operator> pairs =
+	static const std::map<Quadruple::Operator, Quadruple::Operator> pairs =
 	{
 		{Quadruple::LESS,Quadruple::GREATER},
 		{Quadruple::LEQ,Quadruple::GEQ},

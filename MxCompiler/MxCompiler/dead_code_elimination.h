@@ -11,6 +11,5 @@ public:
 private:
 
 	void eliminate(std::shared_ptr<Function> f);
-	void resolveUseDefChain(std::shared_ptr<Function> f);
 
 };

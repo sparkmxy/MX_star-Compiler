@@ -42,7 +42,7 @@ public:
 	std::shared_ptr<DominatorTree> getDT() { return dt; }
 	void setDT(std::shared_ptr<DominatorTree> _dt) { dt = _dt; }
 	void append_var(std::shared_ptr<VirtualReg> reg) { vars.insert(reg); }
-	std::unordered_set<std::shared_ptr<VirtualReg> > &getVars() { return vars; }
+	std::set<std::shared_ptr<VirtualReg> > &getVars() { return vars; }
 
 	bool isVoid() { return _isVoid; }
 
@@ -62,5 +62,5 @@ private:
 	std::shared_ptr<DominatorTree> dt;
 	//return a list of block in this function module in DFS order on dominance tree;
 	std::vector<std::shared_ptr<BasicBlock> > blocks;
-	std::unordered_set<std::shared_ptr<VirtualReg> > vars;
+	std::set<std::shared_ptr<VirtualReg> > vars;
 };

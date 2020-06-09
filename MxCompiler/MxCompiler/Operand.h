@@ -13,7 +13,7 @@ class PhysicalRegister;
 This struct is for register allocation information
 */
 struct RAinfo {
-	// This might causes memory leak, remember to destruct these unordered_set
+	// This might causes memory leak, remember to destruct these set
 	std::set<std::shared_ptr<Register> > adjList;
 	std::set<std::shared_ptr<MoveAssembly> > moveList;
 	int degree;
@@ -58,7 +58,7 @@ it is just a temperory value in the register.
 class Register : public Operand {
 public:
 	Register(): global(false){}
-	Register(Category _tag, std::string _name) : name(_name),tag(_tag),global(false){
+	Register(Category _tag, std::string _name) : name(_name),tag(_tag),global(false), isForStaticStr(false){
 		if (!isRegister(_tag)) throw Error("creating illeagal register.");
 	}
 	std::string getName() { return name; }
@@ -68,11 +68,14 @@ public:
 	bool isGlobal() { return global; }
 	void markAsGlobal() { global = true; }
 
+	void markAsStaticString() { global = isForStaticStr = true; }
+	bool isForStaticString() { return isForStaticStr; }
+
 	RAinfo &info() { return raInfo; }
 
 	ACCEPT_CFG_VISITOR
 private:
-	bool global;
+	bool global, isForStaticStr;
 	std::string name;
 	Category tag;
 

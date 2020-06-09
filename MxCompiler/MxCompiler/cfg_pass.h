@@ -4,6 +4,7 @@
 #include "IR.h"
 #include "Function.h"
 #include "basicblock.h"
+#include "dominance.h"
 
 /*
 Class : CFG
@@ -19,11 +20,13 @@ protected:
 	std::shared_ptr<IR> ir;
 
 	// def-use chain
-	std::unordered_map<std::shared_ptr<Register>, std::shared_ptr<IRInstruction> > def;
-	std::unordered_map<std::shared_ptr<Register>, 
-		std::unordered_set<std::shared_ptr<IRInstruction> > > use;
+	std::map<std::shared_ptr<Register>, std::shared_ptr<IRInstruction> > def;
+	std::map<std::shared_ptr<Register>, 
+		std::set<std::shared_ptr<IRInstruction> > > use;
 
 	void resolveDefineUseChain(std::shared_ptr<Function> f);
+
+	void updateDTinfo(std::shared_ptr<Function> f = nullptr);
 private:
 };
 

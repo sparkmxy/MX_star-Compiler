@@ -53,8 +53,8 @@ public:
 	void setEntry(std::shared_ptr<VMBasicBlock> _entry) { entry = _entry; }
 	std::shared_ptr<VMBasicBlock> getEntry() { return entry; }
 
-	std::unordered_map<std::string, int> getArgMap(std::vector<int> V) {
-		std::unordered_map<std::string, int> ret;
+	std::map<std::string, int> getArgMap(std::vector<int> V) {
+		std::map<std::string, int> ret;
 		for (int i = 0; i < V.size(); i++) ret[args[i]] = V[i];
 		return ret;
 	}
@@ -64,7 +64,7 @@ public:
 private:
 	std::string name;
 	std::shared_ptr<VMBasicBlock> entry;
-	std::unordered_map<std::string, std::shared_ptr<VMBasicBlock> > blocks;
+	std::map<std::string, std::shared_ptr<VMBasicBlock> > blocks;
 	std::vector<std::string> args;
 };
 
@@ -96,5 +96,5 @@ private:
 	std::vector<Byte *> memPools;
 	int poolSize, used;
 
-	std::unordered_map<std::string, int> regs;  // registers
+	std::map<std::string, int> regs;  // registers
 };

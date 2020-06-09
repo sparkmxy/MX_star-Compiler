@@ -79,8 +79,8 @@ public:
 	const DT_Info &getDTInfo() const { return dtInfo; }
 	void clearDTInfo() { dtInfo.clear(); }
 
-	std::unordered_set<std::shared_ptr<BasicBlock> > &getBlocksTo() { return to; }
-	std::unordered_set<std::shared_ptr<BasicBlock> > &getBlocksFrom() { return from; }
+	std::set<std::shared_ptr<BasicBlock> > &getBlocksTo() { return to; }
+	std::set<std::shared_ptr<BasicBlock> > &getBlocksFrom() { return from; }
 
 	std::string toString() { return namesForBasicBlocks[tag]; }
 
@@ -96,7 +96,7 @@ private:
 	std::shared_ptr<IRInstruction> front;
 	std::weak_ptr<IRInstruction> back;
 	
-	std::unordered_set<std::shared_ptr<BasicBlock> > from, to;
+	std::set<std::shared_ptr<BasicBlock> > from, to;
 
 	bool endFlag;
 

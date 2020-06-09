@@ -23,7 +23,7 @@ private:
 	std::shared_ptr<Token> finish;
 	std::istream &is;
 	std::vector<std::shared_ptr<Token> > tokens;
-	std::unordered_map<std::string, std::shared_ptr<Token> >keywords;
+	std::map<std::string, std::shared_ptr<Token> >keywords;
 	int col, line;
 
 	std::vector<std::shared_ptr<Token> >  _getTokens();

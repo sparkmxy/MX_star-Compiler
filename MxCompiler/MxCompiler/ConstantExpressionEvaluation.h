@@ -18,7 +18,7 @@ private:
 	bool changed;
 
 	std::queue<std::shared_ptr<IRInstruction> > Q;
-	std::unordered_set<std::shared_ptr<IRInstruction> > inQ;
+	std::set<std::shared_ptr<IRInstruction> > inQ;
 
 	void constExprEval(std::shared_ptr<Function> f);
 	void optimizeBinaryExpr(std::shared_ptr<Quadruple> q);
@@ -29,5 +29,9 @@ private:
 
 	void copyPropagate(std::shared_ptr<IRInstruction> i,
 		std::shared_ptr<Register> old, std::shared_ptr<Register> _new);
+
+	bool isForStaticString(std::shared_ptr<Operand> x);
+
+	std::shared_ptr<Operand> getResultWithZero(std::shared_ptr<Operand> x, Quadruple::Operator op);
 };
 

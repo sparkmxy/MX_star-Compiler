@@ -31,12 +31,22 @@ public:
 		return n.length() > 7 && n.substr(0, 7) == "string.";
 	}
 
+	void setSSAflag(bool b) { _isSSA = b; }
+
+	bool isSSA() { return _isSSA; }
+
+	std::map<std::shared_ptr<Register>, std::shared_ptr<StaticString> > reg2str;
+
 	ACCEPT_CFG_VISITOR
 
 private:
+	bool _isSSA;
+
 	std::vector<std::shared_ptr<Register> > glbVars;
 	std::vector<std::shared_ptr<Function> > functions, builtInFunctions;
 	std::vector<std::shared_ptr<StaticString> > stringConstants;
+
+
 	
 	std::shared_ptr<Function> 
 		newBuiltInFunc(const std::string &name, std::shared_ptr<Type> retType = nullptr);

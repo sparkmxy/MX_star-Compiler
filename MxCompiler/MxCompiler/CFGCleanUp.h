@@ -12,4 +12,9 @@ public:
 
 	bool run() override;
 private:
+
+	bool changed;
+
+	void omitTrivialBlocks(std::shared_ptr<Function> f);
+	void rewriteTrivialBranches(std::shared_ptr<Function> f);
 };

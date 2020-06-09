@@ -27,19 +27,19 @@ private:
 
 	std::shared_ptr<RISCVProgram> program;
 
-	std::unordered_set<std::shared_ptr<Register> > preColored, initial, 
+	std::set<std::shared_ptr<Register> > preColored, initial, 
 		simplifySet, freezeSet, spillSet,
 		spilled, coalesced, colored;
 	
-	std::unordered_set<std::shared_ptr<MoveAssembly> >
+	std::set<std::shared_ptr<MoveAssembly> >
 		coalescedMoves, constrainedMoves, frozenMoves, activeMoves, moveSet;
 
-	std::unordered_map<std::shared_ptr<RISCVBasicBlock>,
+	std::map<std::shared_ptr<RISCVBasicBlock>,
 		std::set<std::shared_ptr<Register> > > livein, liveout, def, use;
 
 	// spill
-	std::unordered_map<std::shared_ptr<Register>, bool> isForSpill;
-	std::unordered_map<std::shared_ptr<Register>, int> spillPriority;
+	std::map<std::shared_ptr<Register>, bool> isForSpill;
+	std::map<std::shared_ptr<Register>, int> spillPriority;
 
 	std::vector<std::shared_ptr<Register> > selectStack;
 

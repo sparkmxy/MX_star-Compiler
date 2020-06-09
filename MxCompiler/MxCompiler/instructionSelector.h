@@ -21,16 +21,16 @@ private:
 	std::shared_ptr<IR> ir;
 	std::shared_ptr<RISCVProgram> P;
 
-	std::unordered_map<Function *, std::shared_ptr<RISCVFunction> > irFunc2RISCV;
-	std::unordered_map<BasicBlock *, std::shared_ptr<RISCVBasicBlock> > irBlock2RISCV;
+	std::map<Function *, std::shared_ptr<RISCVFunction> > irFunc2RISCV;
+	std::map<BasicBlock *, std::shared_ptr<RISCVBasicBlock> > irBlock2RISCV;
 
 	std::shared_ptr<RISCVBasicBlock> currentBlock;
 	std::shared_ptr<RISCVFunction> currentFunction;
 
-	std::unordered_map<std::string, int> labelCnt;
+	std::map<std::string, int> labelCnt;
 	std::string getLabel(const std::string &label);
 
-	std::unordered_map<std::string, std::shared_ptr<VirtualReg> > calleeSaveRegbuckup;
+	std::map<std::string, std::shared_ptr<VirtualReg> > calleeSaveRegbuckup;
 
 	// override functons 
 	void visit(IR *ir) override;

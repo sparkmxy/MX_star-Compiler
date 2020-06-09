@@ -4,6 +4,7 @@
 #include "SSADestructor.h"
 #include "dead_code_elimination.h"
 #include "ConstantExpressionEvaluation.h"
+#include "CFGCleanUp.h"
 
 /*
 Class : Optimizer

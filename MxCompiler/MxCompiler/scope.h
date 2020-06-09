@@ -27,7 +27,7 @@ public:
 	virtual std::shared_ptr<Symbol> resolve(const std::string &id) = 0;
 
 protected:
-	std::unordered_map<std::string, std::shared_ptr<Symbol> > symbols;
+	std::map<std::string, std::shared_ptr<Symbol> > symbols;
 	std::string name;
 	std::shared_ptr<Scope> enclosingScope;
 };
@@ -61,7 +61,7 @@ public:
 	// Other Functions
 	std::shared_ptr<SymbolType> resolveType(const std::string &name);
 private:
-	std::unordered_map<std::string, std::shared_ptr<SymbolType> > types;
+	std::map<std::string, std::shared_ptr<SymbolType> > types;
 	std::shared_ptr<BuiltInTypeSymbol> intSymbol, boolSymbol, voidSymbol;
 	std::shared_ptr<ClassSymbol> stringSymbol;
 	std::shared_ptr<FunctionSymbol> arraySizeFuncSymbol;

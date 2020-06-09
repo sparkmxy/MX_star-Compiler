@@ -17,12 +17,12 @@ private:
 	std::ostream &os;
 	MemoryManager M;
 
-	std::unordered_map<std::string, std::shared_ptr<VMFunction> > functions;
+	std::map<std::string, std::shared_ptr<VMFunction> > functions;
 	std::vector<std::string> globalVars;
 
 	// The "register" could be a immediate
-	int getRegVal(const std::string &name, std::unordered_map<std::string, int> &local);
-	void setRegVal(const std::string &name, std::unordered_map<std::string, int> &local, int v);
+	int getRegVal(const std::string &name, std::map<std::string, int> &local);
+	void setRegVal(const std::string &name, std::map<std::string, int> &local, int v);
 
 	void parse();
 	void parseFunction();
@@ -34,7 +34,7 @@ private:
 	
 	// return whether need to jump to some other block
 	void executeInstruction(std::shared_ptr<VMInstruction> inst, 
-		std::unordered_map<std::string, int> &args);
+		std::map<std::string, int> &args);
 
 	char nextchar() {
 		char ch = is.get();
@@ -44,7 +44,7 @@ private:
 	}
 
 	std::stack<std::string> lastBlockName, curblockName;
-	int getPhiVal(std::vector<std::string> &V, std::unordered_map<std::string, int> &local);
+	int getPhiVal(std::vector<std::string> &V, std::map<std::string, int> &local);
 	// builtin function
 public:
 	using Args = const std::vector<int> &;
@@ -75,7 +75,7 @@ private: // helper functions
 	int storeString(std::string str);
 };
 
-static const std::unordered_map<std::string, std::function<int(IR_Interpreter &, IR_Interpreter::Args)> > name2Func = {
+static const std::map<std::string, std::function<int(IR_Interpreter &, IR_Interpreter::Args)> > name2Func = {
 	{"print", &IR_Interpreter::print}, 
 	{"println",&IR_Interpreter::println},
 	{"string.length", &IR_Interpreter::string_length},

@@ -28,8 +28,8 @@ private:
 	std::shared_ptr<Function> f;
 
 	void DFS(std::shared_ptr<BasicBlock> x, std::shared_ptr<BasicBlock> father = nullptr, int dep = 0);
-	std::unordered_set<std::shared_ptr<BasicBlock> > visited;
-	std::unordered_map<std::shared_ptr<BasicBlock>, std::vector<std::shared_ptr<BasicBlock> > > sdomEqcls;
+	std::set<std::shared_ptr<BasicBlock> > visited;
+	std::map<std::shared_ptr<BasicBlock>, std::vector<std::shared_ptr<BasicBlock> > > sdomEqcls;
 	std::vector<std::shared_ptr<BasicBlock> > idfn, fa;
 	int dfs_clock;
 	void workOutIdoms();
