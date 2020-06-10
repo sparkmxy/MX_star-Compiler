@@ -3,9 +3,10 @@
 #include "pch.h"
 #include "IRinstruction.h"
 #include "cfg_visitor.h"
+#include "basicblock.h"
 
-class BasicBlock;
 class DominatorTree;
+
 /*
 Class: Function
 The main component of a function module is its control flow graph. 
@@ -18,8 +19,12 @@ public:
 		_isVoid = (retType == nullptr);
 	}
 
+	~Function();
+
+	// the list of return instructions are used in IR_Generator and GlobalVarResolver
 	void appendReturnInstr(std::shared_ptr<Return> ret);
 	std::vector<std::shared_ptr<Return> > &getReturnIntrs() { return retInstrs; }
+	void collectReturns();
 
 	void appendArg(std::shared_ptr<Register> arg);
 	std::vector<std::shared_ptr<Register> > &getArgs() { return args; }
@@ -41,6 +46,7 @@ public:
 
 	std::shared_ptr<DominatorTree> getDT() { return dt; }
 	void setDT(std::shared_ptr<DominatorTree> _dt) { dt = _dt; }
+
 	void append_var(std::shared_ptr<VirtualReg> reg) { vars.insert(reg); }
 	std::set<std::shared_ptr<VirtualReg> > &getVars() { return vars; }
 

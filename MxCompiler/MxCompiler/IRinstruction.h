@@ -17,6 +17,9 @@ next and previous one.
 */
 class IRInstruction {
 public:
+	using BasicBlockMap = const std::map<std::shared_ptr<BasicBlock>, std::shared_ptr<BasicBlock> > &;
+	using OperandMap = const std::map<std::shared_ptr<Operand>, std::shared_ptr<Operand> > &;
+
 	enum InstrTag
 	{
 		QUADR, 
@@ -35,6 +38,8 @@ public:
 
 
 	std::shared_ptr<BasicBlock> getBlock() { return residingBlock.lock(); }
+	void setBlock(std::weak_ptr<BasicBlock> b) { residingBlock = b; }
+
 
 	std::shared_ptr<IRInstruction> getNextInstr() { return next;}
 	void setNextInstr(const std::shared_ptr<IRInstruction> &_next) { next = _next; }
@@ -57,6 +62,11 @@ public:
 	virtual void accept(CFG_Visitor &vis) = 0;
 
 	virtual void replaceUseReg(std::shared_ptr<Operand> old, std::shared_ptr<Operand> _new) {}
+
+	// for inlining
+	virtual std::shared_ptr<IRInstruction>  makeShadow(BasicBlockMap blockMap, OperandMap operandMap) {
+		throw Error("do you like that, hah?");
+	}
 	
 protected:
 	std::weak_ptr<BasicBlock> residingBlock;
@@ -64,6 +74,10 @@ protected:
 	std::shared_ptr<IRInstruction> next;
 	std::weak_ptr<IRInstruction> prev;  // use weak_ptr to prevent reference cycle
 	InstrTag tag;
+
+	// helper functions for inlining
+	std::shared_ptr<Operand> getOrDefault(OperandMap mp, std::shared_ptr<Operand> op);
+	std::shared_ptr<BasicBlock> getOrDefault(BasicBlockMap mp, std::weak_ptr<BasicBlock> b);
 };
 
 /*
@@ -116,6 +130,9 @@ public:
 	std::shared_ptr<Register> getDefReg() override;
 	void setDefReg(std::shared_ptr<Register> _defReg) override;
 
+	std::shared_ptr<IRInstruction>  makeShadow(BasicBlockMap blockMap, OperandMap operandMap) override;
+;
+
 	ACCEPT_CFG_VISITOR
 private:
 	std::shared_ptr<Operand> dst, src1, src2;
@@ -150,6 +167,8 @@ public:
 	void updateUseRegs()override;
 
 	void replaceUseReg(std::shared_ptr<Operand> old, std::shared_ptr<Operand> _new) override;
+
+	std::shared_ptr<IRInstruction>  makeShadow(BasicBlockMap blockMap, OperandMap operandMap) override;
 
 	ACCEPT_CFG_VISITOR
 private:
@@ -189,6 +208,8 @@ public:
 
 	void replaceUseReg(std::shared_ptr<Operand> old, std::shared_ptr<Operand> _new) override;
 
+	std::shared_ptr<IRInstruction>  makeShadow(BasicBlockMap blockMap, OperandMap operandMap) override;
+
 	ACCEPT_CFG_VISITOR
 private:
 	std::shared_ptr<Function> func;
@@ -224,6 +245,8 @@ public:
 
 	void replaceUseReg(std::shared_ptr<Operand> old, std::shared_ptr<Operand> _new) override;
 
+	std::shared_ptr<IRInstruction>  makeShadow(BasicBlockMap blockMap, OperandMap operandMap) override;
+
 	ACCEPT_CFG_VISITOR
 private:
 	std::shared_ptr<Operand> size, ptr;
@@ -244,6 +267,9 @@ public:
 	void updateUseRegs()override;
 
 	void replaceUseReg(std::shared_ptr<Operand> old, std::shared_ptr<Operand> _new) override;
+
+	std::shared_ptr<IRInstruction>  makeShadow(BasicBlockMap blockMap, OperandMap operandMap) override;
+
 	ACCEPT_CFG_VISITOR
 private:
 	std::shared_ptr<Operand> value;
@@ -257,6 +283,8 @@ public:
 	std::shared_ptr<BasicBlock> getTarget() { return target.lock(); }
 	void setTarget(const std::weak_ptr<BasicBlock> &_target) { target = _target; }
 	// virtual functions by default
+
+	std::shared_ptr<IRInstruction>  makeShadow(BasicBlockMap blockMap, OperandMap operandMap) override;
 
 	ACCEPT_CFG_VISITOR
 private:
@@ -292,3 +320,4 @@ private:
 // Check if reg is a register and renew it if it is in the table
 void updateRegister(std::shared_ptr<Operand> &reg,
 	std::map<std::shared_ptr<Register>, std::shared_ptr<Register>>& table);
+

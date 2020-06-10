@@ -4,7 +4,6 @@
 #include "Operand.h"
 #include "RISCVOperand.h"
 
-
 class RISCVBasicBlock;
 class RISCVFunction;
 
@@ -17,8 +16,8 @@ public:
 		LOAD, STORE,
 		LI, LA
 	};
-	RISCVinstruction(std::weak_ptr<RISCVBasicBlock> b, Category _c)
-		:residingBlk(b), c(_c) {}
+	RISCVinstruction(std::weak_ptr<RISCVBasicBlock> b, Category _c);
+		
 
 	std::shared_ptr<RISCVBasicBlock> getBlock() { return residingBlk.lock(); }
 

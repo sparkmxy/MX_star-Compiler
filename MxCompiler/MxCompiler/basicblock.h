@@ -3,7 +3,8 @@
 #include "pch.h"
 #include "IRinstruction.h"
 #include "cfg_visitor.h"
-#include "Function.h"
+
+class Function;
 
 /*
 This struct hold the informations related to the dominance tree.
@@ -33,7 +34,7 @@ static const std::string namesForBasicBlocks[] = {
 	"if_true", "if_false", "if_final",
 	"true", "false", "final",
 	"lhs_true", "lhs_false",
-	"parallel_copy"
+	"parallel_copy", "shadow", "splitter"
 };
 
 class BasicBlock : public std::enable_shared_from_this<BasicBlock>{
@@ -46,7 +47,7 @@ public:
 		IF_TRUE, IF_FALSE, IF_FINAL,
 		TRUE, FALSE, FINAL,
 		LHS_TRUE, LHS_FALSE,
-		PARALLEL_COPY
+		PARALLEL_COPY, SHADOW, SPLITTER
 	};
 
 	BasicBlock(std::weak_ptr<Function> _func, Tag _tag)
@@ -63,7 +64,7 @@ public:
 	std::shared_ptr<IRInstruction> getFront() { return front; }
 	void setFront(std::shared_ptr<IRInstruction> i) { front = i; }
 
-	std::shared_ptr<IRInstruction> getBack() { return back.lock(); }
+	std::shared_ptr<IRInstruction> getBack() { return back; }
 	void setBack(std::shared_ptr<IRInstruction> i) { back = i; }
 
 	void append_from(std::shared_ptr<BasicBlock> block);
@@ -71,6 +72,8 @@ public:
 	void erase_from(std::shared_ptr<BasicBlock> block);
 	void erase_to(std::shared_ptr<BasicBlock> block);
 	void link_to_block(std::shared_ptr<BasicBlock> block);
+	void replaceBlockTo(std::shared_ptr<BasicBlock> b, std::shared_ptr<BasicBlock> new_block);
+
 	void endWith(std::shared_ptr<IRInstruction> instr);
 
 	bool ended() { return endFlag; }
@@ -94,7 +97,7 @@ private:
 	
 	// instructions form a list
 	std::shared_ptr<IRInstruction> front;
-	std::weak_ptr<IRInstruction> back;
+	std::shared_ptr<IRInstruction> back;
 	
 	std::set<std::shared_ptr<BasicBlock> > from, to;
 

@@ -85,7 +85,6 @@ void ConstantExpressionEvaluation::optimizeBinaryExpr(std::shared_ptr<Quadruple>
 		}
 		return;
 	}
-	changed = true;
 	int x = std::static_pointer_cast<Immediate>(q->getSrc1())->getValue();
 	int y = std::static_pointer_cast<Immediate>(q->getSrc2())->getValue();
 	int result;
@@ -94,8 +93,15 @@ void ConstantExpressionEvaluation::optimizeBinaryExpr(std::shared_ptr<Quadruple>
 	case Quadruple::ADD: result = x + y; break;
 	case Quadruple::MINUS: result = x - y; break;
 	case Quadruple::TIMES: result = x * y; break;
-	case Quadruple::DIVIDE: result = x / y; break;
-	case Quadruple::MOD: result = x % y; break;
+	case Quadruple::DIVIDE: {
+		if (y == 0) return;
+		result = x / y; 
+		break;
+	}
+	case Quadruple::MOD: {
+		if (y == 0) return;
+		result = x % y; 
+	}
 	case Quadruple::LSHIFT: result = x << y; break;
 	case Quadruple::RSHIFT: result = x >> y; break;
 	case Quadruple::BITAND: result = x & y; break;
@@ -110,6 +116,7 @@ void ConstantExpressionEvaluation::optimizeBinaryExpr(std::shared_ptr<Quadruple>
 	default:
 		break;
 	}
+	changed = true;
 	auto move = std::make_shared<Quadruple>(q->getBlock(), Quadruple::MOVE, q->getDst(),
 		std::make_shared<Immediate>(result));
 	replaceInstruction(q, move);

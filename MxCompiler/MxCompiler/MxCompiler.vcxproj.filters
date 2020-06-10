@@ -266,9 +266,6 @@
     <ClCompile Include="Optimizer.cpp">
       <Filter>源文件\backend\optimize</Filter>
     </ClCompile>
-    <ClCompile Include="cfg_pass.cpp">
-      <Filter>源文件\backend</Filter>
-    </ClCompile>
     <ClCompile Include="IRinstruction.cpp">
       <Filter>源文件\IR</Filter>
     </ClCompile>
@@ -321,6 +318,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="functionInliner.cpp">
+      <Filter>源文件\IR</Filter>
+    </ClCompile>
+    <ClCompile Include="cfg_pass.cpp">
       <Filter>源文件\IR</Filter>
     </ClCompile>
   </ItemGroup>

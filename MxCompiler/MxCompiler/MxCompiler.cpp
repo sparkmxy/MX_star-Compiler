@@ -2,14 +2,19 @@
 
 //#define SHOW_TOKENS
 
-void MxCompiler::compile()
+void MxCompiler::compile(bool opt)
 {
 	getCode();
 	parse();
 	buildAST();
 	semanticCheck();
 	generateIR();
-	optimize();
+	if(opt) optimize();
+
+	std::ofstream fout("ir.mxx");
+	printIR(fout);
+	fout.close();
+
 	codegen();
 }
 
@@ -85,10 +90,6 @@ void MxCompiler::optimize()
 	opt = std::make_shared<Optimizer>(ir);
 	opt->optimize();
 	// std::make_shared<IR_Printer>(ir, std::cout)->print();
-
-	std::ofstream fout("ir.mxx");
-	printIR(fout);
-	fout.close();
 }
 
 void MxCompiler::codegen()

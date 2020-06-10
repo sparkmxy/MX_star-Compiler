@@ -18,10 +18,9 @@ class MxCompiler {
 public:
 	MxCompiler(std::string _fileName):fileName(_fileName){}
 	
-	void compile();
+	void compile(bool opt = true);
 	void semantic();
 	void printIR(std::ostream &os = std::cerr);
-	void emitCode(std::ostream &os = std::cerr);
 
 private:
 	void semanticCheck();

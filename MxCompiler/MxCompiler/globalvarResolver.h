@@ -5,19 +5,16 @@
 #include "Operand.h"
 #include "basicblock.h"
 #include "Function.h"
+#include "cfg_pass.h"
 #include <set>
 
-class GlobalVarResolver {
+class GlobalVarResolver :public CFG_Pass{
 public:
-	GlobalVarResolver(std::shared_ptr<IR> _ir) :ir(_ir) {}
+	GlobalVarResolver(std::shared_ptr<IR> _ir) :CFG_Pass(_ir) {}
 
-	void run();
+	bool run() override;
 
 private:
-	std::shared_ptr<IR> ir;
-
-	std::map<std::shared_ptr<Function>, std::set<std::shared_ptr<Function> > >
-		calleeSet, recursiveCalleeSet;
 
 
 	std::map<std::shared_ptr<Function>, std::set<std::shared_ptr<VirtualReg> > > 
@@ -31,7 +28,7 @@ private:
 	void storeWhenExiting();
 	void resolveCallInstr();
 
-	void computeRecursiveCalleeSet();
+
 	// helper functions
 	std::shared_ptr<VirtualReg> getTempReg(std::shared_ptr<VirtualReg> reg, std::shared_ptr<Function> f);
 };

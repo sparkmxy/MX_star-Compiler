@@ -12,20 +12,24 @@ a method <isDominating> to judge whether tow blocks have dominance relation.
 */
 class DominatorTree {
 public:
-	DominatorTree(std::shared_ptr<Function> _f) :f(_f) {
-		dfs_clock = 0;
-		DFS(f->getEntry());
-		union_find_init(dfs_clock + 1);
-		workOutIdoms();
+	DominatorTree(std::shared_ptr<Function> _f, bool _DFSonly = false) :f(_f.get()), DFSOnly(_DFSonly){
 		dfs_clock = 0;
 		f->getBlockList().clear();
-		buildDJGraph(f->getEntry());
+		DFS(f->getEntry());
+		if (!DFSOnly) {
+			union_find_init(dfs_clock + 1);
+			workOutIdoms();
+			dfs_clock = 0;
+			buildDJGraph(f->getEntry());
+		}
 	}
 
 	bool isDominating(std::shared_ptr<BasicBlock> x, std::shared_ptr<BasicBlock> y);
 	bool isStrictlyDominating(std::shared_ptr<BasicBlock> x, std::shared_ptr<BasicBlock> y);
 private:
-	std::shared_ptr<Function> f;
+	Function *f;
+
+	bool DFSOnly;
 
 	void DFS(std::shared_ptr<BasicBlock> x, std::shared_ptr<BasicBlock> father = nullptr, int dep = 0);
 	std::set<std::shared_ptr<BasicBlock> > visited;

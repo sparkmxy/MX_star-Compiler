@@ -39,6 +39,12 @@ void Quadruple::setDefReg(std::shared_ptr<Register> _defReg)
 	if (op != STORE) dst = _defReg;
 }
 
+std::shared_ptr<IRInstruction> Quadruple::makeShadow(BasicBlockMap blockMap, OperandMap operandMap)
+{
+	return std::make_shared<Quadruple>(getOrDefault(blockMap, residingBlock), op,
+		getOrDefault(operandMap, dst), getOrDefault(operandMap, src1), getOrDefault(operandMap, src2));
+}
+
 void Branch::renameUseRegs(std::map<std::shared_ptr<Register>, std::shared_ptr<Register>>& table)
 {
 	updateRegister(condition, table);
@@ -56,6 +62,12 @@ void Branch::replaceUseReg(std::shared_ptr<Operand> old, std::shared_ptr<Operand
 {
 	if(condition == old) condition = _new;
 	updateUseRegs();
+}
+
+std::shared_ptr<IRInstruction> Branch::makeShadow(BasicBlockMap blockMap, OperandMap operandMap)
+{
+	return std::make_shared<Branch>(getOrDefault(blockMap, residingBlock), getOrDefault(operandMap, condition),
+		getOrDefault(blockMap, trueBlock), getOrDefault(blockMap, falseBlock));
 }
 
 void Call::renameUseRegs(std::map<std::shared_ptr<Register>, std::shared_ptr<Register>>& table)
@@ -96,6 +108,16 @@ void Call::replaceUseReg(std::shared_ptr<Operand> old, std::shared_ptr<Operand> 
 	updateUseRegs();
 }
 
+std::shared_ptr<IRInstruction> Call::makeShadow(BasicBlockMap blockMap, OperandMap operandMap)
+{
+	auto shadow = std::make_shared<Call>(getOrDefault(blockMap, residingBlock), func, getOrDefault(operandMap, result));
+	shadow->object = (getOrDefault(operandMap, object));
+	for (auto arg : args) shadow->args.push_back(getOrDefault(operandMap,arg));
+	shadow->updateUseRegs();
+
+	return shadow;
+}
+
 void Return::renameUseRegs(std::map<std::shared_ptr<Register>, std::shared_ptr<Register>>& table)
 {
 	if (value != nullptr && Operand::isRegister(value->category()))
@@ -116,6 +138,11 @@ void Return::replaceUseReg(std::shared_ptr<Operand> old, std::shared_ptr<Operand
 	updateUseRegs();
 }
 
+std::shared_ptr<IRInstruction> Return::makeShadow(BasicBlockMap blockMap, OperandMap operandMap)
+{
+	return std::make_shared<Return>(getOrDefault(blockMap, residingBlock), getOrDefault(operandMap, value));
+}
+
 void Malloc::renameUseRegs(std::map<std::shared_ptr<Register>, std::shared_ptr<Register>>& table)
 {
 	updateRegister(size, table);
@@ -133,6 +160,12 @@ void Malloc::replaceUseReg(std::shared_ptr<Operand> old, std::shared_ptr<Operand
 {
 	if(size == old) size = _new;
 	updateUseRegs();
+}
+
+std::shared_ptr<IRInstruction> Malloc::makeShadow(BasicBlockMap blockMap, OperandMap operandMap)
+{
+	return std::make_shared<Malloc>(getOrDefault(blockMap, residingBlock),
+		getOrDefault(operandMap, size), getOrDefault(operandMap, ptr));
 }
 
 
@@ -175,3 +208,20 @@ void IRInstruction::replaceBy(std::shared_ptr<IRInstruction> i)
 	if(prev.lock() != nullptr) prev.lock()->next = i;
 }
 
+std::shared_ptr<Operand> IRInstruction::getOrDefault(OperandMap mp, std::shared_ptr<Operand> op)
+{
+	if (op == nullptr) return nullptr;
+	auto it = mp.find(op);
+	return it == mp.end() ? op : it->second;
+}
+
+std::shared_ptr<BasicBlock> IRInstruction::getOrDefault(BasicBlockMap mp, std::weak_ptr<BasicBlock> b)
+{
+	auto it = mp.find(b.lock());
+	return it == mp.end() ? b.lock() : it->second;
+}
+
+std::shared_ptr<IRInstruction> Jump::makeShadow(BasicBlockMap blockMap, OperandMap operandMap)
+{
+	return std::make_shared<Jump>(getOrDefault(blockMap, residingBlock), getOrDefault(blockMap, target));
+}

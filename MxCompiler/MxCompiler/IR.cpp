@@ -31,13 +31,6 @@ IR::IR()
 	printlnInt = newBuiltInFunc("printlnInt");
 }
 
-IR::~IR()
-{
-	for (auto &f : functions) {
-		auto blocks = f->getBlockList();
-		for (auto &b : blocks) b->destroyEdges();
-	}
-}
 
 void IR::addGlobalVar(std::shared_ptr<Register> var)
 {
@@ -53,6 +46,15 @@ void IR::addStringConst(std::shared_ptr<StaticString> str)
 {
 	stringConstants.push_back(str);
 	reg2str[str->getReg()] = str;
+}
+
+void IR::omitFunction(std::shared_ptr<Function> f)
+{
+	for(auto it = functions.begin(); it != functions.end(); it++)
+		if (*it == f) {
+			functions.erase(it);
+			break;
+		}
 }
 
 std::shared_ptr<Function> IR::newBuiltInFunc(const std::string & name, std::shared_ptr<Type> retType)

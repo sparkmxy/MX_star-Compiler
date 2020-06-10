@@ -23,8 +23,15 @@ protected:
 	std::map<std::shared_ptr<Register>, std::shared_ptr<IRInstruction> > def;
 	std::map<std::shared_ptr<Register>, 
 		std::set<std::shared_ptr<IRInstruction> > > use;
+	
+	// callee set
+	std::map<std::shared_ptr<Function>, std::set<std::shared_ptr<Function> > >
+		calleeSet, recursiveCalleeSet;
+
 
 	void resolveDefineUseChain(std::shared_ptr<Function> f);
+
+	void computeRecursiveCalleeSet();
 
 	void updateDTinfo(std::shared_ptr<Function> f = nullptr);
 private:

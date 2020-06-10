@@ -1,12 +1,13 @@
 #include "globalvarResolver.h"
 
-void GlobalVarResolver::run()
+bool GlobalVarResolver::run()
 {
 	prepare();
 
 	loadWhenEntering();
 	storeWhenExiting();
 	resolveCallInstr();
+	return true;
 }
 
 void GlobalVarResolver::prepare()
@@ -14,6 +15,7 @@ void GlobalVarResolver::prepare()
 	computeRecursiveCalleeSet();
 
 	for (auto &f : ir->getFunctions()) {
+		f->collectReturns();
 		for (auto &b : f->getBlockList()) {
 			for (auto i = b->getFront(); i != nullptr; i = i->getNextInstr()) {
 				auto uses = i->getUseRegs();
@@ -92,30 +94,6 @@ void GlobalVarResolver::resolveCallInstr()
 	}
 }
 
-void GlobalVarResolver::computeRecursiveCalleeSet()
-{
-	for (auto &f : ir->getFunctions())
-		for (auto &b : f->getBlockList())
-			for (auto i = b->getFront(); i != nullptr; i = i->getNextInstr())
-				if (i->getTag() == IRInstruction::CALL)
-					calleeSet[f].insert(std::static_pointer_cast<Call>(i)->getFunction());
-
-	bool changed;
-	do
-	{
-		changed = false;
-		for (auto &f : ir->getFunctions()) {
-			auto new_calleeSet = calleeSet[f];
-			for (auto callee : calleeSet[f])
-				for (auto ff : recursiveCalleeSet[callee]) new_calleeSet.insert(ff);
-			
-			if (new_calleeSet != recursiveCalleeSet[f]) {
-				recursiveCalleeSet[f] = new_calleeSet;
-				changed = true;
-			}
-		}
-	} while (changed);
-}
 
 std::shared_ptr<VirtualReg> GlobalVarResolver::getTempReg(std::shared_ptr<VirtualReg> reg, std::shared_ptr<Function> f)
 {

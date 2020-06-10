@@ -30,3 +30,31 @@ void CFG_Pass::updateDTinfo(std::shared_ptr<Function> f)
 	else
 		f->setDT(std::make_shared<DominatorTree>(f));
 }
+
+void CFG_Pass::computeRecursiveCalleeSet()
+{
+	calleeSet.clear();
+	recursiveCalleeSet.clear();
+
+	for (auto &f : ir->getFunctions())
+		for (auto &b : f->getBlockList())
+			for (auto i = b->getFront(); i != nullptr; i = i->getNextInstr())
+				if (i->getTag() == IRInstruction::CALL)
+					calleeSet[f].insert(std::static_pointer_cast<Call>(i)->getFunction());
+
+	bool changed;
+	do
+	{
+		changed = false;
+		for (auto &f : ir->getFunctions()) {
+			auto new_calleeSet = calleeSet[f];
+			for (auto callee : calleeSet[f])
+				for (auto ff : recursiveCalleeSet[callee]) new_calleeSet.insert(ff);
+
+			if (new_calleeSet != recursiveCalleeSet[f]) {
+				recursiveCalleeSet[f] = new_calleeSet;
+				changed = true;
+			}
+		}
+	} while (changed);
+}

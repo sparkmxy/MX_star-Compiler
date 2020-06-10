@@ -86,6 +86,7 @@ void SSAConstructor::renameVariables(std::shared_ptr<Function> func)
 			for (auto instr = block_to->getFront(); instr != nullptr; instr = instr->getNextInstr()) 
 				if (instr->getTag() == IRInstruction::PHI) {
 					auto var = std::static_pointer_cast<VirtualReg>(std::static_pointer_cast<PhiFunction>(instr)->getOrigin());
+					updateReachingDef(var, block->getBack(),func);
 					std::static_pointer_cast<PhiFunction>(instr)->appendRelatedReg(var->getReachingDef(), block);
 				}
 				else break;

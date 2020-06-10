@@ -1,6 +1,8 @@
 #include "registerAllocator.h"
 #include <cmath>
 
+extern int RISCVCNT;
+
 RegisterAllocator::~RegisterAllocator()
 {
 	for(auto f : program->getFunctions())
@@ -13,6 +15,7 @@ RegisterAllocator::~RegisterAllocator()
 
 void RegisterAllocator::run()
 {
+	std::cout << "number of RISCV instructions: " << RISCVCNT <<std::endl;
 	auto functions = program->getFunctions();
 	for (auto &function : functions) {
 		f = function;
@@ -64,9 +67,11 @@ void RegisterAllocator::init()
 
 void RegisterAllocator::buildInferenceGraph()
 {
+	int cnt = 0;
 	for (auto b : f->getBlockList()) {
 		auto live = liveout[b];
 		for (auto i = b->getBack(); i != nullptr; i = i->getPrevInstr()) { // reversely
+			cnt++;
 			if (i->category() == RISCVinstruction::MOV) {
 				for (auto reg : i->getUseReg()) live.erase(reg);
 				
@@ -78,10 +83,13 @@ void RegisterAllocator::buildInferenceGraph()
 
 			std::vector<std::shared_ptr<Register> > defs;
 			if (i->getDefReg() != nullptr) defs.push_back(i->getDefReg());
+
+			/*
 			if (i->category() == RISCVinstruction::CALL) {
 				for (auto regName : RISCVConfig::callerSaveRegNames)
 					defs.push_back((*program)[regName]);
 			}
+			*/
 
 			if (i->category() == RISCVinstruction::STORE) {
 				auto s = std::static_pointer_cast<Store>(i);
@@ -111,11 +119,12 @@ void RegisterAllocator::livenessAnalysis()
 				if (def[b].find(reg) == def[b].end()) use[b].insert(reg);
 
 			if (i->getDefReg() != nullptr) def[b].insert(i->getDefReg());
-
+			/*
 			if (i->category() == RISCVinstruction::CALL) {
 				for (auto regName : RISCVConfig::callerSaveRegNames)
 					def[b].insert((*program)[regName]);
 			}
+			*/
 		}
 	}
 

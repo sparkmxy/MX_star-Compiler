@@ -1,6 +1,8 @@
 #include "RISCVinstruction.h"
 
 
+int RISCVCNT = 0;
+
 const std::string B_type::op_to_string[] = {"beq", "bne", "ble", "bge", "blt", "bgt"};
 
 std::string B_type::toString()
@@ -222,4 +224,9 @@ void Store::updateDefReg(std::shared_ptr<Register> new_reg)
 std::string CallAssembly::toString()
 {
 	return "call\t"; // need to print function name
+}
+
+RISCVinstruction::RISCVinstruction(std::weak_ptr<RISCVBasicBlock> b, Category _c) :residingBlk(b), c(_c) {
+	
+	RISCVCNT++;
 }

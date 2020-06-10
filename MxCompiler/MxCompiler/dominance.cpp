@@ -10,6 +10,7 @@ bool DominatorTree::isDominating(std::shared_ptr<BasicBlock> x, std::shared_ptr<
 void DominatorTree::DFS(std::shared_ptr<BasicBlock> x, std::shared_ptr<BasicBlock> father, int dep)
 {
 	visited.insert(x);
+	if (DFSOnly) f->appendBlocktoList(x);
 	x->clearDTInfo();
 	x->getDTInfo().dfn = dfs_clock++;
 	x->getDTInfo().depth = dep;

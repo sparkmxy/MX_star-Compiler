@@ -74,6 +74,8 @@ void SSADestructor::sequentializeParalleCopy(std::shared_ptr<Function> f)
 			while (!Q.empty()) {
 				auto c = Q.front();
 				Q.pop();
+				if (c->src == c->dst) continue;
+
 				auto src = breakers.find(c->src) == breakers.end() ? c->src : new_reg;
 				b->append_before_back(std::make_shared<Quadruple>(b, Quadruple::MOVE, c->dst, src));
 				
@@ -84,11 +86,14 @@ void SSADestructor::sequentializeParalleCopy(std::shared_ptr<Function> f)
 			}
 			// break a cycle
 			if (!copies.empty()) {
-				auto &c = *copies.begin();
-				b->append_before_back(std::make_shared<Quadruple>(b, Quadruple::MOVE, new_reg, c->src));
-				breakers.insert(c->src);
-				if (--degree[c->src] == 0 && dstToCopy[c->src] != nullptr)
-					Q.push(dstToCopy[c->src]);
+				auto c = *copies.begin();
+				if (c->src != c->dst) {
+					b->append_before_back(std::make_shared<Quadruple>(b, Quadruple::MOVE, new_reg, c->src));
+					breakers.insert(c->src);
+					if (--degree[c->src] == 0 && dstToCopy[c->src] != nullptr)
+						Q.push(dstToCopy[c->src]);
+				}
+				else copies.erase(c);
 			}
 		}
 	}

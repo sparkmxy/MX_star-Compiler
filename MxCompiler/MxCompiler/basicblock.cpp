@@ -15,33 +15,42 @@ void BasicBlock::append_front(std::shared_ptr<IRInstruction> instr)
 
 void BasicBlock::append_back(std::shared_ptr<IRInstruction> instr)
 {
-	if (back.lock() == nullptr)
+	if (back == nullptr)
 		front = instr;
 	else {
-		back.lock()->setNextInstr(instr);
-		instr->setPreviousInstr(back.lock());
+		back->setNextInstr(instr);
+		instr->setPreviousInstr(back);
 	}
 	back = instr;
 }
 
 void BasicBlock::append_before_back(std::shared_ptr<IRInstruction> i)
 {
-	if (front == back.lock()) {
+	if (front == back) {
 		i->setNextInstr(front);
 		front = i;
 	}
 	else {
-		i->setNextInstr(back.lock());
-		i->setPreviousInstr(back.lock()->getPreviousInstr());
+		i->setNextInstr(back);
+		i->setPreviousInstr(back->getPreviousInstr());
 		i->getPreviousInstr()->setNextInstr(i);
 	}
-	back.lock()->setPreviousInstr(i);
+	back->setPreviousInstr(i);
 }
 
 void BasicBlock::remove_back()
 {
-	if (back.lock() == nullptr) return; //throw error?
-	auto newBack = back.lock()->getPreviousInstr();
+	if (back == nullptr) throw Error("poor mxy!");
+
+	endFlag = false;
+	if (back->getTag() == IRInstruction::JUMP) 
+		erase_to(std::static_pointer_cast<Jump>(back)->getTarget());
+	else if (back->getTag() == IRInstruction::BRANCH) {
+		erase_to(std::static_pointer_cast<Branch>(back)->getTrueBlock());
+		erase_to(std::static_pointer_cast<Branch>(back)->getFalseBlock());
+	}
+	// maintain the list
+	auto newBack = back->getPreviousInstr();
 	if (newBack == nullptr) {
 		front = nullptr;
 		back.reset();
@@ -79,6 +88,13 @@ void BasicBlock::link_to_block(std::shared_ptr<BasicBlock> block)
 	block->append_from(shared_from_this());
 }
 
+void BasicBlock::replaceBlockTo(std::shared_ptr<BasicBlock> b, std::shared_ptr<BasicBlock> new_block)
+{
+	if (to.find(b) == to.end()) throw Error("you are tiehanhan");
+	to.erase(b);
+	to.insert(new_block);
+}
+
 void BasicBlock::endWith(std::shared_ptr<IRInstruction> instr)
 {
 	auto tag = instr->getTag();
@@ -90,8 +106,6 @@ void BasicBlock::endWith(std::shared_ptr<IRInstruction> instr)
 	}
 	else if (tag == IRInstruction::JUMP)
 		link_to_block(std::static_pointer_cast<Jump>(instr)->getTarget());
-	else if (tag == IRInstruction::RET)
-		func.lock()->appendReturnInstr(std::static_pointer_cast<Return>(instr));
 	endFlag = true;
 }
 
@@ -112,7 +126,6 @@ void replaceInstruction(std::shared_ptr<IRInstruction> old, std::shared_ptr<IRIn
 void removeInstruction(std::shared_ptr<IRInstruction> i)
 {
 	auto b = i->getBlock();
-
 	if (b->getBack() == i) b->setBack(i->getPreviousInstr());
 	else i->getNextInstr()->setPreviousInstr(i->getPreviousInstr());
 

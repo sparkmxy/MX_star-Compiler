@@ -48,7 +48,7 @@ void Test::runWithInterpreter(std::string src)
 	MxCompiler compiler("test/" + src);
 	try
 	{
-		compiler.compile();
+		compiler.compile(optimize);
 	}
 	catch (Error & err)
 	{
@@ -57,8 +57,6 @@ void Test::runWithInterpreter(std::string src)
 		return;
 	}
 	std::cout << "COMPILE FINISHED\n";
-
-
 
 	std::ifstream fin("ir.mxx");
 	IR_Interpreter I(fin);
@@ -70,7 +68,7 @@ bool Test::compile(std::string src) {
 	MxCompiler compiler(src);
 	try
 	{
-		compiler.compile();
+		compiler.compile(optimize);
 	}
 	catch (Error & err)
 	{

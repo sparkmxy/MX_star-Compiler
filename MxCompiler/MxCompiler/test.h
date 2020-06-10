@@ -8,6 +8,8 @@
 
 class Test {
 public:
+	Test(bool opt) : optimize(opt) {}
+
 	void test1();
 	bool runTestCase(std::string src);
 	void runAndPrintIRCode(std::string src);
@@ -15,6 +17,7 @@ public:
 
 private:
 
+	bool optimize; 
 	bool compile(std::string src);
 
 	void drawRule(std::string str = "");

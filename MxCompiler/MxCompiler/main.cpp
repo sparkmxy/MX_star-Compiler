@@ -5,8 +5,8 @@
 
 int main() {
 	freopen("log.txt", "w", stderr);
-	Test test;
-	test.runWithInterpreter("codegen/e8.mx");
+	Test test(false);
+	test.runWithInterpreter("codegen/t55.mx");
 	system("pause");
 	return 0;
 }

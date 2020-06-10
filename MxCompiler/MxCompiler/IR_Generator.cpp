@@ -126,10 +126,13 @@ void IR_Generator::visit(FunctionDecl * node)   // Function module is linked to 
 	node->getBody()->accept(*this);
 
 	if (!currentBlock->ended()) {  // no return instruction
+		std::shared_ptr<Return> ret;
 		if (node->getRetType() == nullptr)
-			currentBlock->endWith(std::make_shared<Return>(currentBlock, nullptr));
+			ret = std::make_shared<Return>(currentBlock, nullptr);
 		else
-			currentBlock->endWith(std::make_shared<Return>(currentBlock, std::make_shared<Immediate>(0)));
+			ret = std::make_shared<Return>(currentBlock, std::make_shared<Immediate>(0));
+		currentBlock->endWith(ret);
+		currentFunction->appendReturnInstr(ret);
 	}
 	mergeReturnIntoExit(node, currentFunction);
 
@@ -177,7 +180,7 @@ void IR_Generator::visit(ForStmt * node)
 		bodyBlk : std::make_shared<BasicBlock>(currentFunction, BasicBlock::FOR_COND);
 	auto iterBlk = iter == nullptr ?
 		condBlk : std::make_shared<BasicBlock>(currentFunction, BasicBlock::FOR_ITER);
-	node->setStartBlk(condBlk);
+	node->setStartBlk(iterBlk);
 	node->setFinalBlk(finalBlk);
 	// Jump to condition if there is, or else jump to body.
 	currentBlock->endWith(std::make_shared<Jump>(currentBlock, condBlk));
@@ -260,13 +263,16 @@ void IR_Generator::visit(IfStmt * node)
 
 void IR_Generator::visit(ReturnStmt * node)
 {
+	std::shared_ptr<Return> ret;
 	if (node->getValue() == nullptr)
-		currentBlock->endWith(std::make_shared<Return>(currentBlock, nullptr));
+		ret = std::make_shared<Return>(currentBlock, nullptr);
 	else {
 		auto reg = std::make_shared<VirtualReg>();
 		assign(reg, node->getValue().get());
-		currentBlock->endWith(std::make_shared<Return>(currentBlock, reg));
+		ret = std::make_shared<Return>(currentBlock, reg);
 	}
+	currentBlock->endWith(ret);
+	currentFunction->appendReturnInstr(ret);
 }
 
 void IR_Generator::visit(ContinueStmt * node)
@@ -521,7 +527,7 @@ void IR_Generator::visit(MemberFuncCallExpr * node)
 		arg->accept(*this);
 		call->addArg(getValueReg(arg->getResultOprand()));
 	}
-	call->setObjRef(node->getInstance()->getResultOprand());
+	call->setObjRef(getValueReg(node->getInstance()->getResultOprand()));
 	currentBlock->append_back(call);
 	if (node->isControl())
 		currentBlock->endWith(std::make_shared<Branch>(
@@ -717,7 +723,7 @@ void IR_Generator::mergeReturnIntoExit(FunctionDecl *node, std::shared_ptr<Funct
 		auto new_ret = std::make_shared<Return>(exit, result);
 		exit->endWith(new_ret);
 		f->getReturnIntrs().clear();
-		f->getReturnIntrs().push_back(new_ret);   // remember renewing this!!
+		f->appendReturnInstr(new_ret);
 	}
 	else f->setExit(rets[0]->getBlock());
 }

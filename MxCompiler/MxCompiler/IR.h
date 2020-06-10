@@ -10,7 +10,6 @@
 class IR {
 public:
 	IR();
-	~IR();
 
 	void addGlobalVar(std::shared_ptr<Register> var);
 	void addFunction(std::shared_ptr<Function> func);
@@ -34,6 +33,8 @@ public:
 	void setSSAflag(bool b) { _isSSA = b; }
 
 	bool isSSA() { return _isSSA; }
+
+	void omitFunction(std::shared_ptr<Function> f);
 
 	std::map<std::shared_ptr<Register>, std::shared_ptr<StaticString> > reg2str;
 
