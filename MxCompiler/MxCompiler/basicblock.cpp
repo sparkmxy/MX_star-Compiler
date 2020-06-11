@@ -95,6 +95,13 @@ void BasicBlock::replaceBlockTo(std::shared_ptr<BasicBlock> b, std::shared_ptr<B
 	to.insert(new_block);
 }
 
+void BasicBlock::replaceBlockFrom(std::shared_ptr<BasicBlock> b, std::shared_ptr<BasicBlock> new_block)
+{
+	if (from.find(b) == from.end()) throw Error("you are a tiehanhan");
+	from.erase(b);
+	from.insert(new_block);
+}
+
 void BasicBlock::endWith(std::shared_ptr<IRInstruction> instr)
 {
 	auto tag = instr->getTag();

@@ -73,6 +73,7 @@ public:
 	void erase_to(std::shared_ptr<BasicBlock> block);
 	void link_to_block(std::shared_ptr<BasicBlock> block);
 	void replaceBlockTo(std::shared_ptr<BasicBlock> b, std::shared_ptr<BasicBlock> new_block);
+	void replaceBlockFrom(std::shared_ptr<BasicBlock> b, std::shared_ptr<BasicBlock> new_block);
 
 	void endWith(std::shared_ptr<IRInstruction> instr);
 

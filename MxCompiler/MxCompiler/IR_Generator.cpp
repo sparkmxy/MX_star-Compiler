@@ -631,7 +631,6 @@ void IR_Generator::newArray(NewExpr * node, std::shared_ptr<Operand> addrReg, in
 	sizeExpr->accept(*this);
 	auto N_reg = getValueReg(sizeExpr->getResultOprand());
 	auto size = std::make_shared<VirtualReg>();
-	auto size_of_int = std::make_shared<Immediate>(Configuration::SIZE_OF_INT);
 	auto size_of_ptr = std::make_shared<Immediate>(Configuration::SIZE_OF_PTR);
 
 	if (dimension == node->getDimensions().size() - 1) {	// the last dimension
@@ -642,8 +641,6 @@ void IR_Generator::newArray(NewExpr * node, std::shared_ptr<Operand> addrReg, in
 			: Configuration::SIZE_OF_PTR);
 		currentBlock->append_back(std::make_shared<Quadruple>(
 			currentBlock, Quadruple::TIMES, size, elemSize, N_reg));
-		currentBlock->append_back(std::make_shared<Quadruple>(
-			currentBlock, Quadruple::ADD, size, size, size_of_int));
 		// 2. Allocate memory.
 		allocateMemory(addrReg,size, N_reg);
 	}
@@ -651,8 +648,7 @@ void IR_Generator::newArray(NewExpr * node, std::shared_ptr<Operand> addrReg, in
 		//1. Allocate memory for pointers.
 		currentBlock->append_back(std::make_shared<Quadruple>(
 			currentBlock, Quadruple::TIMES, size, size_of_ptr, N_reg));
-		currentBlock->append_back(std::make_shared<Quadruple>(
-			currentBlock, Quadruple::ADD, size, size,size_of_int));
+
 		auto arrayAddr = allocateMemory(addrReg, size, N_reg);
 		//2.Use a for loop to allocate memory for each pointers in the array.
 		auto bodyBlk = std::make_shared<BasicBlock>(currentFunction, BasicBlock::FOR_BODY);
@@ -664,7 +660,8 @@ void IR_Generator::newArray(NewExpr * node, std::shared_ptr<Operand> addrReg, in
 
 		auto upperBound = std::make_shared<VirtualReg>();
 		currentBlock->append_back(std::make_shared<Quadruple>(
-			currentBlock, Quadruple::ADD, curAddr, arrayAddr,size_of_int));
+			currentBlock, Quadruple::MOVE, curAddr, arrayAddr));
+
 		currentBlock->append_back(std::make_shared<Quadruple>(
 			currentBlock, Quadruple::ADD, upperBound, arrayAddr, size));
 		currentBlock->endWith(std::make_shared<Jump>(currentBlock, condBlk));
@@ -689,17 +686,25 @@ void IR_Generator::newArray(NewExpr * node, std::shared_ptr<Operand> addrReg, in
 std::shared_ptr<Operand>
 IR_Generator::allocateMemory(std::shared_ptr<Operand> addrReg, std::shared_ptr<Operand> size, std::shared_ptr<Operand> numOfObj)
 {
+	auto addr = std::make_shared<VirtualReg>();
+	auto size_of_int = std::make_shared<Immediate>(Configuration::SIZE_OF_INT);
+
+	currentBlock->append_back(std::make_shared<Quadruple>(
+		currentBlock, Quadruple::ADD, size, size, size_of_int));
+
+	currentBlock->append_back(std::make_shared<Malloc>(currentBlock, size, addr));
+
 	if (addrReg->category() == Operand::REG_REF) {
 		auto temp = std::make_shared<VirtualReg>();
-		currentBlock->append_back(std::make_shared<Malloc>(currentBlock, size, temp));
 		//store size to the begining address;
-		currentBlock->append_back(std::make_shared<Quadruple>(currentBlock, Quadruple::STORE, temp, numOfObj));
+		currentBlock->append_back(std::make_shared<Quadruple>(currentBlock, Quadruple::ADD, temp, addr, size_of_int));
+		currentBlock->append_back(std::make_shared<Quadruple>(currentBlock, Quadruple::STORE, addr, numOfObj));
 		currentBlock->append_back(std::make_shared<Quadruple>(currentBlock, Quadruple::STORE, addrReg, temp));
 		return temp;
 	}
 	else {
-		currentBlock->append_back(std::make_shared<Malloc>(currentBlock, size, addrReg));
-		currentBlock->append_back(std::make_shared<Quadruple>(currentBlock, Quadruple::STORE, addrReg, numOfObj));
+		currentBlock->append_back(std::make_shared<Quadruple>(currentBlock, Quadruple::ADD, addrReg, addr, size_of_int));
+		currentBlock->append_back(std::make_shared<Quadruple>(currentBlock, Quadruple::STORE, addr, numOfObj));
 		return addrReg;
 	}
 }
@@ -735,8 +740,11 @@ void IR_Generator::arraySize(MemberFuncCallExpr * node)
 	auto ref = getValueReg(node->getInstance()->getResultOprand());
 	auto result = std::make_shared<VirtualReg>();
 	node->setResultOprand(result);
+	auto temp = std::make_shared<VirtualReg>();
+	currentBlock->append_back(std::make_shared<Quadruple>(currentBlock, 
+		Quadruple::MINUS, temp, getValueReg(ref), std::make_shared<Immediate>(Configuration::SIZE_OF_INT)));
 	currentBlock->append_back(std::make_shared<Quadruple>(
-		currentBlock, Quadruple::LOAD, result, ref));
+		currentBlock, Quadruple::LOAD, result, temp));
 }
 
 void IR_Generator::arrayAccess(BinaryExpr * node)
@@ -754,12 +762,8 @@ void IR_Generator::arrayAccess(BinaryExpr * node)
 	node->setResultOprand(result);
 
 	auto offset = std::make_shared<VirtualReg>();
-	auto temp = std::make_shared<VirtualReg>();
-	auto reg_size = std::make_shared<Immediate>(Configuration::SIZE_OF_INT);
 	currentBlock->append_back(std::make_shared<Quadruple>
-		(currentBlock, Quadruple::TIMES, temp, index,elemSize));
-	currentBlock->append_back(std::make_shared<Quadruple>
-		(currentBlock, Quadruple::ADD, offset, temp, reg_size));
+		(currentBlock, Quadruple::TIMES, offset, index,elemSize));
 	// note: their is a register at the begining to store size of array.
 	currentBlock->append_back(std::make_shared<Quadruple>
 		(currentBlock, Quadruple::ADD, result, offset, baseAddr));

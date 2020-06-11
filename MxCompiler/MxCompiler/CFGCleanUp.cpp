@@ -5,7 +5,11 @@ bool CFGCleanUpPass::run()
 	changed = false;
 	for (auto &f : ir->getFunctions()) {
 		rewriteTrivialBranches(f);
-		if(!ir->isSSA()) omitTrivialBlocks(f);
+		convertMultiplyByConst(f);
+		if (!ir->isSSA()) {
+			omitTrivialBlocks(f);
+			mergeBlockChain(f);
+		}
 	}
 	return changed;
 }
@@ -58,4 +62,45 @@ void CFGCleanUpPass::omitTrivialBlocks(std::shared_ptr<Function> f)
 			}
 		}
 	updateDTinfo(f);
+}
+
+void CFGCleanUpPass::convertMultiplyByConst(std::shared_ptr<Function> f) {
+	for(auto &b: f->getBlockList())
+		for (auto i = b->getFront(); i != nullptr; i = i->getNextInstr())
+			if (i->getTag() == IRInstruction::QUADR) {
+				auto q = std::static_pointer_cast<Quadruple>(i);
+				std::shared_ptr<Operand> src1 = q->getSrc1(), src2 = q->getSrc2();
+				if(q->getOp() == Quadruple::TIMES && 
+					(src1->category() == Operand::IMM || src2->category() == Operand::IMM)){
+					if (src2->category() != Operand::IMM) std::swap(src1, src2);
+					int x = std::static_pointer_cast<Immediate>(src2)->getValue();
+					if ((1 << _log2(x)) == x) {
+						changed = true;
+						replaceInstruction(i, std::make_shared<Quadruple>(i->getBlock(),
+							Quadruple::LSHIFT, q->getDst(), src1, std::make_shared<Immediate>(_log2(x))));
+					}
+				}
+			}
+}
+
+void CFGCleanUpPass::mergeBlockChain(std::shared_ptr<Function> f)
+{
+	auto blocks = f->getBlockList();
+	for (int i = blocks.size() - 1; i >= 0; i--) {
+		auto b = blocks[i];
+		if (b->getBlocksTo().size() == 1) {
+			auto to_block = *blocks[i]->getBlocksTo().begin();
+			if (to_block != f->getEntry() && to_block->getBlocksFrom().size() == 1 && to_block != b) {
+				changed = true;
+				// merge to_block to  b
+				for (auto &bb : to_block->getBlocksTo()) bb->replaceBlockFrom(to_block, b);
+				b->remove_back();
+				b->append_back(to_block->getFront());
+				b->setBack(to_block->getBack());
+				for (auto i = to_block->getFront(); i != nullptr; i = i->getNextInstr()) i->setBlock(b);
+
+				if (to_block == f->getExit()) f->setExit(b);
+			}
+		}
+	}
 }

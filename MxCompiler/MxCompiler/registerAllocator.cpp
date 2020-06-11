@@ -1,7 +1,6 @@
 #include "registerAllocator.h"
 #include <cmath>
 
-extern int RISCVCNT;
 
 RegisterAllocator::~RegisterAllocator()
 {
@@ -15,7 +14,6 @@ RegisterAllocator::~RegisterAllocator()
 
 void RegisterAllocator::run()
 {
-	std::cout << "number of RISCV instructions: " << RISCVCNT <<std::endl;
 	auto functions = program->getFunctions();
 	for (auto &function : functions) {
 		f = function;
@@ -67,39 +65,36 @@ void RegisterAllocator::init()
 
 void RegisterAllocator::buildInferenceGraph()
 {
-	int cnt = 0;
 	for (auto b : f->getBlockList()) {
 		auto live = liveout[b];
 		for (auto i = b->getBack(); i != nullptr; i = i->getPrevInstr()) { // reversely
-			cnt++;
+			auto uses = i->getUseReg();
 			if (i->category() == RISCVinstruction::MOV) {
-				for (auto reg : i->getUseReg()) live.erase(reg);
+				for (auto &reg : uses) live.erase(reg);
 				
 				auto move = std::static_pointer_cast<MoveAssembly>(i);
 				i->getDefReg()->info().moveList.insert(move);
-				for (auto reg : i->getUseReg()) reg->info().moveList.insert(move);	
+				for (auto &reg : uses) reg->info().moveList.insert(move);
 				moveSet.insert(move);
 			}
 
 			std::vector<std::shared_ptr<Register> > defs;
 			if (i->getDefReg() != nullptr) defs.push_back(i->getDefReg());
 
-			/*
 			if (i->category() == RISCVinstruction::CALL) {
 				for (auto regName : RISCVConfig::callerSaveRegNames)
 					defs.push_back((*program)[regName]);
 			}
-			*/
 
 			if (i->category() == RISCVinstruction::STORE) {
 				auto s = std::static_pointer_cast<Store>(i);
 				if (s->getRt() != nullptr) addEdge(s->getRs(), s->getRt());
 			}
-			for (auto def : defs) 
-				for (auto reg : live) addEdge(def, reg);
+			for (auto &def : defs) 
+				for (auto &reg : live) addEdge(def, reg);
 			
-			for (auto reg : defs) live.erase(reg);
-			for (auto reg : i->getUseReg()) live.insert(reg);
+			for (auto &reg : defs) live.erase(reg);
+			for (auto &reg : uses) live.insert(reg);
 			// update liveout
 
 		}
@@ -119,12 +114,11 @@ void RegisterAllocator::livenessAnalysis()
 				if (def[b].find(reg) == def[b].end()) use[b].insert(reg);
 
 			if (i->getDefReg() != nullptr) def[b].insert(i->getDefReg());
-			/*
+			
 			if (i->category() == RISCVinstruction::CALL) {
 				for (auto regName : RISCVConfig::callerSaveRegNames)
 					def[b].insert((*program)[regName]);
 			}
-			*/
 		}
 	}
 

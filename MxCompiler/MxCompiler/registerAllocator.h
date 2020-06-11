@@ -4,7 +4,11 @@
 #include "RISCVassembly.h"
 #include "configuration.h"
 #include <assert.h>
-#include <set>
+#include <unordered_set>
+#include <unordered_map>
+
+
+
 
 class RegisterAllocator {
 public:
@@ -21,20 +25,37 @@ public:
 	using Edge = std::pair<std::shared_ptr<Register>, std::shared_ptr<Register> >;
 	
 	void run();
+
+	struct MyKeyHash
+	{
+		size_t operator()(const Edge &k) const noexcept
+		{
+			return std::hash<std::shared_ptr<Register> >()(k.first) ^ std::hash<std::shared_ptr<Register> >()(k.second);
+		}
+	};
+
+	struct MyKeyHashComparator
+	{
+		bool operator()(const Edge &k1, const Edge &k2) const noexcept
+		{
+			return k1 == k2;
+		}
+	};
+
 private:
 	static const int inf = 0x3f3f3f3f;
 	int K;
 
 	std::shared_ptr<RISCVProgram> program;
 
-	std::set<std::shared_ptr<Register> > preColored, initial, 
+	std::unordered_set<std::shared_ptr<Register> > preColored, initial, 
 		simplifySet, freezeSet, spillSet,
 		spilled, coalesced, colored;
 	
 	std::set<std::shared_ptr<MoveAssembly> >
 		coalescedMoves, constrainedMoves, frozenMoves, activeMoves, moveSet;
 
-	std::map<std::shared_ptr<RISCVBasicBlock>,
+	std::unordered_map<std::shared_ptr<RISCVBasicBlock>,
 		std::set<std::shared_ptr<Register> > > livein, liveout, def, use;
 
 	// spill
@@ -43,7 +64,7 @@ private:
 
 	std::vector<std::shared_ptr<Register> > selectStack;
 
-	std::set<Edge> edges;
+	std::unordered_set<Edge, MyKeyHash, MyKeyHashComparator> edges;
 	
 	void init();
 	void buildInferenceGraph();
