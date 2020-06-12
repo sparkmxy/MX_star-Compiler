@@ -79,6 +79,10 @@ void MxCompiler::generateIR()
 	irGenerator = std::make_shared<IR_Generator>(environment->globalScope(),ast);
 	irGenerator->generate();
 	ir = irGenerator->getIR();
+
+	//printIR(std::cout);
+	//std::make_shared<FunctionInliner>(ir)->run();
+	//printIR(std::cerr);
 	std::make_shared<GlobalVarResolver>(ir)->run();
 
 	std::cout << "IR generation completed." << std::endl;

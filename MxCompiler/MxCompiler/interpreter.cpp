@@ -91,7 +91,7 @@ std::shared_ptr<VMBasicBlock> IR_Interpreter::parseBlock()
 		char ch = nextchar();
 		if (ch == '}' || ch == '$') break;
 		auto inst = parseInstruction();
-		std::cout << "parsing: " << inst->toString() << '\n';
+		//std::cout << "parsing: " << inst->toString() << '\n';
 		b->appendInst(inst);
 	}
 	return b;

@@ -22,9 +22,9 @@ void GlobalVarResolver::prepare()
 				for (auto reg : uses)
 					if (reg->isGlobal() && Operand::isRegister(reg->category())) {
 						auto r = std::static_pointer_cast<VirtualReg>(reg);
-						if(!r->isForStaticString()) i->replaceUseReg(reg, getTempReg(r, f));
+						if (!r->isForStaticString()) i->replaceUseReg(reg, getTempReg(r, f));
 					}
-						
+
 				auto def = i->getDefReg();
 				if (def != nullptr && def->isGlobal() && Operand::isRegister(def->category())) {
 					auto r = std::static_pointer_cast<VirtualReg>(def);
@@ -35,12 +35,14 @@ void GlobalVarResolver::prepare()
 				}
 			}
 		}
+	}
 
+	for (auto &f : ir->getFunctions()) {
 		for (auto it : func2varMap[f]) varUsedRecursively[f].insert(it.first);
 		for (auto var : varDef[f]) varDefRecursively[f].insert(var);
 		for (auto callee : recursiveCalleeSet[f]) {
 			for (auto it : func2varMap[callee]) varUsedRecursively[f].insert(it.first);
-			for (auto var : varDef[f]) varDefRecursively[f].insert(var);
+			for (auto var : varDef[callee]) varDefRecursively[f].insert(var);
 		}
 	}
 }
@@ -83,7 +85,8 @@ void GlobalVarResolver::resolveCallInstr()
 								b, Quadruple::STORE, def, getTempReg(def, f)));
 
 					if (f->getName() != "__bootstrap" && !varDefRecursively[callee].empty()) {  // reload after call
-						for (auto var : varDefRecursively[callee])
+						auto vars = varDefRecursively[callee];
+						for (auto var : vars)
 							if (varUsed.find(var) != varUsed.end())
 								appendInstrAfter(i, std::make_shared<Quadruple>(
 									b, Quadruple::LOAD, getTempReg(var, f), var));

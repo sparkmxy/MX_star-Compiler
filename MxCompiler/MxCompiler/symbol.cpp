@@ -53,7 +53,8 @@ void ClassSymbol::define(std::shared_ptr<Symbol> symbol)
 		memberVars[id] = std::static_pointer_cast<VarSymbol>(symbol);
 		symbol->setScope(shared_from_this());
 		std::static_pointer_cast<VarSymbol>(symbol)->setOffset(size);
-		size += symbol->getType()->getSize();
+		if (symbol->getType()->isUserDefinedType()) size += 4;
+		else size += symbol->getType()->getSize();
 	}
 	else if (symbol->category() == FUNCTION) {
 		memberFuncs[id] = std::static_pointer_cast<FunctionSymbol>(symbol);

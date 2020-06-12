@@ -123,7 +123,6 @@
     <ClInclude Include="configuration.h" />
     <ClInclude Include="cfg_pass.h" />
     <ClInclude Include="ConstantExpressionEvaluation.h" />
-    <ClInclude Include="CSE.h" />
     <ClInclude Include="dead_code_elimination.h" />
     <ClInclude Include="dominance.h" />
     <ClInclude Include="environment.h" />
@@ -169,7 +168,6 @@
     <ClCompile Include="cfg_pass.cpp" />
     <ClCompile Include="ClassDeclVisitor.cpp" />
     <ClCompile Include="ConstantExpressionEvaluation.cpp" />
-    <ClCompile Include="CSE.cpp" />
     <ClCompile Include="dead_code_elimination.cpp" />
     <ClCompile Include="dominance.cpp" />
     <ClCompile Include="environment.cpp" />
